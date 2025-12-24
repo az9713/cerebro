@@ -140,7 +140,7 @@ Just navigate to the folder and start using it.
 ### Folder Structure Deep Dive
 
 ```
-claude_code_personal_os_me/
+cerebro/
 │
 ├── .claude/                  # CLAUDE CODE AUTOMATION
 │   ├── commands/             # SLASH COMMANDS (explicit: /yt, /read, etc.)
@@ -286,7 +286,7 @@ When you say "Analyze this YouTube transcript at inbox/video.txt":
 
 Option A - File Explorer:
 1. Open File Explorer
-2. Navigate to `claude_code_personal_os_me`
+2. Navigate to `cerebro`
 3. Click address bar, type `cmd`, press Enter
 
 Option B - Start Menu:

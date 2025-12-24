@@ -42,7 +42,7 @@ Instead of manually copying content to ChatGPT, copying responses back, and savi
 
 1. **Open Terminal** in this folder
    - Open File Explorer
-   - Navigate to `claude_code_personal_os_me`
+   - Navigate to `cerebro`
    - Right-click in empty space → "Open in Terminal"
 
 2. **Start Claude Code**
@@ -73,7 +73,7 @@ Instead of manually copying content to ChatGPT, copying responses back, and savi
 ## Folder Structure Explained
 
 ```
-claude_code_personal_os_me/
+cerebro/
 │
 ├── .claude/               # CLAUDE CODE AUTOMATION
 │   ├── commands/          # Slash Commands (explicit: /yt, /read, etc.)

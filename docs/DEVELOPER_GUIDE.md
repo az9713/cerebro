@@ -1907,7 +1907,7 @@ See files in the `prompts/` folder for examples:
 ### Complete File Structure
 
 ```
-claude_code_personal_os_me/
+cerebro/
 ├── .claude/
 │   ├── commands/              # SLASH COMMANDS (explicit)
 │   │   ├── yt.md              # /yt command
