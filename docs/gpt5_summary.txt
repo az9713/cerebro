@@ -1,0 +1,266 @@
+https://chatgpt.com/c/6949e6dd-8c94-8332-863e-62766a3051a0
+
+
+Below is a **concise, systems-level summary** of how **Teresa Torres** uses **Claude Code as a Personal Operating System (OS)**—not as a chatbot, but as a persistent, delegated cognitive worker tightly integrated with her files, tasks, and thinking workflows.
+This summary is synthesized directly from the interview transcript .
+
+---
+
+## 1. Core Mental Model: Claude as a Long-Lived Teammate, Not a Tool
+
+Teresa’s framing is explicit:
+
+* Claude is treated like a **full-time employee** with:
+
+  * Clear operating procedures
+  * Memory (via files, not chat history)
+  * Delegated responsibilities
+* Claude is **not** a writer, decision-maker, or owner of judgment.
+
+  * Teresa remains the principal thinker.
+  * Claude augments speed, breadth, and consistency.
+
+This mirrors how experienced operators manage human assistants: SOPs first, autonomy second.
+
+---
+
+## 2. The Stack: Obsidian + Claude Code = Personal OS
+
+### Physical Setup
+
+* **Obsidian**: canonical state of truth (Markdown files)
+* **Claude Code (CLI)**: execution + reasoning layer
+* **Terminal-first workflow**: zero context switching
+
+Claude is always launched **inside a directory**, and that directory defines its “job.”
+
+---
+
+## 3. Directory = Role (Claude as Context-Scoped Agent)
+
+Each folder acts like a **Claude project** with its own rules:
+
+| Folder         | Claude’s Role                        |
+| -------------- | ------------------------------------ |
+| `/tasks`       | Task manager + automation agent      |
+| `/writing`     | Editor, researcher, sparring partner |
+| `/research`    | Literature scanner + summarizer      |
+| `/llm-context` | Memory & reference system            |
+
+Each folder contains a `CLAUDE.md` that defines:
+
+* What Claude is allowed to do
+* How it should behave
+* What files matter
+
+No global, bloated prompts. Everything is **localized and composable**.
+
+---
+
+## 4. Daily Control Loop: “today” Command
+
+Every morning Teresa runs a single command:
+
+```
+today
+```
+
+Claude then:
+
+1. Checks Trello for new tasks
+2. Scans all task Markdown files
+3. Identifies:
+
+   * Overdue tasks
+   * Tasks due today
+   * Ongoing projects
+4. Runs Python scripts
+5. Generates:
+
+   * `Today.md`
+   * `ThisWeek.md`
+   * `NextWeek.md`
+6. Appends:
+
+   * Research digests (Scholar + preprints)
+   * Links to active writing/research
+
+This is a **daily recomputation of intent**, not a static to-do list.
+
+---
+
+## 5. Tasks as Files, Not Rows in SaaS
+
+Key design choice:
+
+* **Every task = a Markdown file**
+* Tasks contain:
+
+  * Frontmatter (due date, tags, status)
+  * Notes
+  * Checklists (when useful)
+
+Creating tasks is O(1):
+
+```
+new task Call groomer tomorrow
+new idea Marketing angle for Claude safety
+```
+
+Claude:
+
+* Creates the file
+* Places it correctly
+* Updates indexes
+* Optionally syncs to Trello
+
+This eliminates UI friction and preserves **full auditability**.
+
+---
+
+## 6. Writing Workflow: Human-Authored, Claude-Accelerated
+
+### What Claude Does
+
+* Outline generation (Plan Mode)
+* Counter-examples & alternative structures
+* Research (academic + web)
+* SEO keyword analysis
+* Section-by-section critique
+* Typos & clarity fixes (with approval)
+
+### What Claude Does *Not* Do
+
+* Write prose in Teresa’s voice
+* Decide arguments
+* Replace thinking
+
+Outcome:
+
+* 8–9k word, high-density essays
+* Written in ~1.5 days
+* No fluff, high rigor
+
+Claude preserves **momentum**, not authorship.
+
+---
+
+## 7. Context Architecture: The 3-Layer Memory Model
+
+### Layer 1: Global (`~/.claude.md`)
+
+* Tiny
+* Universal preferences only
+* Loaded into every session
+
+Example:
+
+* “Always plan before acting”
+* “Provide critique before edits”
+
+### Layer 2: Project (`/writing/CLAUDE.md`, `/tasks/CLAUDE.md`)
+
+* Role-specific behavior
+* SOPs for that domain
+
+### Layer 3: Reference Context (`/llm-context/*.md`)
+
+* Modular, opt-in knowledge
+* Business profile
+* Audience definitions
+* Product details
+* Team info
+
+Claude is told **where to look**, not forced to remember everything.
+
+---
+
+## 8. Anti-Amnesia Strategy: Process Notes
+
+Teresa actively manages context decay:
+
+* Before context window fills:
+
+  * Claude updates `process-notes.md`
+* Notes include:
+
+  * Decisions made
+  * Open questions
+  * Current state
+
+When context resets:
+
+* Claude rehydrates from files
+* No silent compression
+* No hallucinated continuity
+
+This is **manual memory compaction with oversight**.
+
+---
+
+## 9. Continuous Memory Improvement Loop
+
+After meaningful sessions, Teresa asks:
+
+> “What did you learn about working with me that we should save?”
+
+Claude then:
+
+* Proposes updates
+* Suggests where they belong
+* Updates indexes
+
+Important distinction:
+
+* **Preferences → CLAUDE.md**
+* **Facts about life/business → context files**
+
+Claude maintains its own onboarding docs.
+
+---
+
+## 10. Delegation Heuristic (Critical Insight)
+
+Teresa applies a simple rule:
+
+> “If I ever have to explain this twice, it becomes a file.”
+
+This mirrors elite ops thinking:
+
+* Repetition → SOP
+* SOP → delegation
+* Delegation → leverage
+
+Claude is trained exactly like a human admin—just faster and cheaper.
+
+---
+
+## 11. Why This Scales (and Most People Fail)
+
+This works because:
+
+* Files > chat history
+* Roles > prompts
+* Iteration > upfront design
+* Claude is embedded **where work already happens**
+
+It fails for people who:
+
+* Treat LLMs as answer machines
+* Avoid terminal + files
+* Don’t externalize process
+* Don’t think in delegation primitives
+
+---
+
+## 12. One-Sentence Summary
+
+**Teresa uses Claude Code as a file-backed, role-scoped, continuously trained cognitive employee that recomputes her priorities daily, preserves thinking momentum, and compounds leverage through explicit memory and delegation.**
+
+If you want, next steps could include:
+
+* A **replicable “Personal OS” template**
+* A **minimal starter version (2 folders, 1 CLAUDE.md)**
+* A **mapping to your existing agent/MCP/A2A stack**
+
+Say which direction to go.
