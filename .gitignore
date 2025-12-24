@@ -59,3 +59,7 @@ env/
 *.srt
 *.vtt
 *.ttml
+
+# Sample/test files (not for distribution)
+docs/gpt5_summary.txt
+docs/transcript.txt
