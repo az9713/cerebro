@@ -49,6 +49,43 @@ yt-dlp --write-auto-sub --write-sub --sub-lang en --skip-download --convert-subs
 
 Both commands and skills produce identical output using shared prompts from `prompts/`.
 
+## Web Application
+
+A full-stack web UI is available in `web/` for graphical content analysis:
+
+```
+web/
+├── backend/        # FastAPI (Python) - Port 8000
+│   ├── main.py     # Entry point
+│   ├── config.py   # Settings, models
+│   ├── services/   # analyzer.py, content_fetcher.py
+│   └── routers/    # API endpoints
+└── frontend/       # Next.js 14 (React) - Port 3000
+    └── src/app/    # Dashboard, Analyze, Reports, Logs
+```
+
+**Quick Start:**
+```bash
+# 1. Add API key to web/backend/.env
+ANTHROPIC_API_KEY=sk-ant-...
+
+# 2. Start backend
+cd web/backend && uvicorn main:app --reload --port 8000
+
+# 3. Start frontend
+cd web/frontend && npm run dev
+
+# 4. Open http://localhost:3000
+```
+
+**Features:**
+- Model selection (Haiku/Sonnet/Opus)
+- Real-time analysis progress
+- Full-text search across reports
+- Activity log viewer
+
+Both CLI and Web UI produce identical reports to `reports/` and `logs/`.
+
 ## Prompt System Philosophy
 
 The analysis prompts are designed with two core principles:

@@ -55,6 +55,14 @@ env/
 *.temp
 *.bak
 
+# Web application
+web/backend/.env
+web/backend/cerebro.db
+web/backend/__pycache__/
+web/frontend/node_modules/
+web/frontend/.next/
+web/frontend/out/
+
 # Downloaded subtitles (intermediate files)
 *.srt
 *.vtt

@@ -168,6 +168,100 @@ Agents handle complex, multi-file tasks autonomously:
 
 ---
 
+## Web Application (Full-Stack UI)
+
+In addition to CLI commands and skills, Personal OS includes a full-stack web application for a graphical interface.
+
+### Features
+
+| Feature | Description |
+|---------|-------------|
+| **Dashboard** | Quick access to recent reports and analysis form |
+| **Analyze** | Submit YouTube URLs, articles, or arXiv papers |
+| **Reports** | Browse, search, and view all analysis reports |
+| **Activity Log** | View today's consumption activity |
+| **Model Selection** | Choose between Haiku (fast/cheap), Sonnet (balanced), or Opus (powerful) |
+| **Real-time Progress** | See analysis progress with live streaming updates |
+
+### Quick Start
+
+1. **Configure API Key**
+   ```bash
+   # Create web/backend/.env with your API key
+   echo "ANTHROPIC_API_KEY=sk-ant-..." > web/backend/.env
+   ```
+
+2. **Install Dependencies**
+   ```bash
+   # Backend (Python)
+   cd web/backend
+   pip install -r requirements.txt
+
+   # Frontend (Node.js)
+   cd ../frontend
+   npm install
+   ```
+
+3. **Start the Application**
+   ```bash
+   # Terminal 1: Start backend
+   cd web/backend
+   uvicorn main:app --reload --port 8000
+
+   # Terminal 2: Start frontend
+   cd web/frontend
+   npm run dev
+   ```
+
+4. **Open the Web UI**
+   - Navigate to `http://localhost:3000`
+   - Submit a YouTube URL on the Analyze page
+   - View your reports in the Reports section
+
+### Model Selection & Pricing
+
+| Model | Speed | Quality | Cost per Analysis* |
+|-------|-------|---------|-------------------|
+| **Haiku** | ⚡ Fastest | Good | ~$0.01 |
+| **Sonnet** | Medium | Excellent | ~$0.05 |
+| **Opus** | Slower | Best | ~$0.25 |
+
+*Approximate cost for a typical 10-minute video transcript
+
+### Tech Stack
+
+- **Frontend**: Next.js 14, React, TypeScript, Tailwind CSS
+- **Backend**: Python FastAPI, SQLite with FTS5
+- **AI**: Direct Anthropic API integration
+
+### Architecture
+
+```
+web/
+├── backend/
+│   ├── main.py              # FastAPI entry point
+│   ├── config.py            # Settings and paths
+│   ├── database.py          # SQLite operations
+│   ├── routers/             # API endpoints
+│   │   ├── reports.py       # Report CRUD
+│   │   ├── analysis.py      # Analysis jobs
+│   │   └── logs.py          # Activity logs
+│   └── services/
+│       ├── analyzer.py      # Anthropic API integration
+│       ├── content_fetcher.py # yt-dlp, article fetch
+│       └── indexer.py       # Filesystem-to-DB sync
+│
+└── frontend/
+    └── src/
+        ├── app/             # Next.js pages
+        ├── components/      # React components
+        └── lib/             # API client
+```
+
+The web UI uses the **same prompts** and **same output format** as the CLI - reports are saved to `reports/` and logged to `logs/` identically.
+
+---
+
 ## Documentation Index
 
 | Document | Who It's For | What's Inside |

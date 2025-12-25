@@ -25,7 +25,8 @@
 21. [Troubleshooting Development Issues](#21-troubleshooting-development-issues)
 22. [Best Practices](#22-best-practices)
 23. [Example: Building a New Feature](#23-example-building-a-new-feature)
-24. [Future Enhancement Ideas](#24-future-enhancement-ideas)
+24. [Web Application Development](#24-web-application-development)
+25. [Future Enhancement Ideas](#25-future-enhancement-ideas)
 
 ---
 
@@ -2137,7 +2138,440 @@ If you want `/batch` to support the new command, update `.claude/commands/batch.
 
 ---
 
-## 24. Future Enhancement Ideas
+## 24. Web Application Development
+
+Personal OS includes a full-stack web application for users who prefer a graphical interface. This section covers how to extend and modify the web app.
+
+### Web App Architecture Overview
+
+```
+web/
+├── backend/                    # FastAPI Python Backend
+│   ├── main.py                 # Entry point, CORS, lifespan events
+│   ├── config.py               # Settings, paths, model definitions
+│   ├── database.py             # SQLite + FTS5 schema and operations
+│   ├── models.py               # Pydantic request/response models
+│   ├── routers/                # API endpoint modules
+│   │   ├── reports.py          # GET /api/reports, search, by-id
+│   │   ├── analysis.py         # POST /api/analysis/youtube|article|arxiv
+│   │   └── logs.py             # GET /api/logs/today
+│   └── services/               # Business logic
+│       ├── analyzer.py         # Anthropic API integration
+│       ├── content_fetcher.py  # yt-dlp, httpx article fetch
+│       ├── indexer.py          # Filesystem-to-SQLite sync
+│       └── parser.py           # Markdown parsing utilities
+│
+└── frontend/                   # Next.js 14 React Frontend
+    └── src/
+        ├── app/                # App Router pages
+        │   ├── page.tsx        # Dashboard
+        │   ├── analyze/        # Analysis form
+        │   ├── reports/        # Report list and viewer
+        │   └── logs/           # Activity log
+        ├── components/         # Reusable React components
+        └── lib/
+            └── api.ts          # API client
+```
+
+### Backend Development
+
+#### Adding a New Content Type
+
+To add a new content type (e.g., podcast):
+
+**Step 1: Create the Fetcher**
+
+Edit `web/backend/services/content_fetcher.py`:
+
+```python
+async def fetch_podcast_content(url: str) -> Tuple[str, str, str]:
+    """Fetch podcast transcript or show notes.
+
+    Returns: (content, title, source_url)
+    """
+    # Implement fetching logic
+    # Could use httpx for RSS feeds or show notes pages
+    ...
+    return content, title, url
+```
+
+**Step 2: Add the Prompt File**
+
+Create `prompts/podcast.md` with your analysis template.
+
+**Step 3: Update Config**
+
+Edit `web/backend/config.py`:
+
+```python
+CONTENT_TYPES = {
+    "youtube": REPORTS_DIR / "youtube",
+    "article": REPORTS_DIR / "articles",
+    "paper": REPORTS_DIR / "papers",
+    "podcast": REPORTS_DIR / "podcasts",  # NEW
+    "other": REPORTS_DIR / "other",
+}
+```
+
+**Step 4: Add the Router Endpoint**
+
+Edit `web/backend/routers/analysis.py`:
+
+```python
+@router.post("/podcast")
+async def analyze_podcast(
+    request: AnalysisRequest,
+    background_tasks: BackgroundTasks
+):
+    job_id = str(uuid.uuid4())
+    await create_job(job_id, "podcast", request.url)
+    background_tasks.add_task(
+        run_analysis_job, job_id, request.url, "podcast", request.model
+    )
+    return {"job_id": job_id, "status": "pending"}
+```
+
+**Step 5: Update the Frontend**
+
+Add option to `web/frontend/src/components/AnalysisForm.tsx`:
+
+```typescript
+const contentTypes = [
+  { value: 'youtube', label: 'YouTube Video' },
+  { value: 'article', label: 'Web Article' },
+  { value: 'arxiv', label: 'arXiv Paper' },
+  { value: 'podcast', label: 'Podcast' },  // NEW
+];
+```
+
+#### Understanding the Services
+
+**analyzer.py** - Core Analysis Logic
+
+```python
+async def analyze_content(content, title, source, content_type, model_key, job_id):
+    """
+    Main analysis function that:
+    1. Loads the appropriate prompt from prompts/
+    2. Calls Anthropic API with user-selected model
+    3. Formats and saves the report
+    4. Updates the activity log
+    5. Re-indexes the database
+    """
+```
+
+**content_fetcher.py** - Content Acquisition
+
+```python
+async def fetch_youtube_transcript(url):
+    """Uses yt-dlp to download transcript"""
+
+async def fetch_article_content(url):
+    """Uses httpx to fetch and extract article text"""
+
+async def fetch_arxiv_content(url):
+    """Fetches arXiv paper abstract and content"""
+```
+
+**indexer.py** - Database Synchronization
+
+```python
+async def run_initial_index():
+    """
+    Scans reports/ folder and syncs to SQLite database.
+    Called at startup and after new reports are saved.
+    """
+```
+
+#### Database Schema
+
+The database is defined in `database.py`:
+
+```sql
+-- Reports table (indexes filesystem markdown files)
+CREATE TABLE reports (
+    id INTEGER PRIMARY KEY,
+    filename TEXT UNIQUE,
+    filepath TEXT,
+    title TEXT,
+    source_url TEXT,
+    content_type TEXT,  -- 'youtube', 'article', 'paper', 'other'
+    created_at DATETIME,
+    summary TEXT,
+    word_count INTEGER,
+    content_text TEXT   -- For FTS search
+);
+
+-- Full-text search virtual table
+CREATE VIRTUAL TABLE reports_fts USING fts5(title, content_text);
+
+-- Triggers keep FTS in sync with reports table
+
+-- Analysis job tracking
+CREATE TABLE analysis_jobs (
+    id TEXT PRIMARY KEY,
+    job_type TEXT,
+    input_value TEXT,
+    status TEXT,        -- 'pending', 'running', 'completed', 'failed'
+    progress_message TEXT,
+    result_filepath TEXT,
+    error_message TEXT
+);
+```
+
+**Key principle:** The filesystem is the source of truth. The database is just an index for fast querying.
+
+#### Adding API Endpoints
+
+API endpoints are organized in `routers/`:
+
+```python
+# routers/reports.py
+from fastapi import APIRouter
+
+router = APIRouter(prefix="/api/reports", tags=["reports"])
+
+@router.get("/")
+async def list_reports(page: int = 1, page_size: int = 20):
+    reports, total = await get_reports(page=page, page_size=page_size)
+    return {"reports": reports, "total": total, "page": page}
+
+@router.get("/{report_id}")
+async def get_report(report_id: int):
+    report = await get_report_by_id(report_id)
+    if not report:
+        raise HTTPException(404, "Report not found")
+    return report
+```
+
+### Frontend Development
+
+#### Project Structure
+
+```
+frontend/src/
+├── app/                        # Next.js 14 App Router
+│   ├── layout.tsx              # Root layout with sidebar
+│   ├── page.tsx                # Dashboard
+│   ├── analyze/page.tsx        # Analysis form
+│   ├── reports/
+│   │   ├── page.tsx            # Report list
+│   │   └── [id]/page.tsx       # Report viewer
+│   └── logs/page.tsx           # Activity log
+├── components/
+│   ├── Layout.tsx              # Main layout with navigation
+│   ├── Sidebar.tsx             # Navigation sidebar
+│   ├── AnalysisForm.tsx        # URL submission form
+│   ├── ReportCard.tsx          # Report list item
+│   └── ReportViewer.tsx        # Markdown renderer
+└── lib/
+    └── api.ts                  # Backend API client
+```
+
+#### Adding a New Page
+
+**Step 1: Create the Page Component**
+
+Create `frontend/src/app/stats/page.tsx`:
+
+```typescript
+'use client';
+
+import { useState, useEffect } from 'react';
+import { api } from '@/lib/api';
+
+export default function StatsPage() {
+  const [stats, setStats] = useState(null);
+
+  useEffect(() => {
+    api.getStats().then(setStats);
+  }, []);
+
+  return (
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Statistics</h1>
+      {/* Render stats */}
+    </div>
+  );
+}
+```
+
+**Step 2: Add Navigation Link**
+
+Edit `frontend/src/components/Sidebar.tsx`:
+
+```typescript
+const navItems = [
+  { href: '/', label: 'Dashboard', icon: HomeIcon },
+  { href: '/analyze', label: 'Analyze', icon: PlusIcon },
+  { href: '/reports', label: 'Reports', icon: DocumentIcon },
+  { href: '/logs', label: 'Activity Log', icon: ClockIcon },
+  { href: '/stats', label: 'Statistics', icon: ChartIcon },  // NEW
+];
+```
+
+**Step 3: Add API Method (if needed)**
+
+Edit `frontend/src/lib/api.ts`:
+
+```typescript
+export const api = {
+  // Existing methods...
+
+  async getStats() {
+    const res = await fetch(`${API_BASE}/api/stats`);
+    return res.json();
+  },
+};
+```
+
+#### API Client
+
+The API client in `lib/api.ts` handles all backend communication:
+
+```typescript
+const API_BASE = 'http://localhost:8000';
+
+export const api = {
+  async getReports(page = 1, type?: string) {
+    const params = new URLSearchParams({ page: String(page) });
+    if (type) params.set('type', type);
+    const res = await fetch(`${API_BASE}/api/reports?${params}`);
+    return res.json();
+  },
+
+  async analyzeYoutube(url: string, model: string) {
+    const res = await fetch(`${API_BASE}/api/analysis/youtube`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, model }),
+    });
+    return res.json();
+  },
+
+  async getJobStatus(jobId: string) {
+    const res = await fetch(`${API_BASE}/api/analysis/jobs/${jobId}`);
+    return res.json();
+  },
+  // ... more methods
+};
+```
+
+### Model Configuration
+
+Models are configured in `config.py`:
+
+```python
+MODELS = {
+    "haiku": {
+        "id": "claude-3-5-haiku-latest",
+        "name": "Claude 3.5 Haiku",
+        "input_cost": 0.80,   # per 1M tokens
+        "output_cost": 4.00,
+    },
+    "sonnet": {
+        "id": "claude-sonnet-4-20250514",
+        "name": "Claude Sonnet 4",
+        "input_cost": 3.00,
+        "output_cost": 15.00,
+    },
+    "opus": {
+        "id": "claude-opus-4-20250514",
+        "name": "Claude Opus 4",
+        "input_cost": 15.00,
+        "output_cost": 75.00,
+    },
+}
+
+DEFAULT_MODEL = "sonnet"
+```
+
+### Testing the Web App
+
+**Backend Testing:**
+
+```bash
+cd web/backend
+
+# Run with hot reload
+uvicorn main:app --reload --port 8000
+
+# Check API docs
+# Open http://localhost:8000/docs
+```
+
+**Frontend Testing:**
+
+```bash
+cd web/frontend
+
+# Run with hot reload
+npm run dev
+
+# Open http://localhost:3000
+```
+
+**Manual Testing Workflow:**
+
+1. Start both backend and frontend
+2. Navigate to /analyze
+3. Submit a YouTube URL
+4. Check job status updates
+5. Verify report appears in /reports
+6. Check activity log in /logs
+
+### Debugging Tips
+
+**Backend:**
+
+```python
+# Add logging
+import logging
+logger = logging.getLogger(__name__)
+logger.info(f"Processing: {url}")
+
+# Check logs in terminal output
+```
+
+**Frontend:**
+
+```typescript
+// Browser console
+console.log('API response:', data);
+
+// Check Network tab for API calls
+```
+
+**Common Issues:**
+
+| Issue | Solution |
+|-------|----------|
+| CORS errors | Check CORS config in main.py |
+| API key missing | Create web/backend/.env |
+| yt-dlp not found | pip install yt-dlp |
+| Port in use | Use different port or kill process |
+| Report not showing | Trigger /api/sync or wait for auto-refresh |
+
+### Environment Variables
+
+Create `web/backend/.env`:
+
+```
+ANTHROPIC_API_KEY=sk-ant-api03-...
+```
+
+The key is loaded in `config.py`:
+
+```python
+from dotenv import load_dotenv
+load_dotenv()
+
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+```
+
+---
+
+## 25. Future Enhancement Ideas
 
 ### Easy Enhancements
 
@@ -2332,6 +2766,6 @@ Without proper frontmatter, the skill won't be detected.
 
 ---
 
-*Developer Guide - Last updated: 2025-12-23*
+*Developer Guide - Last updated: 2025-12-24*
 
 *Built with [Claude Code](https://claude.ai/code) powered by Claude Opus 4.5*

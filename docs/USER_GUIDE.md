@@ -14,11 +14,12 @@
 10. [Working with Research Papers](#10-working-with-research-papers)
 11. [Batch Processing](#11-batch-processing)
 12. [Activity Logs](#12-activity-logs)
-13. [Customizing Analysis Prompts](#13-customizing-analysis-prompts)
-14. [File Management](#14-file-management)
-15. [Troubleshooting](#15-troubleshooting)
-16. [Tips & Best Practices](#16-tips--best-practices)
-17. [Frequently Asked Questions](#17-frequently-asked-questions)
+13. [Web Application (GUI)](#13-web-application-gui)
+14. [Customizing Analysis Prompts](#14-customizing-analysis-prompts)
+15. [File Management](#15-file-management)
+16. [Troubleshooting](#16-troubleshooting)
+17. [Tips & Best Practices](#17-tips--best-practices)
+18. [Frequently Asked Questions](#18-frequently-asked-questions)
 
 ---
 
@@ -957,7 +958,245 @@ Every analysis automatically logs:
 
 ---
 
-## 13. Customizing Analysis Prompts
+## 13. Web Application (GUI)
+
+In addition to the CLI, Personal OS includes a full-stack web application for users who prefer a graphical interface.
+
+### Why Use the Web UI?
+
+| Feature | CLI | Web UI |
+|---------|-----|--------|
+| Quick URL submission | `/yt https://...` | Paste URL, click Analyze |
+| Model selection | Not available | Choose Haiku/Sonnet/Opus |
+| Browse reports | Navigate folders | Visual list with search |
+| View report content | Open in editor | Rendered markdown in browser |
+| Real-time progress | Terminal output | Live progress indicators |
+| Activity log | `/log` | Visual timeline |
+
+Use the **CLI** for automation, scripting, and when you're already in the terminal.
+Use the **Web UI** for a visual experience, model selection, and easier browsing.
+
+### Prerequisites
+
+- Python 3.10+
+- Node.js 18+
+- Anthropic API key
+
+### Setup (One-Time)
+
+**Step 1: Configure API Key**
+
+Create the file `web/backend/.env` with your Anthropic API key:
+```
+ANTHROPIC_API_KEY=sk-ant-api03-your-key-here
+```
+
+Get your API key from: https://console.anthropic.com/
+
+**Step 2: Install Backend Dependencies**
+
+```bash
+cd web/backend
+pip install -r requirements.txt
+```
+
+**Step 3: Install Frontend Dependencies**
+
+```bash
+cd web/frontend
+npm install
+```
+
+### Starting the Web UI
+
+**Option A: Start Each Service Separately (Recommended)**
+
+```bash
+# Terminal 1: Start Backend
+cd web/backend
+uvicorn main:app --reload --port 8000
+
+# Terminal 2: Start Frontend
+cd web/frontend
+npm run dev
+```
+
+**Option B: Use the Unified Start Script**
+
+```bash
+python web/scripts/start.py
+```
+
+Or on Windows:
+```cmd
+web\scripts\start.bat
+```
+
+### Accessing the Web UI
+
+Once started, open your browser to:
+
+- **Web App**: http://localhost:3000
+- **API Docs**: http://localhost:8000/docs (interactive API documentation)
+
+### Using the Dashboard
+
+The dashboard (`http://localhost:3000`) shows:
+
+1. **Recent Reports** - Your latest 5 analyses
+2. **Quick Analysis Form** - Submit a URL directly
+3. **Today's Activity** - What you've analyzed today
+
+### Analyzing Content via Web UI
+
+**Step 1: Navigate to Analyze Page**
+
+Click "Analyze" in the sidebar or go to `http://localhost:3000/analyze`.
+
+**Step 2: Select Content Type**
+
+Choose from:
+- **YouTube Video** - For YouTube URLs
+- **Web Article** - For blog posts and articles
+- **arXiv Paper** - For research papers
+
+**Step 3: Enter the URL**
+
+Paste the full URL (e.g., `https://youtube.com/watch?v=abc123`).
+
+**Step 4: Select Model**
+
+Choose your preferred AI model:
+
+| Model | Speed | Quality | Cost |
+|-------|-------|---------|------|
+| **Haiku** | ⚡ Fastest | Good | ~$0.01 |
+| **Sonnet** (default) | Medium | Excellent | ~$0.05 |
+| **Opus** | Slower | Best | ~$0.25 |
+
+*Costs are approximate for a typical 10-minute video*
+
+**Step 5: Click Analyze**
+
+The UI will show real-time progress:
+1. Fetching content...
+2. Analyzing with Claude...
+3. Saving report...
+4. Complete!
+
+**Step 6: View Your Report**
+
+Once complete, click the link to view your report, or find it in the Reports section.
+
+### Browsing Reports
+
+Navigate to `http://localhost:3000/reports` to see all your reports.
+
+**Features:**
+- **List View** - All reports sorted by date (newest first)
+- **Filter by Type** - Show only videos, articles, or papers
+- **Full-Text Search** - Search across all report content
+- **Click to View** - Rendered markdown with syntax highlighting
+
+### Searching Reports
+
+Use the search bar at the top of the Reports page.
+
+- Searches both titles and content
+- Results highlighted with matching snippets
+- Click any result to view the full report
+
+### Viewing Activity Log
+
+Navigate to `http://localhost:3000/logs` to see today's activity.
+
+Shows the same information as `/log` command:
+- Videos Watched
+- Articles Read
+- Papers Reviewed
+- Timestamps and links to reports
+
+### Model Selection Guide
+
+| Use Case | Recommended Model |
+|----------|-------------------|
+| Quick summaries of short content | Haiku |
+| Standard analysis (default) | Sonnet |
+| Complex research papers | Opus |
+| Budget-conscious usage | Haiku |
+| Maximum quality | Opus |
+
+### Web UI Troubleshooting
+
+**"ANTHROPIC_API_KEY not set"**
+
+Create `web/backend/.env` with your API key:
+```
+ANTHROPIC_API_KEY=sk-ant-api03-...
+```
+
+**"yt-dlp not found" for YouTube URLs**
+
+Install yt-dlp:
+```bash
+pip install yt-dlp
+```
+
+**Backend won't start**
+
+Install Python dependencies:
+```bash
+cd web/backend
+pip install -r requirements.txt
+```
+
+**Frontend won't start**
+
+Install Node.js dependencies:
+```bash
+cd web/frontend
+npm install
+```
+
+**Port already in use**
+
+Either stop the existing process or use different ports:
+```bash
+# Backend on different port
+uvicorn main:app --reload --port 8001
+
+# Frontend on different port
+npm run dev -- --port 3001
+```
+
+**Report not showing after analysis**
+
+Wait a moment for the database to sync, or refresh the Reports page.
+
+### CLI vs Web UI Comparison
+
+Both produce **identical reports** saved to the same `reports/` folder.
+
+| Aspect | CLI | Web UI |
+|--------|-----|--------|
+| Interface | Terminal commands | Visual browser UI |
+| Model selection | Uses default | Choose per-request |
+| Learning curve | Learn commands | Intuitive GUI |
+| Automation | Easy to script | Manual |
+| Progress feedback | Text in terminal | Visual progress bar |
+| Report viewing | External editor | Built-in viewer |
+| Search | Manual file search | Full-text search |
+
+### Recommended Workflow
+
+1. **Daily analysis**: Use the Web UI for its convenience and model selection
+2. **Batch processing**: Use CLI `/batch` for processing multiple items
+3. **Automation**: Use CLI commands for scripts and scheduled tasks
+4. **Browsing/searching**: Use the Web UI's Reports section
+
+---
+
+## 14. Customizing Analysis Prompts
 
 ### Understanding the Prompt System
 
@@ -1166,7 +1405,7 @@ Or manually restore from the section descriptions in this guide.
 
 ---
 
-## 14. File Management
+## 15. File Management
 
 ### Naming Conventions
 
@@ -1215,7 +1454,7 @@ inbox/
 
 ---
 
-## 15. Troubleshooting
+## 16. Troubleshooting
 
 ### Problem: Command Not Recognized / Unknown Slash Command
 
@@ -1298,7 +1537,7 @@ inbox/
 
 ---
 
-## 16. Tips & Best Practices
+## 17. Tips & Best Practices
 
 ### Efficiency Tips
 
@@ -1327,7 +1566,7 @@ inbox/
 
 ---
 
-## 17. Frequently Asked Questions
+## 18. Frequently Asked Questions
 
 ### General Questions
 
@@ -1406,6 +1645,6 @@ A: Currently one prompt per category. You could create custom categories by crea
 
 ---
 
-*Last updated: 2025-12-23*
+*Last updated: 2025-12-24*
 
 *Built with [Claude Code](https://claude.ai/code) powered by Claude Opus 4.5*
