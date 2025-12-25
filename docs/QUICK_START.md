@@ -365,38 +365,61 @@ Wait for Claude to start. You'll see a prompt ready for your commands.
 
 ## Use Case 10: Customize Your Analysis Style
 
-**What you'll learn:** How to change what's included in reports
+**What you'll learn:** How the enhanced prompts work and how to customize them
 
 **Time:** 5 minutes
 
-### Steps:
+### Understanding the Enhanced Prompts
+
+The analysis prompts are designed for **maximum information extraction**:
+
+| Prompt | Sections | Key Features |
+|--------|----------|--------------|
+| `yt.md` | 12 sections | Quotes, frameworks, latent signals |
+| `article.md` | 13 sections | Author bias analysis, critical analysis |
+| `paper.md` | 14 sections | Methodology deep dive, technical details |
+| `default.md` | 12 sections | General-purpose extraction |
+
+Each prompt includes a **Latent Signals** section that surfaces implied insights (unstated assumptions, second-order effects, hidden motivations).
+
+### Steps to Customize:
 
 1. **Open the YouTube prompt:**
    - Navigate to `prompts/yt.md`
    - Open with Notepad or any text editor
 
-2. **Current content looks like:**
+2. **Current structure (12 sections):**
    ```markdown
    # YouTube Video Analysis Prompt
 
-   Analyze this YouTube video transcript.
-
-   Provide:
-
-   ## 1. Summary (2-3 paragraphs)
-   ...
+   ## 1. Overview
+   ## 2. Comprehensive Summary
+   ## 3. Key Takeaways (All Important Points)
+   ## 4. Facts, Statistics & Data
+   ## 5. Frameworks, Models & Concepts
+   ## 6. Tools, Resources & References
+   ## 7. Examples & Case Studies
+   ## 8. Notable Quotes
+   ## 9. Actionable Insights
+   ## 10. Questions & Gaps
+   ## 11. Latent Signals
+   ## 12. Connections
    ```
 
 3. **Add a new section at the end:**
    ```markdown
-   ## 6. One-Sentence Takeaway
+   ## 13. One-Sentence Takeaway
    What's the single most important thing to remember from this video?
 
-   ## 7. Would I Recommend This?
-   Rate 1-5 stars and explain why.
+   ## 14. My Rating
+   Rate 1-5 stars based on:
+   - Quality of information
+   - Practical usefulness
+   - Clarity of presentation
+   Explain your rating.
    ```
 
-4. **Save the file**
+4. **Save the file** (changes take effect immediately - no restart needed)
 
 5. **Test it:**
    ```
@@ -404,6 +427,13 @@ Wait for Claude to start. You'll see a prompt ready for your commands.
    ```
 
 6. **Check the new report** - it now includes your new sections!
+
+### Key Customization Tips
+
+- Keep numbered sections for consistency
+- Be specific: "5-10 quotes" not "some quotes"
+- The Latent Signals section is designed to surface implied insights - keep it!
+- Backups exist in `.ignore/prompts_original/` if you need to restore
 
 ---
 

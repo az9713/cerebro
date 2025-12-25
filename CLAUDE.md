@@ -49,6 +49,36 @@ yt-dlp --write-auto-sub --write-sub --sub-lang en --skip-download --convert-subs
 
 Both commands and skills produce identical output using shared prompts from `prompts/`.
 
+## Prompt System Philosophy
+
+The analysis prompts are designed with two core principles:
+
+1. **Maximum Breadth** - Extract ALL significant information, not just top 5-7 points
+2. **Maximum Depth** - Capture specifics (numbers, names, quotes) not just summaries
+
+Each prompt includes 12-14 comprehensive sections including a **Latent Signals** section for implied insights.
+
+### Prompt Files
+
+| File | Content Type | Sections |
+|------|--------------|----------|
+| `prompts/yt.md` | YouTube videos | 12 |
+| `prompts/article.md` | Articles/blogs | 13 |
+| `prompts/paper.md` | Research papers | 14 |
+| `prompts/default.md` | Generic content | 12 |
+
+### Latent Signals
+
+Every prompt includes instructions to surface implied insights:
+- Unstated assumptions
+- Implied predictions
+- Hidden motivations
+- Second-order effects
+- Market/industry signals
+- Contrarian indicators
+
+**Important:** Only include genuine inferences. Do NOT fabricate signals if none exist.
+
 ## Agents
 
 | Agent | Purpose | Trigger |

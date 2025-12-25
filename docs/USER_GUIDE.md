@@ -959,13 +959,86 @@ Every analysis automatically logs:
 
 ## 13. Customizing Analysis Prompts
 
-### Why Customize?
+### Understanding the Prompt System
 
-The default prompts work well, but you might want:
-- Different sections in your reports
-- More or less detail
-- Specific questions answered
-- Different formatting
+The analysis prompts define **how** content is analyzed - what sections appear in reports, how detailed each section is, and what specific information to extract. The prompts are designed with two core principles:
+
+1. **Maximum Breadth** - Extract ALL significant information, not just top highlights
+2. **Maximum Depth** - Capture specifics (numbers, names, examples) not just summaries
+
+### Prompt Files
+
+| File | Used For | Sections |
+|------|----------|----------|
+| `prompts/yt.md` | YouTube video transcripts | 12 sections |
+| `prompts/article.md` | Blog posts and articles | 13 sections |
+| `prompts/paper.md` | Research papers | 14 sections |
+| `prompts/default.md` | Generic content | 12 sections |
+
+### The Enhanced Prompt Structure
+
+Each prompt includes specialized sections designed to capture maximum value:
+
+#### Core Sections (All Prompts)
+
+| Section Type | Purpose | Example Content |
+|--------------|---------|-----------------|
+| **Overview/Metadata** | Context about the source | Title, author, type, core thesis |
+| **Comprehensive Summary** | Thorough 3-4 paragraph summary | Problem, arguments, evidence, conclusions |
+| **All Key Points** | Exhaustive list of insights | Every significant argument (not just 5-7) |
+| **Facts & Data** | Specific information | Numbers, percentages, dates, metrics |
+| **Frameworks & Concepts** | Mental models | Named frameworks, terminology, taxonomies |
+| **Examples** | Concrete illustrations | Case studies, anecdotes, scenarios |
+| **Resources & References** | Things mentioned | Tools, books, people, websites |
+| **Notable Quotes** | Memorable passages | 5-10 quotes (not just 2-3) |
+| **Actionable Insights** | What to do | Immediate, short-term, long-term actions |
+| **Questions & Gaps** | What's missing | Unanswered questions, counterarguments |
+| **Latent Signals** | Implied insights | Second-order effects, hidden motivations |
+| **Connections** | Related content | Topics to explore, follow-up suggestions |
+
+#### Content-Specific Sections
+
+**Research Papers (`paper.md`)** add:
+- Methodology Deep Dive (data, experiments, baselines)
+- Results & Findings (performance numbers)
+- Technical Details (equations, architecture)
+- Future Directions (open problems)
+
+**Articles (`article.md`)** add:
+- Author's Perspective & Bias
+- Critical Analysis (strengths, weaknesses)
+
+### The Latent Signals Section
+
+Every prompt includes a **Latent Signals** section for surfacing insights that are implied but not explicitly stated:
+
+```markdown
+## 11. Latent Signals
+Surface insights that are implied but not explicitly stated.
+Only include genuine inferences - do NOT fabricate signals.
+
+- **Unstated assumptions**: What does the creator take for granted?
+- **Implied predictions**: What future trends are suggested?
+- **Hidden motivations**: Why is this being shared now?
+- **Second-order effects**: What downstream consequences follow?
+- **Market/industry signals**: What does this suggest about where things are heading?
+- **Contrarian indicators**: What's conspicuously NOT being said?
+```
+
+**Important:** The system explicitly instructs NOT to fabricate signals if none exist. Latent signals are only included when genuine inferences can be made from the content.
+
+### Why These Sections Matter
+
+| Problem (Old Approach) | Solution (Enhanced Prompts) |
+|------------------------|----------------------------|
+| Only 5-7 key takeaways captured | Extract ALL significant points exhaustively |
+| Generic summaries without specifics | Dedicated Facts & Data section with numbers |
+| Missing frameworks and concepts | Explicit Frameworks section for mental models |
+| Tools and resources lost | Resources & References section captures all mentions |
+| Only 2-3 quotes | 5-10 notable quotes with context |
+| No critical analysis | Critiques, gaps, and counterarguments sections |
+| Only surface-level insights | Latent Signals for deeper inferred insights |
+| No clear next steps | Tiered actionable insights (immediate/short/long-term) |
 
 ### How to Customize
 
@@ -973,67 +1046,123 @@ The default prompts work well, but you might want:
 2. Open the prompt file you want to change
 3. Edit using any text editor
 4. Save the file
-5. Future analyses use your customized prompt
-
-### Prompt Files
-
-| File | Used For |
-|------|----------|
-| `prompts/yt.md` | YouTube video transcripts |
-| `prompts/article.md` | Blog posts and articles |
-| `prompts/paper.md` | Research papers |
-| `prompts/default.md` | Generic content |
+5. **Changes take effect immediately** (no restart needed)
 
 ### Example: Adding a Section
 
-**Original (yt.md):**
+The current prompts have 12-14 sections. To add a new one:
+
 ```markdown
-## 1. Summary
-...
-## 2. Key Takeaways
-...
+## 13. ELI5 (Explain Like I'm 5)
+Explain the main idea in the simplest possible terms,
+as if explaining to someone with no background knowledge.
+
+## 14. My Rating
+Rate this content 1-5 stars based on:
+- Quality of information
+- Practical usefulness
+- Clarity of presentation
+Explain your rating.
 ```
 
-**After Adding Section:**
+### Example: Modifying an Existing Section
+
+**Original:**
 ```markdown
-## 1. Summary
-...
-## 2. Key Takeaways
-...
-## 6. How Does This Apply To My Work?
-Consider how this content relates to my daily work and projects.
+## 8. Notable Quotes
+Include 5-10 memorable quotes with approximate timestamps if visible.
+```
+
+**Modified for more quotes:**
+```markdown
+## 8. Notable Quotes
+Include 10-15 memorable quotes with approximate timestamps if visible.
+Prioritize quotes that:
+- Capture key insights
+- Are memorable/quotable
+- Represent controversial or unique views
+- Could be shared on social media
 ```
 
 ### Example: Making Reports Shorter
 
+If you want shorter reports, modify the instructions:
+
 **Original:**
 ```markdown
-## 1. Summary (2-3 paragraphs)
-What is this video about? ...
+## 3. Key Takeaways (All Important Points)
+List ALL significant points, not just top 5-7. Be exhaustive.
 ```
 
 **Shorter Version:**
 ```markdown
-## 1. Summary (1 paragraph max)
-Brief overview only.
+## 3. Key Takeaways (Top 5 Only)
+List the 5 most important points. Be concise.
 ```
 
-### Example: Adding Ratings
+### Example: Adding Domain-Specific Analysis
+
+For technical content, you might add:
 
 ```markdown
-## 7. My Rating
-Rate this content 1-5 stars and explain why.
+## 13. Technical Depth Assessment
+- What prerequisite knowledge is needed?
+- What technical concepts should I research further?
+- Are there implementation details I should note?
 
-## 8. Would I Recommend?
-Who would benefit from this content?
+## 14. Code Examples & Implementations
+Extract any code snippets, pseudocode, or implementation
+details mentioned. Include language and context.
 ```
 
-### Prompt Best Practices
+### Example: Adding Personal Relevance
 
-1. **Be specific** - Tell Claude exactly what you want
-2. **Use examples** - Show the format you expect
-3. **Test changes** - Run a test analysis after changing
-4. **Keep backups** - Copy original prompts before editing
+```markdown
+## 13. Relevance to My Work
+Consider how this content applies to:
+- Current projects
+- Professional development
+- Team discussions
+- Future initiatives
+
+## 14. Discussion Points
+What would be worth discussing with colleagues about this content?
+```
+
+### Prompt Customization Best Practices
+
+1. **Be Specific**
+   - ❌ "List some quotes"
+   - ✅ "List 5-10 memorable quotes with timestamps"
+
+2. **Provide Structure**
+   - ❌ "Analyze the methodology"
+   - ✅ "Analyze methodology including: Data sources, Methods used, Experiments run, Baselines compared, Metrics measured"
+
+3. **Include Examples**
+   - Show the format you expect in the prompt instructions
+
+4. **Test Changes**
+   - Run a test analysis after modifying
+   - Check that output matches expectations
+
+5. **Keep Originals**
+   - Backup files exist in `.ignore/prompts_original/`
+   - Compare if you need to restore defaults
+
+6. **Number Your Sections**
+   - Makes reports consistent and scannable
+   - Easier for Claude to follow structure
+
+### Restoring Default Prompts
+
+If you want to restore the original enhanced prompts:
+
+1. Navigate to `.ignore/prompts_original/`
+2. Copy the desired file (e.g., `yt.md`)
+3. Paste into `prompts/` folder, replacing the modified version
+
+Or manually restore from the section descriptions in this guide.
 
 ---
 

@@ -188,16 +188,142 @@ Edit files in `prompts/` folder:
 - `prompts/paper.md` - Change research paper analysis
 - `prompts/default.md` - Change generic analysis
 
+See [Understanding the Prompt System](#understanding-the-prompt-system) below for full documentation.
+
 ### Example: Add "ELI5 Summary" to Video Analysis
 
 1. Open `prompts/yt.md`
 2. Add a new section:
    ```markdown
-   ## 6. ELI5 (Explain Like I'm 5)
+   ## 13. ELI5 (Explain Like I'm 5)
    Explain the main idea in the simplest possible terms.
    ```
 3. Save the file
 4. Future video analyses will include this section!
+
+---
+
+## Understanding the Prompt System
+
+### Why Enhanced Prompts?
+
+The analysis prompts were designed with two goals:
+
+1. **Maximum Breadth** - Extract ALL significant information, not just top 5-7 points
+2. **Maximum Depth** - Capture specifics (numbers, names, quotes) not just summaries
+
+Each prompt includes **12-14 comprehensive sections** that ensure no valuable information is lost.
+
+### The Prompt Philosophy
+
+| Problem | Solution |
+|---------|----------|
+| Limited takeaways (5-7 only) | Extract ALL significant points exhaustively |
+| Shallow analysis | Capture specific facts, numbers, names, examples |
+| Missing frameworks | Dedicated section for mental models & concepts |
+| Missing tools/references | Dedicated section for resources mentioned |
+| No critical analysis | Sections for critiques, gaps, counterarguments |
+| Surface-level insights only | **Latent Signals** section for inferred insights |
+
+### Latent Signals: Reading Between the Lines
+
+Every prompt includes a **Latent Signals** section that surfaces insights that are implied but not explicitly stated:
+
+- **Unstated assumptions** - What does the creator take for granted?
+- **Implied predictions** - What future trends are suggested?
+- **Hidden motivations** - Why is this being shared now?
+- **Second-order effects** - What downstream consequences follow?
+- **Market/industry signals** - What does this suggest about where things are heading?
+- **Contrarian indicators** - What's conspicuously NOT being said?
+
+**Important:** Latent signals are only included when genuine inferences can be made. The system will NOT fabricate signals if none exist.
+
+### Prompt Structure by Content Type
+
+#### YouTube Videos (`prompts/yt.md`) - 12 Sections
+
+| Section | Purpose |
+|---------|---------|
+| 1. Overview | Title, creator, content type, target audience, core thesis |
+| 2. Comprehensive Summary | 3-4 paragraph thorough summary |
+| 3. Key Takeaways | ALL significant points (not just 5-7) |
+| 4. Facts, Statistics & Data | Every specific number, metric, benchmark |
+| 5. Frameworks, Models & Concepts | Mental models, terminology, taxonomies |
+| 6. Tools, Resources & References | Software, books, people mentioned |
+| 7. Examples & Case Studies | Real-world examples, success/failure stories |
+| 8. Notable Quotes | 5-10 memorable quotes with timestamps |
+| 9. Actionable Insights | Immediate, short-term, long-term actions |
+| 10. Questions & Gaps | What wasn't addressed, counterarguments |
+| 11. Latent Signals | Implied insights, second-order effects |
+| 12. Connections | Related topics, follow-up suggestions |
+
+#### Articles (`prompts/article.md`) - 13 Sections
+
+| Section | Purpose |
+|---------|---------|
+| 1. Metadata | Title, author, publication, article type, core thesis |
+| 2. Comprehensive Summary | 3-4 paragraph thorough summary |
+| 3. All Key Points | Every significant argument and claim |
+| 4. Facts, Statistics & Data | All numbers, research citations, metrics |
+| 5. Frameworks & Mental Models | Conceptual tools introduced |
+| 6. Examples & Evidence | Case studies, anecdotes, scenarios |
+| 7. People, Companies & References | Individuals, organizations, citations |
+| 8. Author's Perspective & Bias | Background, potential biases, assumptions |
+| 9. Notable Quotes | 5-10 memorable passages |
+| 10. Actionable Takeaways | What to do with this information |
+| 11. Critical Analysis | Strengths, weaknesses, counterarguments |
+| 12. Latent Signals | Implied insights, hidden motivations |
+| 13. Connections | Related reading, contrasting viewpoints |
+
+#### Research Papers (`prompts/paper.md`) - 14 Sections
+
+| Section | Purpose |
+|---------|---------|
+| 1. Paper Overview | Title, authors, publication, paper type |
+| 2. Plain English Summary | Accessible 3-4 paragraph explanation |
+| 3. Research Question & Motivation | Why this research matters |
+| 4. Key Contributions | All novel methods, findings, applications |
+| 5. Methodology Deep Dive | Data, methods, experiments, baselines, metrics |
+| 6. Results & Findings | All performance numbers, comparisons |
+| 7. Limitations & Caveats | Stated and unstated limitations |
+| 8. Technical Details | Equations, architecture, hyperparameters |
+| 9. Related Work Context | Prior work, competing approaches |
+| 10. Practical Implications | Real-world applications, industry relevance |
+| 11. Future Directions | Open problems, research gaps |
+| 12. Critical Assessment | Strengths, concerns, reproducibility |
+| 13. Latent Signals | Field dynamics, timing significance |
+| 14. References to Follow | Key papers for deeper understanding |
+
+#### Generic Content (`prompts/default.md`) - 12 Sections
+
+| Section | Purpose |
+|---------|---------|
+| 1. Overview | Content type, source, core topic, main message |
+| 2. Comprehensive Summary | 3-4 paragraph summary |
+| 3. All Key Points | Every significant idea |
+| 4. Facts & Specifics | Numbers, dates, names, examples |
+| 5. Concepts & Frameworks | Terms, models, categorizations |
+| 6. Examples & Illustrations | Case studies, analogies, applications |
+| 7. Resources & References | Tools, citations, people mentioned |
+| 8. Notable Passages | 5-10 memorable quotes |
+| 9. Actionable Insights | What to do with this information |
+| 10. Questions Raised | Unanswered questions, gaps |
+| 11. Latent Signals | Implied insights, hidden purposes |
+| 12. Connections | Related topics, complementary content |
+
+### Customizing Prompts
+
+Prompts are fully customizable. To modify:
+
+1. Open the appropriate file in `prompts/`
+2. Add, remove, or modify sections
+3. Save - changes take effect immediately (no restart needed)
+
+**Tips for customization:**
+- Keep numbered sections for clarity
+- Be specific about what you want (e.g., "5-10 quotes" not "some quotes")
+- Include formatting instructions at the end
+- Test with sample content after changes
 
 ---
 

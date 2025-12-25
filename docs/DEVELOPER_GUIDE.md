@@ -899,73 +899,397 @@ Provide findings in a structured report.
 
 ## 11. Creating New Prompts
 
-Prompts define **how** content is analyzed (what sections, what format, how detailed).
+Prompts define **how** content is analyzed. They control what sections appear in reports, how detailed each section is, and what specific information to extract.
 
-### Prompt File Structure
+### Prompt Design Philosophy
+
+The enhanced prompts are built on two core principles:
+
+| Principle | What It Means | Why It Matters |
+|-----------|---------------|----------------|
+| **Maximum Breadth** | Extract ALL significant information | Don't miss valuable insights |
+| **Maximum Depth** | Capture specifics (numbers, names, quotes) | Summaries alone aren't actionable |
+
+Each prompt includes **12-14 sections** to ensure comprehensive information extraction.
+
+### The Enhanced Prompt Structure
+
+Every prompt should include these core section types:
+
+```markdown
+# [Content Type] Analysis Prompt
+
+Analyze this [content type] thoroughly. Extract maximum value.
+
+## 1. Overview/Metadata
+- Context about the source (title, author, type)
+- Core thesis or main message
+
+## 2. Comprehensive Summary
+3-4 paragraph thorough summary covering:
+- Problem or context being addressed
+- Main arguments or solutions
+- Key evidence and examples
+- Conclusions and implications
+
+## 3. All Key Points
+Extract EVERY significant point, not just top 5-7.
+Be exhaustive and specific with names, numbers, details.
+
+## 4. Facts, Statistics & Data
+Extract all specific information:
+- Numbers, percentages, dates
+- Research findings cited
+- Metrics and benchmarks
+
+## 5. Frameworks, Models & Concepts
+Capture mental models introduced:
+- Named frameworks (e.g., "80/20 rule")
+- New terminology defined
+- Categorizations or taxonomies
+
+## 6. Examples & Case Studies
+Document specific examples:
+- Real-world case studies
+- Hypothetical scenarios
+- Success/failure stories
+
+## 7. Resources & References
+List everything mentioned:
+- Tools, software, products
+- Books, papers, articles
+- People and organizations
+
+## 8. Notable Quotes
+Include 5-10 memorable quotes.
+Prioritize quotes that capture key insights.
+
+## 9. Actionable Insights
+What can you DO with this information?
+- Immediate actions (today/this week)
+- Short-term projects (this month)
+- Long-term strategies
+
+## 10. Questions & Gaps
+- What questions does this raise?
+- What wasn't addressed?
+- Potential counterarguments?
+
+## 11. Latent Signals
+Surface insights that are implied but not explicitly stated.
+Only include genuine inferences - do NOT fabricate signals.
+- **Unstated assumptions**: What does the creator take for granted?
+- **Implied predictions**: What future trends are suggested?
+- **Hidden motivations**: Why is this being shared now?
+- **Second-order effects**: What downstream consequences follow?
+- **Market/industry signals**: What does this suggest about direction?
+- **Contrarian indicators**: What's conspicuously NOT being said?
+
+## 12. Connections
+- Related topics to explore
+- Prerequisite knowledge
+- Follow-up content suggestions
+
+---
+Format the output as a clean markdown report.
+```
+
+### The Latent Signals Section
+
+This is a key innovation in the enhanced prompts. It surfaces "below-the-surface" insights:
+
+```markdown
+## 11. Latent Signals
+Surface insights that are implied but not explicitly stated.
+Only include genuine inferences - do NOT fabricate signals.
+
+- **Unstated assumptions**: What does the creator take for granted?
+- **Implied predictions**: What future trends or outcomes are suggested?
+- **Hidden motivations**: Why is this being created/shared now?
+- **Second-order effects**: What downstream consequences follow?
+- **Market/industry signals**: What does this suggest about where things are heading?
+- **Contrarian indicators**: What's conspicuously NOT being said?
+```
+
+**Critical Instruction:** The prompt explicitly states "do NOT fabricate signals" to prevent hallucination. Only genuine inferences should be included.
+
+### Content-Type Specific Sections
+
+Add specialized sections based on content type:
+
+**For Research Papers (`paper.md`):**
+```markdown
+## 5. Methodology Deep Dive
+- **Data**: What data did they use? Size, source, characteristics
+- **Methods**: What techniques did they apply?
+- **Experiments**: What experiments did they run?
+- **Baselines**: What did they compare against?
+- **Evaluation Metrics**: How did they measure success?
+
+## 6. Results & Findings
+Extract ALL specific results:
+- Performance numbers (accuracy, F1, etc.)
+- Comparisons to baselines (X% improvement)
+- Statistical significance
+- Ablation study results
+
+## 8. Technical Details
+For readers wanting depth:
+- Key equations or algorithms
+- Architecture details
+- Hyperparameters
+- Computational requirements
+```
+
+**For Articles (`article.md`):**
+```markdown
+## 8. Author's Perspective & Bias
+- Author's background and credentials
+- Potential biases or conflicts
+- Unstated assumptions
+- What the author might be wrong about
+
+## 11. Critical Analysis
+- Strengths of the argument
+- Weaknesses or gaps
+- Counterarguments to consider
+- What's missing from the analysis
+```
+
+### Writing Effective Section Instructions
+
+**Be Specific About Quantity:**
+```markdown
+# ❌ Vague
+## Notable Quotes
+Include some quotes.
+
+# ✅ Specific
+## Notable Quotes
+Include 5-10 memorable quotes with approximate timestamps if visible.
+Prioritize quotes that:
+- Capture key insights
+- Are memorable/quotable
+- Represent controversial or unique views
+```
+
+**Provide Structure:**
+```markdown
+# ❌ Unstructured
+## Methodology
+Explain the methodology.
+
+# ✅ Structured
+## Methodology Deep Dive
+- **Data**: What data did they use? Size, source, characteristics
+- **Methods**: What techniques did they apply?
+- **Experiments**: What experiments did they run?
+- **Baselines**: What did they compare against?
+- **Evaluation Metrics**: How did they measure success?
+```
+
+**Request Exhaustive Extraction:**
+```markdown
+# ❌ Limited
+## Key Points
+List the 5-7 main points.
+
+# ✅ Exhaustive
+## Key Takeaways (All Important Points)
+List ALL significant points, not just top 5-7. Be exhaustive:
+- Main arguments and claims
+- Supporting points and sub-arguments
+- Conclusions and recommendations
+For each, be specific - include numbers, names, specifics mentioned.
+```
+
+**Tier Actionable Insights:**
+```markdown
+# ❌ Generic
+## Action Items
+What should I do?
+
+# ✅ Tiered
+## Actionable Insights
+What can you DO with this information?
+- Immediate actions (today/this week)
+- Short-term projects (this month)
+- Long-term strategies
+- Things to research further
+```
+
+### Prompt File Location
+
+Prompts are stored in the `prompts/` folder:
+
+| File | Content Type | Sections |
+|------|--------------|----------|
+| `prompts/yt.md` | YouTube videos | 12 |
+| `prompts/article.md` | Blog posts, articles | 13 |
+| `prompts/paper.md` | Research papers | 14 |
+| `prompts/default.md` | Generic content | 12 |
+
+### Creating a New Prompt
+
+**Step 1: Decide the content type and what sections are needed**
+
+Consider:
+- What information is unique to this content type?
+- What would be most valuable to extract?
+- What sections from the standard template apply?
+
+**Step 2: Create the prompt file**
+
+Create `prompts/your-type.md`:
 
 ```markdown
 # [Type] Analysis Prompt
 
-[Brief description of what this analyzes]
+Analyze this [content type] thoroughly. Extract maximum value.
 
-Provide:
+## 1. Overview
+[Customize for your content type]
 
-## 1. [Section Name]
-[Instructions for this section]
+## 2. Comprehensive Summary
+[Standard 3-4 paragraph format]
 
-## 2. [Section Name]
-[Instructions for this section]
+## 3-10. [Core sections]
+[Include standard sections with customizations]
 
-## 3. [Section Name]
-[Instructions for this section]
+## 11. Latent Signals
+[Include the latent signals section]
+
+## 12. Connections
+[Standard connections section]
+
+## 13+. [Type-specific sections]
+[Add any additional sections unique to this content type]
 
 ---
-[Any final formatting instructions]
+Format the output as a clean markdown report.
 ```
 
-### Writing Good Prompts
+**Step 3: Reference in commands and skills**
 
-**Be Specific:**
+Update your command/skill to use the new prompt:
 ```markdown
-# Bad
-## Summary
-Write a summary.
-
-# Good
-## Summary (2-3 paragraphs)
-What is this content about? Who created it? What's the main message?
+3. **Read the analysis prompt** from `prompts/your-type.md`
 ```
 
-**Use Examples:**
+**Step 4: Test thoroughly**
+
+1. Run an analysis with sample content
+2. Check that all sections are populated
+3. Verify specifics are being captured
+4. Adjust section instructions as needed
+
+### Example: Creating a Podcast Prompt
+
 ```markdown
-## Key Points
-List 5-7 main points, formatted as:
-- **Point name**: Brief explanation
+# Podcast Episode Analysis Prompt
+
+Analyze this podcast transcript thoroughly. Extract maximum value.
+
+## 1. Episode Overview
+- **Show & Episode**: What podcast and episode is this?
+- **Host(s)**: Who hosts this show?
+- **Guest(s)**: Who was interviewed? What's their background?
+- **Episode Type**: Interview, solo, panel, narrative?
+- **Core Topic**: What is this episode primarily about?
+
+## 2. Comprehensive Summary
+3-4 paragraphs covering:
+- The main topic and why it matters
+- Key discussion points and arguments
+- Notable stories or examples shared
+- Conclusions and takeaways
+
+## 3. All Discussion Points
+List EVERY significant topic discussed:
+- Main topics with sub-points
+- Tangential discussions worth noting
+- Questions asked and answers given
+Be specific with names, numbers, examples.
+
+## 4. Facts, Statistics & Data
+Extract all specific information mentioned:
+- Numbers, dates, statistics
+- Research or studies cited
+- Company metrics or data points
+
+## 5. Frameworks & Mental Models
+Capture conceptual tools discussed:
+- Named frameworks or methodologies
+- Mental models for decision-making
+- Categorizations or typologies
+
+## 6. Stories & Anecdotes
+Document personal stories shared:
+- Host's experiences
+- Guest's journey and lessons
+- Third-party examples mentioned
+
+## 7. People, Companies & Resources
+Everything mentioned:
+- People (who they are, why relevant)
+- Companies and organizations
+- Books, articles, tools recommended
+
+## 8. Notable Quotes
+Include 5-10 memorable quotes with speaker attribution:
+- Capture key insights
+- Memorable one-liners
+- Controversial or unique perspectives
+
+## 9. Actionable Insights
+What can you DO with this information?
+- Immediate actions
+- Ideas to explore
+- Habits or practices to adopt
+
+## 10. Questions Raised
+- What follow-up questions would you ask?
+- What wasn't covered that should be?
+- What claims need verification?
+
+## 11. Latent Signals
+Surface insights that are implied but not explicitly stated.
+Only include genuine inferences - do NOT fabricate signals.
+- **Industry trends**: What does this suggest about the space?
+- **Career signals**: What does this imply for career development?
+- **Hidden agendas**: Is the guest promoting something subtly?
+- **Relationship dynamics**: What can be inferred from how host/guest interact?
+
+## 12. Connections
+- Related episodes or podcasts
+- Topics to research further
+- Books or resources to follow up on
+
+---
+Format the output as a clean markdown report.
 ```
 
-**Request Specific Formats:**
-```markdown
-## Quotes
-Include 2-3 quotes formatted as:
-> "Quote text" - Speaker name
-```
+### Prompt Testing Workflow
 
-### Prompt Variables
+1. **Create or modify** the prompt file
+2. **Save the file** (changes take effect immediately - no restart needed)
+3. **Run an analysis** using the prompt
+4. **Review the output** for:
+   - Are all sections populated?
+   - Are specifics being captured (not just summaries)?
+   - Is the latent signals section providing genuine insights?
+   - Is the format clean and readable?
+5. **Iterate** - adjust section instructions and test again
 
-These placeholders work in prompts:
+### Backup and Restore
 
-| Placeholder | Replaced With |
-|-------------|---------------|
-| Content | The actual content being analyzed |
-| Date | Today's date |
-| Title | Content title (when available) |
+Original prompts are backed up in `.ignore/prompts_original/`:
+- `yt.md` (original before enhancement)
+- `article.md`
+- `paper.md`
+- `default.md`
 
-### Testing Prompts
-
-1. Modify the prompt file
-2. Run an analysis using that prompt
-3. Check the output
-4. Adjust and repeat
+To restore a prompt to default, copy from `.ignore/prompts_original/` to `prompts/`.
 
 ---
 
