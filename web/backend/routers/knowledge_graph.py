@@ -59,7 +59,7 @@ async def get_graph(
     suitable for force-directed graph libraries.
     """
     graph = await get_knowledge_graph(limit=limit)
-    return GraphResponse(nodes=graph["nodes"], links=graph["links"])
+    return GraphResponse(nodes=graph["nodes"], links=graph.get("edges", []))
 
 
 @router.get("/concept/{concept_id}", response_model=ConceptResponse)

@@ -136,7 +136,14 @@ async def submit_review(report_id: int, request: RecordReviewRequest):
 async def get_stats():
     """Get review statistics and progress."""
     stats = await get_review_stats()
-    return ReviewStats(**stats)
+    # Map database field names to response model fields
+    return ReviewStats(
+        total_reviews=stats.get("total_items", 0),
+        due_today=stats.get("due_count", 0),
+        reviewed_today=stats.get("reviewed_today", 0),
+        average_ease=stats.get("average_ease", 2.5),
+        streak=stats.get("streak_days", 0),
+    )
 
 
 @router.delete("/{report_id}")
