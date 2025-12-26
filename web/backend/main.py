@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from config import CORS_ORIGINS, API_PREFIX
-from routers import reports, logs, analysis, batch
+from routers import reports, logs, analysis, batch, tags, collections, transcription, rss, export
 from services.indexer import run_initial_index
 
 # Configure logging
@@ -53,6 +53,11 @@ app.include_router(reports.router, prefix=f"{API_PREFIX}/reports", tags=["Report
 app.include_router(logs.router, prefix=f"{API_PREFIX}/logs", tags=["Activity Logs"])
 app.include_router(analysis.router, prefix=f"{API_PREFIX}/analysis", tags=["Analysis"])
 app.include_router(batch.router, prefix=f"{API_PREFIX}/batch", tags=["Batch Processing"])
+app.include_router(tags.router, prefix=f"{API_PREFIX}/tags", tags=["Tags"])
+app.include_router(collections.router, prefix=f"{API_PREFIX}/collections", tags=["Collections"])
+app.include_router(transcription.router, prefix=f"{API_PREFIX}/transcription", tags=["Transcription"])
+app.include_router(rss.router, prefix=f"{API_PREFIX}/rss", tags=["RSS Feeds"])
+app.include_router(export.router, prefix=f"{API_PREFIX}/export", tags=["Export"])
 
 
 @app.get("/")

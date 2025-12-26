@@ -10,21 +10,21 @@ export function ReportCard({ report, compact = false }: ReportCardProps) {
   return (
     <Link
       href={`/reports/${report.id}`}
-      className="block bg-white rounded-lg border border-slate-200 p-4 hover:border-primary-300 hover:shadow-md transition-all"
+      className="block bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:border-primary-300 dark:hover:border-primary-600 hover:shadow-md transition-all"
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-slate-900 truncate">
+          <h3 className="font-semibold text-slate-900 dark:text-slate-100 truncate">
             {report.title}
           </h3>
 
           {!compact && report.summary && (
-            <p className="mt-1 text-sm text-slate-600 line-clamp-2">
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
               {report.summary}
             </p>
           )}
 
-          <div className="mt-2 flex items-center gap-3 text-xs text-slate-500">
+          <div className="mt-2 flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
             <span className={`px-2 py-0.5 rounded-full ${getTypeColor(report.content_type)}`}>
               {report.content_type}
             </span>

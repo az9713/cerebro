@@ -21,7 +21,8 @@ CREATE TABLE IF NOT EXISTS reports (
     file_modified_at DATETIME NOT NULL,
     summary TEXT,
     word_count INTEGER,
-    content_text TEXT
+    content_text TEXT,
+    is_favorite INTEGER DEFAULT 0
 );
 
 -- Full-text search virtual table
@@ -76,10 +77,53 @@ CREATE TABLE IF NOT EXISTS analysis_jobs (
     completed_at DATETIME
 );
 
+-- Tags table
+CREATE TABLE IF NOT EXISTS tags (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT UNIQUE NOT NULL,
+    color TEXT DEFAULT '#6b7280',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Report-Tag junction table
+CREATE TABLE IF NOT EXISTS report_tags (
+    report_id INTEGER NOT NULL,
+    tag_id INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (report_id, tag_id),
+    FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+);
+
+-- Collections table
+CREATE TABLE IF NOT EXISTS collections (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    description TEXT,
+    color TEXT DEFAULT '#3b82f6',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Collection-Report junction table
+CREATE TABLE IF NOT EXISTS collection_reports (
+    collection_id INTEGER NOT NULL,
+    report_id INTEGER NOT NULL,
+    added_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    sort_order INTEGER DEFAULT 0,
+    PRIMARY KEY (collection_id, report_id),
+    FOREIGN KEY (collection_id) REFERENCES collections(id) ON DELETE CASCADE,
+    FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE CASCADE
+);
+
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_reports_type ON reports(content_type);
 CREATE INDEX IF NOT EXISTS idx_reports_created ON reports(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_jobs_status ON analysis_jobs(status);
+CREATE INDEX IF NOT EXISTS idx_report_tags_report ON report_tags(report_id);
+CREATE INDEX IF NOT EXISTS idx_report_tags_tag ON report_tags(tag_id);
+CREATE INDEX IF NOT EXISTS idx_collection_reports_collection ON collection_reports(collection_id);
+CREATE INDEX IF NOT EXISTS idx_collection_reports_report ON collection_reports(report_id);
 """
 
 
@@ -292,6 +336,293 @@ async def get_job(job_id: str) -> Optional[dict]:
         cursor = await db.execute(
             "SELECT * FROM analysis_jobs WHERE id = ?",
             (job_id,)
+        )
+        row = await cursor.fetchone()
+        return dict(row) if row else None
+
+
+# Tag operations
+async def get_all_tags() -> list[dict]:
+    """Get all tags."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute("SELECT * FROM tags ORDER BY name")
+        rows = await cursor.fetchall()
+        return [dict(row) for row in rows]
+
+
+async def create_tag(name: str, color: str = "#6b7280") -> dict:
+    """Create a new tag."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute(
+            "INSERT INTO tags (name, color) VALUES (?, ?) RETURNING *",
+            (name, color)
+        )
+        row = await cursor.fetchone()
+        await db.commit()
+        return dict(row)
+
+
+async def update_tag(tag_id: int, name: str = None, color: str = None) -> Optional[dict]:
+    """Update a tag."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        updates = []
+        params = []
+        if name:
+            updates.append("name = ?")
+            params.append(name)
+        if color:
+            updates.append("color = ?")
+            params.append(color)
+        if not updates:
+            return None
+        params.append(tag_id)
+        cursor = await db.execute(
+            f"UPDATE tags SET {', '.join(updates)} WHERE id = ? RETURNING *",
+            params
+        )
+        row = await cursor.fetchone()
+        await db.commit()
+        return dict(row) if row else None
+
+
+async def delete_tag(tag_id: int):
+    """Delete a tag."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        await db.execute("DELETE FROM tags WHERE id = ?", (tag_id,))
+        await db.commit()
+
+
+async def add_tag_to_report(report_id: int, tag_id: int):
+    """Add a tag to a report."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        await db.execute(
+            "INSERT OR IGNORE INTO report_tags (report_id, tag_id) VALUES (?, ?)",
+            (report_id, tag_id)
+        )
+        await db.commit()
+
+
+async def remove_tag_from_report(report_id: int, tag_id: int):
+    """Remove a tag from a report."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        await db.execute(
+            "DELETE FROM report_tags WHERE report_id = ? AND tag_id = ?",
+            (report_id, tag_id)
+        )
+        await db.commit()
+
+
+async def get_report_tags(report_id: int) -> list[dict]:
+    """Get all tags for a report."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute(
+            """SELECT t.* FROM tags t
+               JOIN report_tags rt ON t.id = rt.tag_id
+               WHERE rt.report_id = ?
+               ORDER BY t.name""",
+            (report_id,)
+        )
+        rows = await cursor.fetchall()
+        return [dict(row) for row in rows]
+
+
+async def get_reports_by_tag(tag_id: int) -> list[dict]:
+    """Get all reports with a specific tag."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute(
+            """SELECT r.id, r.filename, r.filepath, r.title, r.source_url,
+                      r.content_type, r.created_at, r.summary, r.word_count, r.is_favorite
+               FROM reports r
+               JOIN report_tags rt ON r.id = rt.report_id
+               WHERE rt.tag_id = ?
+               ORDER BY r.created_at DESC""",
+            (tag_id,)
+        )
+        rows = await cursor.fetchall()
+        return [dict(row) for row in rows]
+
+
+# Favorite operations
+async def toggle_favorite(report_id: int) -> bool:
+    """Toggle favorite status for a report. Returns new status."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute(
+            "SELECT is_favorite FROM reports WHERE id = ?",
+            (report_id,)
+        )
+        row = await cursor.fetchone()
+        if not row:
+            return False
+        new_status = 0 if row["is_favorite"] else 1
+        await db.execute(
+            "UPDATE reports SET is_favorite = ? WHERE id = ?",
+            (new_status, report_id)
+        )
+        await db.commit()
+        return bool(new_status)
+
+
+async def get_favorite_reports() -> list[dict]:
+    """Get all favorite reports."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute(
+            """SELECT id, filename, filepath, title, source_url, content_type,
+                      created_at, summary, word_count, is_favorite
+               FROM reports WHERE is_favorite = 1
+               ORDER BY created_at DESC"""
+        )
+        rows = await cursor.fetchall()
+        return [dict(row) for row in rows]
+
+
+# Collection operations
+async def get_all_collections() -> list[dict]:
+    """Get all collections with report counts."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute(
+            """SELECT c.*, COUNT(cr.report_id) as report_count
+               FROM collections c
+               LEFT JOIN collection_reports cr ON c.id = cr.collection_id
+               GROUP BY c.id
+               ORDER BY c.updated_at DESC"""
+        )
+        rows = await cursor.fetchall()
+        return [dict(row) for row in rows]
+
+
+async def create_collection(name: str, description: str = None, color: str = "#3b82f6") -> dict:
+    """Create a new collection."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute(
+            "INSERT INTO collections (name, description, color) VALUES (?, ?, ?) RETURNING *",
+            (name, description, color)
+        )
+        row = await cursor.fetchone()
+        await db.commit()
+        return dict(row)
+
+
+async def update_collection(collection_id: int, name: str = None, description: str = None, color: str = None) -> Optional[dict]:
+    """Update a collection."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        updates = ["updated_at = CURRENT_TIMESTAMP"]
+        params = []
+        if name:
+            updates.append("name = ?")
+            params.append(name)
+        if description is not None:
+            updates.append("description = ?")
+            params.append(description)
+        if color:
+            updates.append("color = ?")
+            params.append(color)
+        params.append(collection_id)
+        cursor = await db.execute(
+            f"UPDATE collections SET {', '.join(updates)} WHERE id = ? RETURNING *",
+            params
+        )
+        row = await cursor.fetchone()
+        await db.commit()
+        return dict(row) if row else None
+
+
+async def delete_collection(collection_id: int):
+    """Delete a collection."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        await db.execute("DELETE FROM collections WHERE id = ?", (collection_id,))
+        await db.commit()
+
+
+async def add_report_to_collection(collection_id: int, report_id: int):
+    """Add a report to a collection."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        # Get next sort order
+        cursor = await db.execute(
+            "SELECT COALESCE(MAX(sort_order), 0) + 1 as next_order FROM collection_reports WHERE collection_id = ?",
+            (collection_id,)
+        )
+        row = await cursor.fetchone()
+        sort_order = row[0] if row else 0
+
+        await db.execute(
+            "INSERT OR IGNORE INTO collection_reports (collection_id, report_id, sort_order) VALUES (?, ?, ?)",
+            (collection_id, report_id, sort_order)
+        )
+        await db.execute(
+            "UPDATE collections SET updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+            (collection_id,)
+        )
+        await db.commit()
+
+
+async def remove_report_from_collection(collection_id: int, report_id: int):
+    """Remove a report from a collection."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        await db.execute(
+            "DELETE FROM collection_reports WHERE collection_id = ? AND report_id = ?",
+            (collection_id, report_id)
+        )
+        await db.execute(
+            "UPDATE collections SET updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+            (collection_id,)
+        )
+        await db.commit()
+
+
+async def get_collection_reports(collection_id: int) -> list[dict]:
+    """Get all reports in a collection."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute(
+            """SELECT r.id, r.filename, r.filepath, r.title, r.source_url,
+                      r.content_type, r.created_at, r.summary, r.word_count, r.is_favorite,
+                      cr.sort_order
+               FROM reports r
+               JOIN collection_reports cr ON r.id = cr.report_id
+               WHERE cr.collection_id = ?
+               ORDER BY cr.sort_order, r.created_at DESC""",
+            (collection_id,)
+        )
+        rows = await cursor.fetchall()
+        return [dict(row) for row in rows]
+
+
+async def get_report_collections(report_id: int) -> list[dict]:
+    """Get all collections containing a report."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute(
+            """SELECT c.* FROM collections c
+               JOIN collection_reports cr ON c.id = cr.collection_id
+               WHERE cr.report_id = ?
+               ORDER BY c.name""",
+            (report_id,)
+        )
+        rows = await cursor.fetchall()
+        return [dict(row) for row in rows]
+
+
+async def get_collection_by_id(collection_id: int) -> Optional[dict]:
+    """Get a collection by ID."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute(
+            """SELECT c.*, COUNT(cr.report_id) as report_count
+               FROM collections c
+               LEFT JOIN collection_reports cr ON c.id = cr.collection_id
+               WHERE c.id = ?
+               GROUP BY c.id""",
+            (collection_id,)
         )
         row = await cursor.fetchone()
         return dict(row) if row else None

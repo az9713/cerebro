@@ -4,6 +4,7 @@ import asyncio
 import subprocess
 import re
 import logging
+import os
 from pathlib import Path
 from typing import Optional, Tuple
 import httpx
@@ -11,6 +12,9 @@ import httpx
 from config import INBOX_DIR, PROJECT_ROOT
 
 logger = logging.getLogger(__name__)
+
+# Check if audio transcription fallback is enabled
+ENABLE_AUDIO_FALLBACK = os.getenv("ENABLE_AUDIO_FALLBACK", "true").lower() == "true"
 
 
 def _run_ytdlp_sync(url: str) -> Tuple[int, str, str]:
@@ -55,6 +59,10 @@ async def fetch_youtube_transcript(url: str) -> Tuple[str, str, str]:
         if "yt-dlp" in stderr.lower() or "not found" in stderr.lower():
             raise Exception("yt-dlp not installed. Install with: pip install yt-dlp")
         elif "no subtitles" in stderr.lower() or "no caption" in stderr.lower():
+            # Try audio transcription fallback
+            if ENABLE_AUDIO_FALLBACK:
+                logger.info("No captions available, attempting audio transcription fallback...")
+                return await fetch_youtube_via_audio(url)
             raise Exception("No English captions available for this video")
         else:
             raise Exception(f"Failed to fetch transcript: {stderr[:200]}")
@@ -279,13 +287,67 @@ def extract_xml_authors(xml: str) -> str:
     return ", ".join(authors) if authors else "Unknown"
 
 
+async def fetch_youtube_via_audio(url: str) -> Tuple[str, str, str]:
+    """
+    Fetch YouTube transcript by downloading audio and transcribing with Whisper.
+
+    This is a fallback for videos without captions.
+
+    Returns:
+        Tuple of (transcript_text, video_title, source_url)
+    """
+    # Import here to avoid circular dependency
+    from services.transcription import transcribe_url, TranscriptionError
+
+    try:
+        transcript, title = await transcribe_url(
+            url=url,
+            use_api=True,  # Prefer API for speed
+            keep_audio=False,
+        )
+
+        logger.info(f"Audio transcription complete: {title} ({len(transcript)} chars)")
+        return transcript, title, url
+
+    except TranscriptionError as e:
+        raise Exception(f"Audio transcription failed: {str(e)}")
+
+
+async def fetch_podcast_audio(url: str) -> Tuple[str, str, str]:
+    """
+    Fetch podcast content by downloading audio and transcribing.
+
+    Args:
+        url: URL to podcast episode (direct audio URL or podcast platform URL)
+
+    Returns:
+        Tuple of (transcript_text, episode_title, source_url)
+    """
+    from services.transcription import transcribe_url, TranscriptionError
+
+    logger.info(f"Fetching podcast audio: {url}")
+
+    try:
+        transcript, title = await transcribe_url(
+            url=url,
+            use_api=True,
+            keep_audio=False,
+        )
+
+        logger.info(f"Podcast transcription complete: {title} ({len(transcript)} chars)")
+        return transcript, title, url
+
+    except TranscriptionError as e:
+        raise Exception(f"Podcast transcription failed: {str(e)}")
+
+
 async def fetch_content(url: str, content_type: str) -> Tuple[str, str, str]:
     """
     Fetch content based on type.
 
     Args:
         url: The URL or file path
-        content_type: One of 'youtube', 'article', 'arxiv'
+        content_type: One of 'youtube', 'article', 'arxiv', 'podcast'
 
     Returns:
         Tuple of (content_text, title, source_url)
@@ -296,5 +358,7 @@ async def fetch_content(url: str, content_type: str) -> Tuple[str, str, str]:
         return await fetch_article(url)
     elif content_type == "arxiv":
         return await fetch_arxiv(url)
+    elif content_type == "podcast":
+        return await fetch_podcast_audio(url)
     else:
         raise ValueError(f"Unknown content type: {content_type}")

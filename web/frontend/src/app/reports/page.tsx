@@ -43,7 +43,7 @@ export default function ReportsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">Reports</h1>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Reports</h1>
 
         <div className="flex items-center gap-4">
           <select
@@ -52,7 +52,7 @@ export default function ReportsPage() {
               setContentType(e.target.value);
               setPage(1);
             }}
-            className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             {CONTENT_TYPES.map((type) => (
               <option key={type.value} value={type.value}>
@@ -61,7 +61,7 @@ export default function ReportsPage() {
             ))}
           </select>
 
-          <span className="text-sm text-slate-500">
+          <span className="text-sm text-slate-500 dark:text-slate-400">
             {total} report{total !== 1 ? 's' : ''}
           </span>
         </div>
@@ -69,11 +69,11 @@ export default function ReportsPage() {
 
       {loading ? (
         <div className="flex items-center justify-center h-64">
-          <div className="text-slate-500">Loading...</div>
+          <div className="text-slate-500 dark:text-slate-400">Loading...</div>
         </div>
       ) : reports.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-slate-500">No reports found.</p>
+          <p className="text-slate-500 dark:text-slate-400">No reports found.</p>
         </div>
       ) : (
         <>
@@ -89,19 +89,19 @@ export default function ReportsPage() {
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="px-4 py-2 border border-slate-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50"
+                className="px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700"
               >
                 Previous
               </button>
 
-              <span className="px-4 py-2 text-slate-600">
+              <span className="px-4 py-2 text-slate-600 dark:text-slate-300">
                 Page {page} of {totalPages}
               </span>
 
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="px-4 py-2 border border-slate-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50"
+                className="px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700"
               >
                 Next
               </button>

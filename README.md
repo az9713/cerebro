@@ -1,299 +1,316 @@
-# Personal OS - Content Consumption Automation System
+# Personal OS - Your Intelligent Content Consumption System
 
-## What Is This?
+Personal OS is a powerful **content consumption automation system** that helps you **consume, analyze, and remember** content from across the internet. Whether you're watching YouTube videos, reading articles, studying research papers, or listening to podcasts, Personal OS creates structured summaries and insights that you can reference forever.
 
-Personal OS is a **content consumption automation system** that helps you efficiently process and analyze:
-- YouTube video transcripts
-- Blog posts and articles
-- arXiv research papers
-- Any text-based content
+## What Does Personal OS Do?
 
-Instead of manually copying content to ChatGPT, copying responses back, and saving files - this system automates the entire workflow with simple commands.
+Imagine having a personal assistant that:
+- **Watches YouTube videos** and extracts the key insights so you don't have to rewatch
+- **Reads articles** and summarizes the main points
+- **Analyzes research papers** and explains them in plain English
+- **Transcribes podcasts** and pulls out actionable takeaways
+- **Generates flashcards** for spaced repetition learning
+- **Creates weekly digests** of everything you've consumed
+- **Exports to Obsidian/Notion** for your personal knowledge base
+- **Monitors RSS feeds** and auto-queues new content
 
----
+That's Personal OS.
 
-## The Problem This Solves
+## Who Is This For?
 
-**Before (Manual Workflow):**
-1. Find interesting YouTube video
-2. Copy transcript from YouTube
-3. Paste into ChatGPT/Gemini
-4. Wait for analysis
-5. Copy the response
-6. Create a new file
-7. Paste and save
-8. Repeat for every video/article...
-
-**After (With Personal OS):**
-1. Save transcript to `inbox/video.txt`
-2. Type `/yt inbox/video.txt` OR just say "Analyze this YouTube transcript"
-3. Done! Report saved and logged automatically.
+- **Lifelong learners** who consume lots of content but forget what they learned
+- **Researchers** who need to process many papers quickly
+- **Content creators** who need to stay on top of trends
+- **Students** studying from video lectures and online resources
+- **Professionals** who want to learn efficiently
 
 ---
 
 ## Quick Start (5 Minutes)
 
 ### Prerequisites
-- **Claude Code** installed and working ([Download here](https://claude.ai/download))
-- **Windows** computer (this guide is for Windows)
-- **yt-dlp** (optional, for YouTube URL support): `pip install yt-dlp`
 
-### Your First Analysis
+You need these installed on your computer:
 
-1. **Open Terminal** in this folder
-   - Open File Explorer
-   - Navigate to `cerebro`
-   - Right-click in empty space → "Open in Terminal"
+1. **Python 3.10 or higher** - [Download Python](https://www.python.org/downloads/)
+2. **Node.js 18 or higher** - [Download Node.js](https://nodejs.org/)
+3. **Claude Code CLI** - [Install Claude Code](https://claude.ai/code)
+4. **yt-dlp** (for YouTube): `pip install yt-dlp`
 
-2. **Start Claude Code**
-   ```
-   claude
-   ```
+### Step 1: Get an API Key
 
-3. **Analyze the sample transcript** (or use a YouTube URL!)
-   ```
-   /yt docs/transcript.txt
-   ```
-   Or with yt-dlp installed, analyze directly from URL:
-   ```
-   /yt https://youtube.com/watch?v=YOUR_VIDEO_ID
-   ```
+1. Go to [console.anthropic.com](https://console.anthropic.com)
+2. Sign up or log in
+3. Go to "API Keys" and create a new key
+4. Copy the key (starts with `sk-ant-`)
 
-4. **View your report**
-   - Check `reports/youtube/` folder
-   - A new `.md` file contains your analysis!
+### Step 2: Set Up the Project
 
-5. **Check today's log**
-   ```
-   /log
-   ```
+```bash
+# Navigate to the project folder
+cd /path/to/personal-os
 
----
+# Set up the backend
+cd web/backend
+pip install -r requirements.txt
 
-## Folder Structure Explained
+# Create environment file with your API key
+echo "ANTHROPIC_API_KEY=sk-ant-your-key-here" > .env
 
+# Optionally add OpenAI key for audio transcription
+echo "OPENAI_API_KEY=sk-your-openai-key" >> .env
+
+# Return to project root
+cd ../..
 ```
-cerebro/
-│
-├── .claude/               # CLAUDE CODE AUTOMATION
-│   ├── commands/          # Slash Commands (explicit: /yt, /read, etc.)
-│   │   ├── yt.md          # /yt command
-│   │   ├── read.md        # /read command
-│   │   ├── arxiv.md       # /arxiv command
-│   │   ├── analyze.md     # /analyze command
-│   │   ├── batch.md       # /batch command
-│   │   └── log.md         # /log command
-│   │
-│   ├── skills/            # Skills (automatic, natural language)
-│   │   ├── youtube-analysis/
-│   │   ├── article-analysis/
-│   │   ├── arxiv-analysis/
-│   │   ├── content-analysis/
-│   │   ├── batch-processing/
-│   │   └── activity-log/
-│   │
-│   └── agents/            # Agents (specialized background tasks)
-│       └── markdown-format-verifier.md
-│
-├── CLAUDE.md              # Project instructions for Claude
-├── README.md              # You are here!
-│
-├── inbox/                 # PUT YOUR CONTENT HERE
-│   └── (drop .txt files)  # Transcripts, articles, any text
-│
-├── prompts/               # HOW ANALYSIS IS DONE (customizable)
-│   ├── yt.md              # YouTube video analysis style
-│   ├── article.md         # Blog/article analysis style
-│   ├── paper.md           # Research paper analysis style
-│   └── default.md         # Generic analysis style
-│
-├── reports/               # WHERE REPORTS GO (auto-generated)
-│   ├── youtube/           # Video analyses
-│   ├── articles/          # Blog/article analyses
-│   ├── papers/            # Research paper analyses
-│   └── other/             # Everything else
-│
-├── logs/                  # ACTIVITY TRACKING (auto-generated)
-│   └── YYYY-MM-DD.md      # Daily log files
-│
-└── docs/                  # DOCUMENTATION & REFERENCE
-    ├── QUICK_START.md     # 13 example use cases
-    ├── USER_GUIDE.md      # Complete user manual
-    ├── DEVELOPER_GUIDE.md # For future developers
-    ├── transcript.txt     # Sample transcript (Teresa Torres video)
-    └── gpt5_summary.txt   # Sample summary
+
+### Step 3: Start Using It!
+
+**Option A: Use with Claude Code CLI (Recommended)**
+
+```bash
+# Open Claude Code in the project
+claude
+
+# Analyze a YouTube video
+/yt https://www.youtube.com/watch?v=dQw4w9WgXcQ
+
+# Read an article
+/read https://example.com/interesting-article
+
+# See what you've analyzed today
+/log
+```
+
+**Option B: Use the Web Interface**
+
+```bash
+# Terminal 1: Start the backend
+cd web/backend
+uvicorn main:app --reload --port 8000
+
+# Terminal 2: Start the frontend
+cd web/frontend
+npm install
+npm run dev
+
+# Open http://localhost:3000 in your browser
 ```
 
 ---
 
-## Three Ways to Use: Commands, Skills & Agents
+## All Features at a Glance
 
-### Option 1: Slash Commands (Explicit)
+### Content Types Supported (10+)
 
-Type a command directly:
+| Type | Command | Example |
+|------|---------|---------|
+| YouTube Videos | `/yt` | `/yt https://youtube.com/watch?v=...` |
+| Articles/Blogs | `/read` | `/read https://example.com/post` |
+| Research Papers | `/arxiv` | `/arxiv https://arxiv.org/abs/2401.12345` |
+| Podcasts | `/podcast` | `/podcast episode.mp3` or URL |
+| PDFs | `/pdf` | `/pdf document.pdf` |
+| Twitter Threads | `/thread` | `/thread https://twitter.com/user/status/...` |
+| Hacker News | `/hn` | `/hn https://news.ycombinator.com/item?id=...` |
+| GitHub Repos | `/github` | `/github https://github.com/user/repo` |
+| Books (EPUB) | `/book` | `/book mybook.epub` |
+| Newsletters | `/email` | `/email newsletter.txt` |
+| Any Text | `/analyze` | `/analyze inbox/notes.txt` |
 
-| Command | What It Does | Example |
-|---------|--------------|---------|
-| `/yt <url-or-file>` | Analyze YouTube video (URL or transcript) | `/yt https://youtube.com/watch?v=abc` |
-| `/read <url>` | Analyze web article | `/read https://example.com/article` |
-| `/arxiv <url>` | Analyze research paper | `/arxiv https://arxiv.org/abs/2401.12345` |
-| `/analyze <file>` | Analyze any content | `/analyze inbox/notes.txt` |
-| `/batch <file>` | Process multiple items (URLs or files) | `/batch inbox/reading-list.txt` |
-| `/log` | Show today's activity | `/log` |
+### Organization & Discovery Features
 
-### Option 2: Skills (Natural Language)
+| Feature | Command | Description |
+|---------|---------|-------------|
+| Queue | `/queue` | Save content for later batch processing |
+| Random | `/random` | Rediscover random past reports |
+| Similar | `/similar` | Find related content in your library |
+| Activity Log | `/log` | See what you consumed today |
 
-Just describe what you want - Claude automatically uses the right skill:
+### Automation & Export Features
 
-| Say This... | Claude Uses |
-|-------------|-------------|
-| "Analyze this YouTube video: https://youtube.com/watch?v=abc" | `youtube-analysis` skill |
-| "Analyze this YouTube transcript at inbox/video.txt" | `youtube-analysis` skill |
-| "Can you summarize this blog post?" | `article-analysis` skill |
-| "Explain this arXiv paper to me" | `arxiv-analysis` skill |
-| "What did I read today?" | `activity-log` skill |
-| "Process all items in my reading list" | `batch-processing` skill |
-
-### Option 3: Agents (Specialized Tasks)
-
-Agents handle complex, multi-file tasks autonomously:
-
-| Say This... | What Happens |
-|-------------|--------------|
-| "Check if all markdown files are formatted correctly" | `markdown-format-verifier` scans all .md files |
-| "Verify the markdown formatting in the docs folder" | Agent checks docs/ for formatting issues |
-| "Validate my .md files" | Agent generates a verification report |
-
-**Commands and Skills** are for content analysis. **Agents** are for codebase tasks like verification and auditing.
+| Feature | Command | Description |
+|---------|---------|-------------|
+| RSS Feeds | `/rss` | Subscribe to blogs and YouTube channels |
+| Weekly Digest | `/digest` | Generate weekly/monthly summaries |
+| Export | `/export` | Export to Obsidian or Notion |
+| Flashcards | `/flashcards` | Generate Anki flashcards |
+| Batch | `/batch` | Process multiple items at once |
 
 ---
 
-## Web Application (Full-Stack UI)
+## Documentation
 
-In addition to CLI commands and skills, Personal OS includes a full-stack web application for a graphical interface.
+| Document | Description | Who Should Read |
+|----------|-------------|-----------------|
+| **[Quick Start Guide](docs/QUICK_START.md)** | 10 hands-on tutorials with examples | Everyone (start here!) |
+| **[User Guide](docs/USER_GUIDE.md)** | Complete feature reference | All users |
+| **[Developer Guide](docs/DEVELOPER_GUIDE.md)** | How to extend the system | Developers |
+| **[API Reference](docs/API_REFERENCE.md)** | REST API documentation | Developers |
+| **[Architecture](docs/ARCHITECTURE.md)** | System design overview | Developers |
+| **[Troubleshooting](docs/TROUBLESHOOTING.md)** | Common issues & solutions | Everyone |
+
+### Learning Resources
+
+New to full-stack development or the technologies used? The **[Learning Path](docs/learn/README.md)** provides comprehensive guides:
+
+| Guide | Topics Covered | Time |
+|-------|----------------|------|
+| [Python for C++/Java Devs](docs/learn/PYTHON_FOR_CPP_JAVA_DEVS.md) | Python syntax, types, OOP | ~3 hours |
+| [Modern JavaScript](docs/learn/MODERN_JAVASCRIPT.md) | ES6+, TypeScript basics | ~3 hours |
+| [REST API Basics](docs/learn/REST_API_BASICS.md) | HTTP, endpoints, JSON | ~2 hours |
+| [Async Programming](docs/learn/ASYNC_PROGRAMMING.md) | Promises, async/await | ~2 hours |
+| [React Fundamentals](docs/learn/REACT_FUNDAMENTALS.md) | Components, hooks, state | ~3 hours |
+| [Next.js Guide](docs/learn/NEXTJS_GUIDE.md) | App router, SSR | ~2 hours |
+| [FastAPI Guide](docs/learn/FASTAPI_GUIDE.md) | Python API development | ~2 hours |
+| [Anthropic Claude API](docs/learn/ANTHROPIC_CLAUDE_API.md) | AI integration | ~1 hour |
+| [OpenAI Whisper API](docs/learn/OPENAI_WHISPER_API.md) | Audio transcription | ~1 hour |
+
+**Total estimated time:** 18-24 hours to complete all guides
+
+---
+
+## Project Structure
+
+```
+personal-os/
+├── .claude/               # Claude Code automation
+│   ├── commands/          # Slash commands (/yt, /read, etc.)
+│   ├── skills/            # Natural language triggers
+│   └── agents/            # Specialized background tasks
+├── prompts/               # Analysis templates (customizable)
+├── inbox/                 # Drop files here for processing
+├── reports/               # Generated reports (organized by type)
+│   ├── youtube/
+│   ├── articles/
+│   ├── papers/
+│   ├── podcasts/
+│   ├── pdfs/
+│   ├── github/
+│   ├── books/
+│   ├── newsletters/
+│   ├── threads/
+│   ├── hackernews/
+│   ├── digests/
+│   └── other/
+├── logs/                  # Daily activity logs
+├── exports/               # Obsidian/Notion/Anki exports
+├── data/                  # RSS feeds and app data
+├── docs/                  # Documentation
+└── web/                   # Web application
+    ├── backend/           # Python FastAPI server
+    └── frontend/          # React/Next.js interface
+```
+
+---
+
+## Three Ways to Use Personal OS
+
+### 1. Slash Commands (Explicit)
+
+Type a command directly for precise control:
+
+```bash
+/yt https://youtube.com/watch?v=abc123
+/read https://example.com/article
+/arxiv https://arxiv.org/abs/2401.12345
+```
+
+### 2. Skills (Natural Language)
+
+Just describe what you want in plain English:
+
+```
+"Analyze this YouTube video: https://youtube.com/watch?v=abc"
+"Summarize this blog post for me"
+"What did I read this week?"
+```
+
+### 3. Web Interface
+
+Use the graphical dashboard at http://localhost:3000 for:
+- Visual content submission
+- Browsing reports with search
+- Viewing activity logs
+- Dark mode support
+
+---
+
+## Example Output
+
+When you run `/yt https://youtube.com/watch?v=example`, you get a structured report:
+
+```markdown
+# How to Build Better Habits
+
+**Source**: https://youtube.com/watch?v=example
+**Date**: 2024-01-15
+**Type**: YouTube Video
+
+---
+
+## Executive Summary
+A 2-3 sentence overview of the entire video...
+
+## Key Takeaways
+1. Start with habits that take less than 2 minutes
+2. Stack new habits onto existing routines
+3. Design your environment for success
+...
+
+## Actionable Items
+- [ ] Identify one habit to start tomorrow
+- [ ] Find an existing routine to attach it to
+...
+
+## Notable Quotes
+> "You don't rise to the level of your goals, you fall to the level of your systems"
+
+---
+
+## My Notes
+(Space for your personal notes)
+```
+
+---
+
+## Web Application
 
 ### Features
 
 | Feature | Description |
 |---------|-------------|
-| **Dashboard** | Quick access to recent reports and analysis form |
-| **Analyze** | Submit YouTube URLs, articles, or arXiv papers |
-| **Reports** | Browse, search, and view all analysis reports |
-| **Activity Log** | View today's consumption activity |
-| **Model Selection** | Choose between Haiku (fast/cheap), Sonnet (balanced), or Opus (powerful) |
-| **Real-time Progress** | See analysis progress with live streaming updates |
+| **Dashboard** | Quick access to recent reports and analysis |
+| **Analyze** | Submit URLs or upload files |
+| **Reports** | Browse, search, and view all reports |
+| **Activity Log** | View consumption history |
+| **Dark Mode** | Easy on the eyes |
+| **Model Selection** | Choose Haiku/Sonnet/Opus |
 
 ### Quick Start
 
-1. **Configure API Key**
-   ```bash
-   # Create web/backend/.env with your API key
-   echo "ANTHROPIC_API_KEY=sk-ant-..." > web/backend/.env
-   ```
+```bash
+# Terminal 1: Backend
+cd web/backend
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
 
-2. **Install Dependencies**
-   ```bash
-   # Backend (Python)
-   cd web/backend
-   pip install -r requirements.txt
+# Terminal 2: Frontend
+cd web/frontend
+npm install
+npm run dev
 
-   # Frontend (Node.js)
-   cd ../frontend
-   npm install
-   ```
-
-3. **Start the Application**
-   ```bash
-   # Terminal 1: Start backend
-   cd web/backend
-   uvicorn main:app --reload --port 8000
-
-   # Terminal 2: Start frontend
-   cd web/frontend
-   npm run dev
-   ```
-
-4. **Open the Web UI**
-   - Navigate to `http://localhost:3000`
-   - Submit a YouTube URL on the Analyze page
-   - View your reports in the Reports section
+# Open http://localhost:3000
+```
 
 ### Model Selection & Pricing
 
 | Model | Speed | Quality | Cost per Analysis* |
 |-------|-------|---------|-------------------|
-| **Haiku** | ⚡ Fastest | Good | ~$0.01 |
+| **Haiku** | Fastest | Good | ~$0.01 |
 | **Sonnet** | Medium | Excellent | ~$0.05 |
 | **Opus** | Slower | Best | ~$0.25 |
 
 *Approximate cost for a typical 10-minute video transcript
-
-### Tech Stack
-
-- **Frontend**: Next.js 14, React, TypeScript, Tailwind CSS
-- **Backend**: Python FastAPI, SQLite with FTS5
-- **AI**: Direct Anthropic API integration
-
-### Architecture
-
-```
-web/
-├── backend/
-│   ├── main.py              # FastAPI entry point
-│   ├── config.py            # Settings and paths
-│   ├── database.py          # SQLite operations
-│   ├── routers/             # API endpoints
-│   │   ├── reports.py       # Report CRUD
-│   │   ├── analysis.py      # Analysis jobs
-│   │   └── logs.py          # Activity logs
-│   └── services/
-│       ├── analyzer.py      # Anthropic API integration
-│       ├── content_fetcher.py # yt-dlp, article fetch
-│       └── indexer.py       # Filesystem-to-DB sync
-│
-└── frontend/
-    └── src/
-        ├── app/             # Next.js pages
-        ├── components/      # React components
-        └── lib/             # API client
-```
-
-The web UI uses the **same prompts** and **same output format** as the CLI - reports are saved to `reports/` and logged to `logs/` identically.
-
----
-
-## Documentation Index
-
-| Document | Who It's For | What's Inside |
-|----------|--------------|---------------|
-| [QUICK_START.md](docs/QUICK_START.md) | New users | 14 example use cases with step-by-step instructions |
-| [USER_GUIDE.md](docs/USER_GUIDE.md) | All users | Complete manual for daily use |
-| [DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md) | Future developers | How to extend and modify the system |
-
----
-
-## Customization
-
-### Change How Analysis Works
-
-Edit files in `prompts/` folder:
-- `prompts/yt.md` - Change what's included in video analyses
-- `prompts/article.md` - Change article analysis format
-- `prompts/paper.md` - Change research paper analysis
-- `prompts/default.md` - Change generic analysis
-
-See [Understanding the Prompt System](#understanding-the-prompt-system) below for full documentation.
-
-### Example: Add "ELI5 Summary" to Video Analysis
-
-1. Open `prompts/yt.md`
-2. Add a new section:
-   ```markdown
-   ## 13. ELI5 (Explain Like I'm 5)
-   Explain the main idea in the simplest possible terms.
-   ```
-3. Save the file
-4. Future video analyses will include this section!
 
 ---
 
@@ -308,197 +325,52 @@ The analysis prompts were designed with two goals:
 
 Each prompt includes **12-14 comprehensive sections** that ensure no valuable information is lost.
 
-### The Prompt Philosophy
+### Latent Signals
 
-| Problem | Solution |
-|---------|----------|
-| Limited takeaways (5-7 only) | Extract ALL significant points exhaustively |
-| Shallow analysis | Capture specific facts, numbers, names, examples |
-| Missing frameworks | Dedicated section for mental models & concepts |
-| Missing tools/references | Dedicated section for resources mentioned |
-| No critical analysis | Sections for critiques, gaps, counterarguments |
-| Surface-level insights only | **Latent Signals** section for inferred insights |
-
-### Latent Signals: Reading Between the Lines
-
-Every prompt includes a **Latent Signals** section that surfaces insights that are implied but not explicitly stated:
+Every prompt includes a **Latent Signals** section that surfaces implied insights:
 
 - **Unstated assumptions** - What does the creator take for granted?
 - **Implied predictions** - What future trends are suggested?
 - **Hidden motivations** - Why is this being shared now?
 - **Second-order effects** - What downstream consequences follow?
-- **Market/industry signals** - What does this suggest about where things are heading?
-- **Contrarian indicators** - What's conspicuously NOT being said?
-
-**Important:** Latent signals are only included when genuine inferences can be made. The system will NOT fabricate signals if none exist.
-
-### Prompt Structure by Content Type
-
-#### YouTube Videos (`prompts/yt.md`) - 12 Sections
-
-| Section | Purpose |
-|---------|---------|
-| 1. Overview | Title, creator, content type, target audience, core thesis |
-| 2. Comprehensive Summary | 3-4 paragraph thorough summary |
-| 3. Key Takeaways | ALL significant points (not just 5-7) |
-| 4. Facts, Statistics & Data | Every specific number, metric, benchmark |
-| 5. Frameworks, Models & Concepts | Mental models, terminology, taxonomies |
-| 6. Tools, Resources & References | Software, books, people mentioned |
-| 7. Examples & Case Studies | Real-world examples, success/failure stories |
-| 8. Notable Quotes | 5-10 memorable quotes with timestamps |
-| 9. Actionable Insights | Immediate, short-term, long-term actions |
-| 10. Questions & Gaps | What wasn't addressed, counterarguments |
-| 11. Latent Signals | Implied insights, second-order effects |
-| 12. Connections | Related topics, follow-up suggestions |
-
-#### Articles (`prompts/article.md`) - 13 Sections
-
-| Section | Purpose |
-|---------|---------|
-| 1. Metadata | Title, author, publication, article type, core thesis |
-| 2. Comprehensive Summary | 3-4 paragraph thorough summary |
-| 3. All Key Points | Every significant argument and claim |
-| 4. Facts, Statistics & Data | All numbers, research citations, metrics |
-| 5. Frameworks & Mental Models | Conceptual tools introduced |
-| 6. Examples & Evidence | Case studies, anecdotes, scenarios |
-| 7. People, Companies & References | Individuals, organizations, citations |
-| 8. Author's Perspective & Bias | Background, potential biases, assumptions |
-| 9. Notable Quotes | 5-10 memorable passages |
-| 10. Actionable Takeaways | What to do with this information |
-| 11. Critical Analysis | Strengths, weaknesses, counterarguments |
-| 12. Latent Signals | Implied insights, hidden motivations |
-| 13. Connections | Related reading, contrasting viewpoints |
-
-#### Research Papers (`prompts/paper.md`) - 14 Sections
-
-| Section | Purpose |
-|---------|---------|
-| 1. Paper Overview | Title, authors, publication, paper type |
-| 2. Plain English Summary | Accessible 3-4 paragraph explanation |
-| 3. Research Question & Motivation | Why this research matters |
-| 4. Key Contributions | All novel methods, findings, applications |
-| 5. Methodology Deep Dive | Data, methods, experiments, baselines, metrics |
-| 6. Results & Findings | All performance numbers, comparisons |
-| 7. Limitations & Caveats | Stated and unstated limitations |
-| 8. Technical Details | Equations, architecture, hyperparameters |
-| 9. Related Work Context | Prior work, competing approaches |
-| 10. Practical Implications | Real-world applications, industry relevance |
-| 11. Future Directions | Open problems, research gaps |
-| 12. Critical Assessment | Strengths, concerns, reproducibility |
-| 13. Latent Signals | Field dynamics, timing significance |
-| 14. References to Follow | Key papers for deeper understanding |
-
-#### Generic Content (`prompts/default.md`) - 12 Sections
-
-| Section | Purpose |
-|---------|---------|
-| 1. Overview | Content type, source, core topic, main message |
-| 2. Comprehensive Summary | 3-4 paragraph summary |
-| 3. All Key Points | Every significant idea |
-| 4. Facts & Specifics | Numbers, dates, names, examples |
-| 5. Concepts & Frameworks | Terms, models, categorizations |
-| 6. Examples & Illustrations | Case studies, analogies, applications |
-| 7. Resources & References | Tools, citations, people mentioned |
-| 8. Notable Passages | 5-10 memorable quotes |
-| 9. Actionable Insights | What to do with this information |
-| 10. Questions Raised | Unanswered questions, gaps |
-| 11. Latent Signals | Implied insights, hidden purposes |
-| 12. Connections | Related topics, complementary content |
 
 ### Customizing Prompts
 
-Prompts are fully customizable. To modify:
-
 1. Open the appropriate file in `prompts/`
 2. Add, remove, or modify sections
-3. Save - changes take effect immediately (no restart needed)
-
-**Tips for customization:**
-- Keep numbered sections for clarity
-- Be specific about what you want (e.g., "5-10 quotes" not "some quotes")
-- Include formatting instructions at the end
-- Test with sample content after changes
-
----
-
-## How It Works (Technical)
-
-This system uses three Claude Code features:
-
-### Slash Commands (`.claude/commands/`)
-- **User-invoked**: You explicitly type `/command`
-- **Each `.md` file = one command** (e.g., `yt.md` → `/yt`)
-- **`$ARGUMENTS`** placeholder gets replaced with your input
-
-Example: `/yt inbox/video.txt`
-1. Claude Code loads `.claude/commands/yt.md`
-2. Replaces `$ARGUMENTS` with `inbox/video.txt`
-3. Claude follows the instructions
-
-### Skills (`.claude/skills/`)
-- **Model-invoked**: Claude automatically detects when relevant
-- **Each folder = one skill** with `SKILL.md` inside
-- **Triggers based on context** from your natural language
-
-Example: "Analyze this YouTube transcript at inbox/video.txt"
-1. Claude reads skill descriptions and finds `youtube-analysis` matches
-2. Claude loads `.claude/skills/youtube-analysis/SKILL.md`
-3. Claude follows the instructions
-
-### Agents (`.claude/agents/`)
-- **Model-invoked**: Claude automatically detects when relevant
-- **Each `.md` file = one agent** (e.g., `markdown-format-verifier.md`)
-- **Handles complex tasks** across multiple files
-
-Example: "Check if all markdown files are formatted correctly"
-1. Claude detects markdown verification request
-2. Claude loads `.claude/agents/markdown-format-verifier.md`
-3. Agent scans all `.md` files and generates a report
-
-### Commands vs Skills vs Agents Summary
-
-| Aspect | Slash Commands | Skills | Agents |
-|--------|----------------|--------|--------|
-| Location | `.claude/commands/` | `.claude/skills/` | `.claude/agents/` |
-| Structure | Single `.md` file | Folder with `SKILL.md` | Single `.md` file |
-| Invocation | Explicit (`/yt`) | Automatic (natural language) | Automatic (natural language) |
-| Best for | Quick, precise tasks | Conversational requests | Complex verification/audit |
+3. Save - changes take effect immediately
 
 ---
 
 ## Troubleshooting
 
-### "Claude doesn't recognize the command"
-- Make sure you're in the correct folder
-- Check that `.claude/commands/` folder exists with command files
-- Restart Claude Code to reload commands
+| Problem | Solution |
+|---------|----------|
+| "yt-dlp not found" | Run `pip install yt-dlp` |
+| "No captions available" | Enable audio transcription with OPENAI_API_KEY |
+| "WebFetch failed" | Save content to `inbox/` and use `/analyze` |
+| Command not recognized | Restart Claude Code |
+| Report not saved | Check that `reports/` folders exist |
 
-### "Report not saved"
-- Check that `reports/` folders exist
-- Claude will create them if missing
-
-### "WebFetch failed"
-- Some websites block automated access
-- Try saving the content manually to `inbox/` instead
-
-### "yt-dlp not found" or YouTube URL not working
-- Install yt-dlp: `pip install yt-dlp`
-- Make sure Python is in your PATH
-- Try updating: `pip install --upgrade yt-dlp`
-
-### "No captions available" for YouTube video
-- The video may not have subtitles/captions enabled
-- Try a different video or manually copy the transcript
+See [Troubleshooting Guide](docs/TROUBLESHOOTING.md) for complete solutions.
 
 ---
 
-## Credits & Inspiration
+## Getting Help
 
-This system is inspired by [Teresa Torres](https://producttalk.org)'s approach to using Claude Code as a "Personal Operating System" - treating AI as a full-time employee that helps with knowledge work.
+- **Documentation**: See the `docs/` folder
+- **Issues**: [GitHub Issues](https://github.com/anthropics/claude-code/issues)
+- **Quick Help**: Run `/help` in Claude Code
+
+---
+
+## Credits
+
+This project is inspired by using Claude Code as a "Personal Operating System" - treating AI as a full-time assistant for knowledge work.
 
 ### Built with Claude Code
 
-This entire project - all code, documentation, commands, skills, and agents - was created by [Claude Code](https://claude.ai/code) powered by **Claude Opus 4.5**. From the initial architecture to the final documentation, every file in this repository was generated through collaborative AI-assisted development.
+This entire project - all code, documentation, commands, and skills - was created by [Claude Code](https://claude.ai/code) powered by **Claude Opus 4.5**.
 
 ---
 

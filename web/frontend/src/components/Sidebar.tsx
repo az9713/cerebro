@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { ThemeToggle } from './ThemeProvider';
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: '🏠' },
@@ -15,13 +16,13 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-slate-900 text-white min-h-screen p-4">
+    <aside className="w-64 bg-slate-900 text-white min-h-screen p-4 flex flex-col">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-primary-400">Cerebro</h1>
         <p className="text-slate-400 text-sm">Personal OS</p>
       </div>
 
-      <nav className="space-y-1">
+      <nav className="space-y-1 flex-1">
         {navItems.map((item) => {
           const isActive = pathname === item.href ||
             (item.href !== '/' && pathname.startsWith(item.href));
@@ -52,6 +53,10 @@ export function Sidebar() {
             </Link>
           </div>
         </div>
+      </div>
+
+      <div className="mt-4 pt-4 border-t border-slate-700">
+        <ThemeToggle />
       </div>
     </aside>
   );

@@ -1,10 +1,10 @@
-"""Reports router - list, get, search reports."""
+"""Reports router - list, get, search, favorite reports."""
 
 from fastapi import APIRouter, HTTPException, Query
 from typing import Optional
 
-from database import get_reports, get_report_by_id, search_reports
-from models import Report, ReportList, SearchResult
+from database import get_reports, get_report_by_id, search_reports, toggle_favorite, get_favorite_reports
+from models import Report, ReportList, SearchResult, FavoriteResponse
 
 router = APIRouter()
 
@@ -85,6 +85,33 @@ async def search(
         )
         for r in results
     ]
+
+
+@router.get("/favorites")
+async def list_favorites():
+    """Get all favorited reports."""
+    items = await get_favorite_reports()
+    return [
+        Report(
+            id=item["id"],
+            filename=item["filename"],
+            filepath=item["filepath"],
+            title=item["title"],
+            source_url=item.get("source_url"),
+            content_type=item["content_type"],
+            created_at=item["created_at"],
+            summary=item.get("summary"),
+            word_count=item.get("word_count"),
+        )
+        for item in items
+    ]
+
+
+@router.post("/{report_id}/favorite", response_model=FavoriteResponse)
+async def toggle_report_favorite(report_id: int):
+    """Toggle favorite status for a report."""
+    is_favorite = await toggle_favorite(report_id)
+    return FavoriteResponse(report_id=report_id, is_favorite=is_favorite)
 
 
 @router.get("/{report_id}", response_model=Report)

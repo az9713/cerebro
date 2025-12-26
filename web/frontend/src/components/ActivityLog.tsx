@@ -18,14 +18,14 @@ function LogSection({
 
   return (
     <div className="mb-4">
-      <h4 className="text-sm font-medium text-slate-600 mb-2">
+      <h4 className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
         {icon} {title}
       </h4>
       <ul className="space-y-1">
         {entries.map((entry, i) => (
           <li key={i} className="text-sm">
-            <span className="text-slate-900">{entry.title}</span>
-            <span className="text-slate-400 ml-2">{entry.time}</span>
+            <span className="text-slate-900 dark:text-slate-100">{entry.title}</span>
+            <span className="text-slate-400 dark:text-slate-500 ml-2">{entry.time}</span>
           </li>
         ))}
       </ul>
@@ -39,7 +39,7 @@ export function ActivityLog({ log, compact = false }: ActivityLogProps) {
 
   if (totalItems === 0) {
     return (
-      <div className="text-slate-500 text-sm py-4">
+      <div className="text-slate-500 dark:text-slate-400 text-sm py-4">
         No activity recorded for this day.
       </div>
     );
@@ -71,7 +71,7 @@ export function ActivityLog({ log, compact = false }: ActivityLogProps) {
       />
 
       {compact && totalItems > 3 && (
-        <p className="text-xs text-slate-400 mt-2">
+        <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">
           +{totalItems - 3} more items
         </p>
       )}

@@ -78,3 +78,73 @@ class SearchResult(BaseModel):
     content_type: str
     created_at: datetime
     snippet: str  # Matched text snippet
+
+
+# Tag models
+class TagCreate(BaseModel):
+    """Create a new tag."""
+    name: str
+    color: str = "#6b7280"
+
+
+class TagUpdate(BaseModel):
+    """Update a tag."""
+    name: Optional[str] = None
+    color: Optional[str] = None
+
+
+class Tag(BaseModel):
+    """Tag model."""
+    id: int
+    name: str
+    color: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class TagList(BaseModel):
+    """List of tags."""
+    items: list[Tag]
+
+
+# Collection models
+class CollectionCreate(BaseModel):
+    """Create a new collection."""
+    name: str
+    description: Optional[str] = None
+    color: str = "#3b82f6"
+
+
+class CollectionUpdate(BaseModel):
+    """Update a collection."""
+    name: Optional[str] = None
+    description: Optional[str] = None
+    color: Optional[str] = None
+
+
+class Collection(BaseModel):
+    """Collection model."""
+    id: int
+    name: str
+    description: Optional[str] = None
+    color: str
+    report_count: int = 0
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class CollectionList(BaseModel):
+    """List of collections."""
+    items: list[Collection]
+
+
+# Favorite toggle response
+class FavoriteResponse(BaseModel):
+    """Response from toggling favorite."""
+    report_id: int
+    is_favorite: bool

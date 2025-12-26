@@ -1,547 +1,484 @@
-# Quick Start Guide: 14 Use Cases to Get You Started
+# Quick Start Guide: 10 Hands-On Tutorials
 
-This guide walks you through 14 practical examples, from simplest to more advanced. Each example teaches you something new about the system.
+Welcome to Personal OS! This guide walks you through **10 practical tutorials** that showcase the core features. Each tutorial gives you a quick win and builds your confidence.
 
-**Time to complete all examples:** ~30 minutes
+**Time to complete all tutorials:** ~30 minutes
 
----
+**What you'll learn:**
+- How to analyze different content types (YouTube, articles, papers, podcasts)
+- How to organize and rediscover your analyses
+- How to automate your content consumption workflow
+- How to export your knowledge to other tools
 
-## Two Ways to Interact: Commands & Skills
-
-Personal OS gives you **two ways** to trigger the same workflows:
-
-### Option 1: Slash Commands (Explicit)
-Type a command directly - great for quick, precise actions.
-
-```
-.claude/commands/
-├── yt.md        → /yt command
-├── read.md      → /read command
-├── arxiv.md     → /arxiv command
-├── analyze.md   → /analyze command
-├── batch.md     → /batch command
-└── log.md       → /log command
-```
-
-When you type `/yt inbox/video.txt`, Claude Code:
-1. Loads the command file at `.claude/commands/yt.md`
-2. Replaces `$ARGUMENTS` with `inbox/video.txt`
-3. Follows the instructions in that command file
-
-### Option 2: Skills (Natural Language)
-Just describe what you want - Claude automatically uses the right skill.
-
-```
-.claude/skills/
-├── youtube-analysis/    → "Analyze this video transcript"
-├── article-analysis/    → "Summarize this blog post"
-├── arxiv-analysis/      → "Explain this research paper"
-├── content-analysis/    → "Analyze these notes"
-├── batch-processing/    → "Process my reading list"
-└── activity-log/        → "What did I watch today?"
-```
-
-When you say "Analyze this YouTube transcript at inbox/video.txt", Claude:
-1. Detects that `youtube-analysis` skill matches your request
-2. Loads `.claude/skills/youtube-analysis/SKILL.md`
-3. Follows the instructions automatically
-
-**Both produce identical results - use whichever feels natural!**
+> **New to the technologies used?** If you're coming from C++/Java and need to learn Python, JavaScript, React, or the APIs used in this project, check out our **[Learning Path](learn/README.md)** first. It provides comprehensive guides that take you from traditional programming to full-stack web development.
 
 ---
 
-## Before You Begin: Setup Checklist
+## Before You Begin: One-Time Setup
 
-### Step 0: Install yt-dlp (Recommended)
+### Prerequisites Checklist
 
-For the easiest YouTube workflow, install yt-dlp:
+Make sure you have installed:
 
-```
-pip install yt-dlp
-```
+- [ ] **Python 3.10+** - [Download Python](https://python.org/downloads)
+- [ ] **Node.js 18+** - [Download Node.js](https://nodejs.org)
+- [ ] **Claude Code CLI** - [Install Claude Code](https://claude.ai/code)
+- [ ] **yt-dlp** - Run `pip install yt-dlp` in terminal
+- [ ] **Anthropic API key** - Get from [console.anthropic.com](https://console.anthropic.com)
 
-This lets you analyze YouTube videos directly from URLs - no manual transcript copying needed!
+### Setup Steps
 
-### Step 1: Open Terminal in the Right Folder
+Open your terminal (Command Prompt on Windows, Terminal on Mac):
 
-1. Open **File Explorer** (press `Windows + E`)
-2. Navigate to the `personal_os` folder (wherever you installed it)
-3. Click in the address bar at the top
-4. Type `cmd` and press Enter
-   - A black terminal window opens
+```bash
+# Step 1: Navigate to the project folder
+cd /path/to/personal-os
 
-### Step 2: Start Claude Code
+# Step 2: Install Python dependencies
+cd web/backend
+pip install -r requirements.txt
 
-In the terminal, type:
-```
+# Step 3: Create your environment file with API key
+echo "ANTHROPIC_API_KEY=sk-ant-YOUR_KEY_HERE" > .env
+
+# Step 4 (Optional): Add OpenAI key for audio transcription
+echo "OPENAI_API_KEY=sk-YOUR_OPENAI_KEY" >> .env
+
+# Step 5: Return to project root
+cd ../..
+
+# Step 6: Start Claude Code
 claude
 ```
 
-Wait for Claude to start. You'll see a prompt ready for your commands.
-
-**You're ready! Let's begin.**
+You should see the Claude Code prompt. **You're ready!**
 
 ---
 
-## Use Case 1: Analyze the Sample Video (Easiest)
+## Tutorial 1: Analyze Your First YouTube Video
 
-**What you'll learn:** How to analyze a YouTube transcript that's already saved
+**Goal:** Learn the basic `/yt` command
+**Time:** 3 minutes
 
+### What You'll Do
+
+Analyze a YouTube video and get a structured report with key takeaways, quotes, and actionable insights.
+
+### Step-by-Step
+
+1. **Find a YouTube video** you're interested in, or use this example:
+   ```
+   https://www.youtube.com/watch?v=UF8uR6Z6KLc
+   ```
+
+2. **Run the analysis command** in Claude Code:
+   ```
+   /yt https://www.youtube.com/watch?v=UF8uR6Z6KLc
+   ```
+
+3. **Wait for the analysis** (30-60 seconds)
+
+   Claude will:
+   - Download the video's captions using yt-dlp
+   - Analyze the transcript with AI
+   - Generate a structured report
+   - Save it to `reports/youtube/`
+
+4. **View your report**
+
+   Open the file at `reports/youtube/2024-XX-XX_video-title.md`
+
+### What You Get
+
+Your report includes:
+- Executive summary
+- All key takeaways (not just top 5)
+- Notable quotes with timestamps
+- Actionable items
+- Latent signals (implied insights)
+
+### Try It Yourself
+
+Analyze a video from your favorite educational channel!
+
+---
+
+## Tutorial 2: Analyze a Blog Article
+
+**Goal:** Learn to analyze web articles with `/read`
 **Time:** 2 minutes
 
-### Steps:
+### Step-by-Step
 
-1. In Claude Code, type either:
+1. **Find an interesting article**, or use this example:
    ```
-   /yt docs/transcript.txt
-   ```
-   OR simply say:
-   ```
-   Analyze the YouTube transcript at docs/transcript.txt
+   https://paulgraham.com/startupideas.html
    ```
 
-2. Press Enter and wait
+2. **Run the analysis:**
+   ```
+   /read https://paulgraham.com/startupideas.html
+   ```
 
-3. Claude will:
-   - Read the transcript
-   - Analyze it following the YouTube prompt
-   - Save a report to `reports/youtube/`
-   - Log the activity
+3. **Check the result** in `reports/articles/`
 
-4. Check your report:
-   - Open File Explorer
-   - Go to `reports/youtube/`
-   - Open the `.md` file that was just created
+### What's Different from YouTube?
 
-**Congratulations!** You've completed your first analysis.
+Article analysis focuses on:
+- Author's perspective and potential biases
+- Evidence and citations used
+- Critical analysis of arguments
+
+### Try It Yourself
+
+Analyze a Substack newsletter or Medium article!
 
 ---
 
-## Use Case 2: Analyze a YouTube Video by URL (Easiest!)
+## Tutorial 3: Understand a Research Paper
 
-**What you'll learn:** How to analyze any YouTube video directly from its URL
+**Goal:** Make academic papers accessible with `/arxiv`
+**Time:** 3 minutes
 
-**Time:** 2 minutes
+### Step-by-Step
 
-**Prerequisites:** yt-dlp installed (`pip install yt-dlp`)
-
-### Steps:
-
-1. Find any YouTube video you want to analyze
-
-2. Copy its URL from the browser address bar
-
-3. In Claude Code, type:
+1. **Find an arXiv paper**, or use this example:
    ```
-   /yt https://youtube.com/watch?v=YOUR_VIDEO_ID
-   ```
-   Or use natural language:
-   ```
-   Analyze this YouTube video: https://youtube.com/watch?v=YOUR_VIDEO_ID
+   https://arxiv.org/abs/2301.04655
    ```
 
-4. Claude will:
-   - Fetch the transcript automatically using yt-dlp
-   - Save the transcript to `inbox/` for future reference
-   - Analyze it following the YouTube prompt
-   - Save a report to `reports/youtube/`
-   - Log the activity
+2. **Analyze it:**
+   ```
+   /arxiv https://arxiv.org/abs/2301.04655
+   ```
 
-5. Check your report in `reports/youtube/`
+3. **Read the plain English summary**
 
-**This is the recommended workflow** - no manual copying needed!
+### What You Get
+
+- Plain English explanation (no jargon)
+- Key contributions explained simply
+- Methodology breakdown
+- Practical implications
+
+### Why This Matters
+
+Research papers are often intimidating. Personal OS breaks them down into digestible sections, explaining everything in everyday language.
 
 ---
 
-## Use Case 3: Check Your Activity Log
+## Tutorial 4: Check Your Activity Log
 
-**What you'll learn:** How to see what you've analyzed today
-
+**Goal:** See everything you've analyzed with `/log`
 **Time:** 1 minute
 
-### Steps:
-
-1. In Claude Code, type:
-   ```
-   /log
-   ```
-
-2. Claude shows you today's activity log, including:
-   - Videos watched (with links to reports)
-   - Articles read
-   - Papers reviewed
-
-**Tip:** The log file is saved at `logs/YYYY-MM-DD.md` (today's date)
-
----
-
-## Use Case 4: Analyze YouTube Video Manually (Alternative)
-
-**What you'll learn:** How to manually copy a transcript when yt-dlp isn't available
-
-**Time:** 5 minutes
-
-**When to use:** When yt-dlp isn't installed, or when a video has no auto-captions
-
-### Steps:
-
-1. **Find a YouTube video** you want to analyze
-
-2. **Get the transcript:**
-   - On YouTube, click "...more" below the video
-   - Click "Show transcript"
-   - Click the three dots (⋮) → "Toggle timestamps" (optional)
-   - Select all text (Ctrl+A) and copy (Ctrl+C)
-
-3. **Save the transcript:**
-   - Open Notepad (Windows + R, type `notepad`, Enter)
-   - Paste (Ctrl+V)
-   - Save as: `inbox/my-video.txt`
-     - File → Save As
-     - Navigate to `inbox` folder
-     - Filename: `my-video.txt`
-     - Save
-
-4. **Analyze:**
-   ```
-   /yt inbox/my-video.txt
-   ```
-
-5. **View report** in `reports/youtube/`
-
-**Tip:** Use Case 2 (URL method) is faster if you have yt-dlp installed!
-
----
-
-## Use Case 5: Analyze a Blog Post by URL
-
-**What you'll learn:** How to analyze web content directly from a URL
-
-**Time:** 2 minutes
-
-### Steps:
-
-1. Find any blog post or article URL
-
-2. In Claude Code, type:
-   ```
-   /read https://example.com/your-article-url
-   ```
-   (Replace with your actual URL)
-
-3. Claude will:
-   - Fetch the webpage content
-   - Analyze using the article prompt
-   - Save to `reports/articles/`
-   - Log the activity
-
-**Note:** Some websites may block automated access. If this happens, use the manual method (Use Case 3 style).
-
----
-
-## Use Case 6: Analyze a Substack Newsletter
-
-**What you'll learn:** Substack posts work great with `/read`
-
-**Time:** 2 minutes
-
-### Steps:
-
-1. Find a Substack post you want to analyze
-   - Example: `https://example.substack.com/p/article-title`
-
-2. Analyze it:
-   ```
-   /read https://example.substack.com/p/article-title
-   ```
-
-3. Check `reports/articles/` for your analysis
-
----
-
-## Use Case 7: Analyze an arXiv Research Paper
-
-**What you'll learn:** How to process academic papers
-
-**Time:** 3 minutes
-
-### Steps:
-
-1. Find an arXiv paper
-   - Go to https://arxiv.org
-   - Search for a topic
-   - Copy the paper URL (e.g., `https://arxiv.org/abs/2401.12345`)
-
-2. Analyze it:
-   ```
-   /arxiv https://arxiv.org/abs/2401.12345
-   ```
-
-3. Claude will:
-   - Fetch the paper abstract and content
-   - Explain it in accessible terms
-   - Save to `reports/papers/`
-
-**Tip:** arXiv analyses use a special prompt that explains complex research in plain English.
-
----
-
-## Use Case 8: Analyze Generic Content
-
-**What you'll learn:** How to analyze any text file
-
-**Time:** 3 minutes
-
-### Steps:
-
-1. Save any content to a file:
-   - Meeting notes
-   - Email thread
-   - Book excerpt
-   - Anything!
-
-2. Save it:
-   - Open Notepad
-   - Paste your content
-   - Save as: `inbox/my-content.txt`
-
-3. Analyze:
-   ```
-   /analyze inbox/my-content.txt
-   ```
-
-4. Claude will ask you for:
-   - A title for the report
-   - Category (video/article/paper/other)
-
-5. Report saved to appropriate folder
-
----
-
-## Use Case 9: Batch Process Multiple Items
-
-**What you'll learn:** How to analyze many items at once
-
-**Time:** 5 minutes
-
-### Steps:
-
-1. **Create a batch file:**
-   - Open Notepad
-   - Add one item per line (URLs or file paths):
-     ```
-     # My reading list for today
-     # YouTube URLs work directly (requires yt-dlp)
-     https://youtube.com/watch?v=abc123
-     https://youtu.be/def456
-
-     # Or use file paths for saved transcripts
-     yt inbox/video1.txt
-
-     # Articles and papers
-     read https://example.com/article1
-     arxiv https://arxiv.org/abs/2401.12345
-     ```
-   - Save as: `inbox/batch-list.txt`
-
-2. **No prep needed for URLs!**
-   - YouTube URLs are fetched automatically
-   - Only file paths need the files to exist first
-
-3. **Run batch processing:**
-   ```
-   /batch inbox/batch-list.txt
-   ```
-
-4. Claude processes each item sequentially:
-   - Analyzes video1 → saves report
-   - Analyzes video2 → saves report
-   - Fetches article1 → saves report
-   - Fetches article2 → saves report
-
-5. At the end, Claude shows a summary of all items processed
-
----
-
-## Use Case 10: Customize Your Analysis Style
-
-**What you'll learn:** How the enhanced prompts work and how to customize them
-
-**Time:** 5 minutes
-
-### Understanding the Enhanced Prompts
-
-The analysis prompts are designed for **maximum information extraction**:
-
-| Prompt | Sections | Key Features |
-|--------|----------|--------------|
-| `yt.md` | 12 sections | Quotes, frameworks, latent signals |
-| `article.md` | 13 sections | Author bias analysis, critical analysis |
-| `paper.md` | 14 sections | Methodology deep dive, technical details |
-| `default.md` | 12 sections | General-purpose extraction |
-
-Each prompt includes a **Latent Signals** section that surfaces implied insights (unstated assumptions, second-order effects, hidden motivations).
-
-### Steps to Customize:
-
-1. **Open the YouTube prompt:**
-   - Navigate to `prompts/yt.md`
-   - Open with Notepad or any text editor
-
-2. **Current structure (12 sections):**
-   ```markdown
-   # YouTube Video Analysis Prompt
-
-   ## 1. Overview
-   ## 2. Comprehensive Summary
-   ## 3. Key Takeaways (All Important Points)
-   ## 4. Facts, Statistics & Data
-   ## 5. Frameworks, Models & Concepts
-   ## 6. Tools, Resources & References
-   ## 7. Examples & Case Studies
-   ## 8. Notable Quotes
-   ## 9. Actionable Insights
-   ## 10. Questions & Gaps
-   ## 11. Latent Signals
-   ## 12. Connections
-   ```
-
-3. **Add a new section at the end:**
-   ```markdown
-   ## 13. One-Sentence Takeaway
-   What's the single most important thing to remember from this video?
-
-   ## 14. My Rating
-   Rate 1-5 stars based on:
-   - Quality of information
-   - Practical usefulness
-   - Clarity of presentation
-   Explain your rating.
-   ```
-
-4. **Save the file** (changes take effect immediately - no restart needed)
-
-5. **Test it:**
-   ```
-   /yt docs/transcript.txt
-   ```
-
-6. **Check the new report** - it now includes your new sections!
-
-### Key Customization Tips
-
-- Keep numbered sections for consistency
-- Be specific: "5-10 quotes" not "some quotes"
-- The Latent Signals section is designed to surface implied insights - keep it!
-- Backups exist in `.ignore/prompts_original/` if you need to restore
-
----
-
-## Use Case 11: Review Your Week's Learning
-
-**What you'll learn:** How to use logs to track your learning
-
-**Time:** 3 minutes
-
-### Steps:
+### Step-by-Step
 
 1. **View today's log:**
    ```
    /log
    ```
 
-2. **View a specific day's log:**
-   - Navigate to `logs/` folder
-   - Open any `YYYY-MM-DD.md` file
+2. **See your consumption history:**
+   ```markdown
+   # Activity Log - 2024-01-15
 
-3. **Create a weekly summary (advanced):**
-   - Create a file listing all log files:
-     ```
-     # Weekly review
-     analyze logs/2024-12-16.md
-     analyze logs/2024-12-17.md
-     analyze logs/2024-12-18.md
-     analyze logs/2024-12-19.md
-     analyze logs/2024-12-20.md
-     ```
-   - Ask Claude: "Summarize my learning this week based on these logs"
+   ## Videos Watched
+   - [TED Talk Title](../reports/youtube/...) - 10:30
+
+   ## Articles Read
+   - [Paul Graham Essay](../reports/articles/...) - 11:15
+   ```
+
+### Why This Matters
+
+- Track your learning over time
+- Never lose what you've consumed
+- Build a personal knowledge database
 
 ---
 
-## Bonus Use Cases
+## Tutorial 5: Process Multiple Items at Once
 
-### Use Case 12: Compare Two Videos
+**Goal:** Learn batch processing with `/batch`
+**Time:** 5 minutes
 
-1. Analyze both videos separately:
-   ```
-   /yt inbox/video1.txt
-   /yt inbox/video2.txt
-   ```
+### Step-by-Step
 
-2. Ask Claude:
+1. **Create a batch file** called `inbox/my-reading-list.txt`:
    ```
-   Compare the reports in reports/youtube/[video1] and reports/youtube/[video2].
-   What are the common themes? Where do they differ?
-   ```
-
-### Use Case 13: Create a Reading List Report
-
-1. After batch processing, ask:
-   ```
-   Read all reports in reports/articles/ from today and create a summary of what I learned.
+   # My reading list for today
+   https://www.youtube.com/watch?v=UF8uR6Z6KLc
+   https://paulgraham.com/startupideas.html
+   https://arxiv.org/abs/2301.04655
    ```
 
-### Use Case 14: Find Connections Across Papers
-
-1. After analyzing multiple arXiv papers:
+2. **Process the batch:**
    ```
-   Read my recent paper analyses in reports/papers/ and identify common research themes.
+   /batch inbox/my-reading-list.txt
+   ```
+
+3. **Watch Claude process each item** one by one
+
+### Pro Tips
+
+- Lines starting with `#` are comments
+- Mix different content types in one file
+- Great for processing a week's worth of saved links
+
+---
+
+## Tutorial 6: Build a Queue for Later
+
+**Goal:** Save content for later processing with `/queue`
+**Time:** 3 minutes
+
+### Step-by-Step
+
+1. **Add items to your queue throughout the day:**
+   ```
+   /queue https://www.youtube.com/watch?v=example1
+   /queue https://example.com/interesting-article
+   ```
+
+2. **Check what's queued:**
+   ```
+   /queue list
+   ```
+
+3. **Process everything when ready:**
+   ```
+   /queue process
+   ```
+
+### When to Use Queue vs Batch
+
+| Feature | Queue | Batch |
+|---------|-------|-------|
+| Add items over time | Yes | No |
+| Process immediately | Optional | Yes |
+| Persistent storage | Yes | No |
+
+---
+
+## Tutorial 7: Rediscover Past Content
+
+**Goal:** Use `/random` and `/similar` for discovery
+**Time:** 2 minutes
+
+### Step-by-Step
+
+1. **Surface a random past report:**
+   ```
+   /random
+   ```
+
+2. **Filter by type:**
+   ```
+   /random youtube
+   /random article
+   ```
+
+3. **Find related content:**
+   ```
+   /similar "productivity"
+   ```
+
+### Why This Matters
+
+- **Spaced repetition**: Randomly revisit past learning
+- **Connections**: Discover links between different content
+- **No lost knowledge**: Everything stays accessible
+
+---
+
+## Tutorial 8: Generate a Weekly Digest
+
+**Goal:** Create a summary of your week with `/digest`
+**Time:** 2 minutes
+
+### Step-by-Step
+
+1. **Generate this week's digest:**
+   ```
+   /digest
+   ```
+
+2. **View the result** in `reports/digests/`
+
+   Your digest includes:
+   - Total content consumed
+   - Breakdown by type
+   - Key insights from each piece
+   - Reflection prompts
+
+3. **Try other periods:**
+   ```
+   /digest lastweek
+   /digest month
+   ```
+
+### Weekly Review Ritual
+
+Use `/digest` every Sunday to review what you learned!
+
+---
+
+## Tutorial 9: Export to Obsidian
+
+**Goal:** Move your knowledge to Obsidian with `/export`
+**Time:** 3 minutes
+
+### Step-by-Step
+
+1. **Export all reports:**
+   ```
+   /export obsidian
+   ```
+
+2. **Find the export** in `exports/obsidian/`
+
+   You get:
+   - All reports with YAML frontmatter
+   - Wikilinks for internal connections
+   - An index note linking everything
+
+3. **Import to Obsidian:**
+   - Open Obsidian
+   - Select "Open folder as vault"
+   - Choose `exports/obsidian/`
+
+### Alternative: Export to Notion
+
+```
+/export notion
+```
+
+This creates a JSON file for Notion's API.
+
+---
+
+## Tutorial 10: Generate Flashcards for Anki
+
+**Goal:** Create spaced repetition cards with `/flashcards`
+**Time:** 3 minutes
+
+### Step-by-Step
+
+1. **Generate flashcards from all reports:**
+   ```
+   /flashcards all
+   ```
+
+2. **Or from a specific report:**
+   ```
+   /flashcards reports/youtube/2024-01-15_habits.md
+   ```
+
+3. **Import to Anki:**
+   - Open Anki → File → Import
+   - Select the `.txt` file from `exports/`
+   - Set field separator to "Tab"
+   - Click Import
+
+### What Gets Converted
+
+- Key takeaways → Q&A pairs
+- Definitions → "What is X?" cards
+- Notable quotes → Completion exercises
+
+---
+
+## Bonus: Subscribe to RSS Feeds
+
+**Goal:** Automate content discovery with `/rss`
+**Time:** 3 minutes
+
+### Step-by-Step
+
+1. **Subscribe to a YouTube channel:**
+   ```
+   /rss add https://www.youtube.com/feeds/videos.xml?channel_id=UCxyz youtube
+   ```
+
+2. **Subscribe to a blog:**
+   ```
+   /rss add https://example.com/feed.xml
+   ```
+
+3. **Check for new content:**
+   ```
+   /rss check
+   ```
+   New items are automatically added to your queue!
+
+4. **Process new content:**
+   ```
+   /queue process
    ```
 
 ---
 
-## What's Next?
+## All Commands Reference
 
-You've mastered the basics! Now explore:
+| Command | What It Does |
+|---------|-------------|
+| `/yt <url>` | Analyze YouTube video |
+| `/read <url>` | Analyze article |
+| `/arxiv <url>` | Analyze research paper |
+| `/podcast <file/url>` | Analyze podcast episode |
+| `/pdf <file>` | Analyze PDF document |
+| `/github <url>` | Analyze GitHub repository |
+| `/book <file>` | Analyze book/EPUB |
+| `/hn <url>` | Analyze Hacker News post |
+| `/thread <url>` | Analyze Twitter thread |
+| `/email <file>` | Analyze newsletter |
+| `/analyze <file>` | Analyze any text file |
+| `/batch <file>` | Process multiple items |
+| `/queue add <url>` | Add to queue |
+| `/queue list` | View queue |
+| `/queue process` | Process queue |
+| `/log` | View today's activity |
+| `/random` | Random past report |
+| `/similar <topic>` | Find related content |
+| `/digest` | Weekly summary |
+| `/export obsidian` | Export to Obsidian |
+| `/export notion` | Export to Notion |
+| `/flashcards all` | Generate Anki cards |
+| `/rss add <url>` | Subscribe to feed |
+| `/rss check` | Check for new content |
 
-1. **[USER_GUIDE.md](USER_GUIDE.md)** - Complete manual with all features
-2. **[DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md)** - If you want to extend the system or create new commands/skills
-3. **Customize prompts** in `prompts/` - Change how content is analyzed
-4. **Create new commands** in `.claude/commands/` - Add your own slash commands
-5. **Create new skills** in `.claude/skills/` - Add natural language triggers
-6. **Build habits** - Use `/log` or ask "what did I learn today?" daily
+---
+
+## Next Steps
+
+Congratulations! You've completed all 10 tutorials. Here's what to do next:
+
+### Immediate Actions
+
+1. **Analyze 5 pieces of content** you've been meaning to get to
+2. **Set up RSS feeds** for your top 3 content sources
+3. **Generate your first weekly digest** after a week of use
+
+### Explore Further
+
+- **[User Guide](USER_GUIDE.md)** - Complete reference for all features
+- **[Developer Guide](DEVELOPER_GUIDE.md)** - Learn to extend the system
+- **[Troubleshooting](TROUBLESHOOTING.md)** - Common issues & solutions
+
+### Build Your Workflow
+
+A suggested daily workflow:
+
+1. **Morning**: Check `/rss check` for new content
+2. **Throughout day**: `/queue add` interesting content
+3. **Evening**: `/queue process` to analyze everything
+4. **Weekly**: `/digest` to review and `/flashcards` for retention
 
 ---
 
-## Troubleshooting Quick Reference
+**You're now a Personal OS power user!**
 
-| Problem | Solution |
-|---------|----------|
-| "Unknown slash command" | Check that `.claude/commands/` folder exists with command files. Restart Claude Code. |
-| "Command not recognized" | Make sure you're in the right folder with `CLAUDE.md` and `.claude/commands/` |
-| "File not found" | Check the file path - use forward slashes `/` not backslashes `\` |
-| "WebFetch failed" | Save the content manually to `inbox/` instead |
-| "Report not appearing" | Check the `reports/` subfolders |
-| "Claude seems stuck" | Press Ctrl+C to cancel, then try again |
-| "yt-dlp not found" | Install with `pip install yt-dlp`. Make sure Python is in your PATH. |
-| "No captions available" | Video may not have subtitles. Try copying transcript manually (Use Case 4). |
-
----
-
-## Congratulations!
-
-You've completed all 14 use cases. You now know how to:
-
-- Analyze YouTube videos directly from URLs (with yt-dlp)
-- Analyze YouTube transcripts from files
-- Process blog posts and articles
-- Understand research papers
-- Batch process multiple items (URLs and files)
-- Customize your analysis style
-- Track your learning with logs
-
-**Keep learning, keep growing!**
-
----
+The more you use it, the more valuable your personal knowledge base becomes.
 
 *Built with [Claude Code](https://claude.ai/code) powered by Claude Opus 4.5*

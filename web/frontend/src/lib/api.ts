@@ -58,6 +58,39 @@ export interface AnalysisJob {
   error_message: string | null;
 }
 
+// Tags
+export interface Tag {
+  id: number;
+  name: string;
+  color: string;
+  created_at: string;
+}
+
+export interface TagList {
+  items: Tag[];
+  total: number;
+}
+
+// Collections
+export interface Collection {
+  id: number;
+  name: string;
+  description: string | null;
+  created_at: string;
+  report_count?: number;
+}
+
+export interface CollectionList {
+  items: Collection[];
+  total: number;
+}
+
+// Favorites response
+export interface FavoriteResponse {
+  report_id: number;
+  is_favorite: boolean;
+}
+
 export interface ModelInfo {
   key: string;
   id: string;
@@ -183,12 +216,140 @@ export function formatDate(dateStr: string): string {
 export function getTypeColor(type: string): string {
   switch (type) {
     case 'youtube':
-      return 'bg-red-100 text-red-800';
+      return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
     case 'article':
-      return 'bg-blue-100 text-blue-800';
+      return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
     case 'paper':
-      return 'bg-purple-100 text-purple-800';
+      return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300';
     default:
-      return 'bg-gray-100 text-gray-800';
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
   }
+}
+
+// ============ TAGS API ============
+
+export async function fetchTags(): Promise<TagList> {
+  const res = await fetch(`${API_BASE}/tags`);
+  if (!res.ok) throw new Error('Failed to fetch tags');
+  return res.json();
+}
+
+export async function createTag(name: string, color: string = '#6366f1'): Promise<Tag> {
+  const res = await fetch(`${API_BASE}/tags`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, color }),
+  });
+  if (!res.ok) throw new Error('Failed to create tag');
+  return res.json();
+}
+
+export async function updateTag(id: number, name?: string, color?: string): Promise<Tag> {
+  const res = await fetch(`${API_BASE}/tags/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, color }),
+  });
+  if (!res.ok) throw new Error('Failed to update tag');
+  return res.json();
+}
+
+export async function deleteTag(id: number): Promise<void> {
+  const res = await fetch(`${API_BASE}/tags/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Failed to delete tag');
+}
+
+export async function fetchReportTags(reportId: number): Promise<Tag[]> {
+  const res = await fetch(`${API_BASE}/tags/report/${reportId}`);
+  if (!res.ok) throw new Error('Failed to fetch report tags');
+  return res.json();
+}
+
+export async function addTagToReport(reportId: number, tagId: number): Promise<void> {
+  const res = await fetch(`${API_BASE}/tags/report/${reportId}/tag/${tagId}`, {
+    method: 'POST',
+  });
+  if (!res.ok) throw new Error('Failed to add tag to report');
+}
+
+export async function removeTagFromReport(reportId: number, tagId: number): Promise<void> {
+  const res = await fetch(`${API_BASE}/tags/report/${reportId}/tag/${tagId}`, {
+    method: 'DELETE',
+  });
+  if (!res.ok) throw new Error('Failed to remove tag from report');
+}
+
+// ============ COLLECTIONS API ============
+
+export async function fetchCollections(): Promise<CollectionList> {
+  const res = await fetch(`${API_BASE}/collections`);
+  if (!res.ok) throw new Error('Failed to fetch collections');
+  return res.json();
+}
+
+export async function fetchCollection(id: number): Promise<Collection & { reports: Report[] }> {
+  const res = await fetch(`${API_BASE}/collections/${id}`);
+  if (!res.ok) throw new Error('Failed to fetch collection');
+  return res.json();
+}
+
+export async function createCollection(name: string, description?: string): Promise<Collection> {
+  const res = await fetch(`${API_BASE}/collections`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, description }),
+  });
+  if (!res.ok) throw new Error('Failed to create collection');
+  return res.json();
+}
+
+export async function updateCollection(id: number, name?: string, description?: string): Promise<Collection> {
+  const res = await fetch(`${API_BASE}/collections/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, description }),
+  });
+  if (!res.ok) throw new Error('Failed to update collection');
+  return res.json();
+}
+
+export async function deleteCollection(id: number): Promise<void> {
+  const res = await fetch(`${API_BASE}/collections/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Failed to delete collection');
+}
+
+export async function addReportToCollection(collectionId: number, reportId: number): Promise<void> {
+  const res = await fetch(`${API_BASE}/collections/${collectionId}/reports/${reportId}`, {
+    method: 'POST',
+  });
+  if (!res.ok) throw new Error('Failed to add report to collection');
+}
+
+export async function removeReportFromCollection(collectionId: number, reportId: number): Promise<void> {
+  const res = await fetch(`${API_BASE}/collections/${collectionId}/reports/${reportId}`, {
+    method: 'DELETE',
+  });
+  if (!res.ok) throw new Error('Failed to remove report from collection');
+}
+
+export async function fetchReportCollections(reportId: number): Promise<Collection[]> {
+  const res = await fetch(`${API_BASE}/collections/report/${reportId}`);
+  if (!res.ok) throw new Error('Failed to fetch report collections');
+  return res.json();
+}
+
+// ============ FAVORITES API ============
+
+export async function fetchFavorites(): Promise<Report[]> {
+  const res = await fetch(`${API_BASE}/reports/favorites`);
+  if (!res.ok) throw new Error('Failed to fetch favorites');
+  return res.json();
+}
+
+export async function toggleFavorite(reportId: number): Promise<FavoriteResponse> {
+  const res = await fetch(`${API_BASE}/reports/${reportId}/favorite`, {
+    method: 'POST',
+  });
+  if (!res.ok) throw new Error('Failed to toggle favorite');
+  return res.json();
 }

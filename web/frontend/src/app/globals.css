@@ -7,9 +7,15 @@
   --background-rgb: 248, 250, 252;
 }
 
+.dark {
+  --foreground-rgb: 248, 250, 252;
+  --background-rgb: 15, 23, 42;
+}
+
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Markdown content styling */
@@ -18,19 +24,19 @@ body {
 }
 
 .prose h1 {
-  @apply text-3xl font-bold mb-4 text-slate-900;
+  @apply text-3xl font-bold mb-4 text-slate-900 dark:text-slate-100;
 }
 
 .prose h2 {
-  @apply text-2xl font-semibold mt-8 mb-3 text-slate-800;
+  @apply text-2xl font-semibold mt-8 mb-3 text-slate-800 dark:text-slate-200;
 }
 
 .prose h3 {
-  @apply text-xl font-semibold mt-6 mb-2 text-slate-800;
+  @apply text-xl font-semibold mt-6 mb-2 text-slate-800 dark:text-slate-200;
 }
 
 .prose p {
-  @apply mb-4 leading-relaxed text-slate-700;
+  @apply mb-4 leading-relaxed text-slate-700 dark:text-slate-300;
 }
 
 .prose ul, .prose ol {
@@ -38,19 +44,19 @@ body {
 }
 
 .prose li {
-  @apply mb-2 text-slate-700;
+  @apply mb-2 text-slate-700 dark:text-slate-300;
 }
 
 .prose blockquote {
-  @apply border-l-4 border-primary-500 pl-4 italic text-slate-600 my-4;
+  @apply border-l-4 border-primary-500 pl-4 italic text-slate-600 dark:text-slate-400 my-4;
 }
 
 .prose code {
-  @apply bg-slate-100 px-1.5 py-0.5 rounded text-sm font-mono text-slate-800;
+  @apply bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-sm font-mono text-slate-800 dark:text-slate-200;
 }
 
 .prose pre {
-  @apply bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto my-4;
+  @apply bg-slate-900 dark:bg-slate-950 text-slate-100 p-4 rounded-lg overflow-x-auto my-4;
 }
 
 .prose pre code {
@@ -58,18 +64,18 @@ body {
 }
 
 .prose a {
-  @apply text-primary-600 hover:text-primary-800 underline;
+  @apply text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 underline;
 }
 
 .prose strong {
-  @apply font-semibold text-slate-900;
+  @apply font-semibold text-slate-900 dark:text-slate-100;
 }
 
 .prose hr {
-  @apply my-8 border-slate-200;
+  @apply my-8 border-slate-200 dark:border-slate-700;
 }
 
 /* Search highlight */
 .prose mark {
-  @apply bg-yellow-200 px-0.5 rounded;
+  @apply bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-100 px-0.5 rounded;
 }

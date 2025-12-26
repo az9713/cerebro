@@ -77,6 +77,25 @@ You don't need to write Python, JavaScript, or any programming language.
    - Using slash commands
    - Understanding context
 
+### Learning Resources for Full-Stack Development
+
+If you want to modify the **web application** (frontend or backend), you'll need additional knowledge. We provide comprehensive learning guides for developers coming from C++/Java backgrounds:
+
+| Guide | What You'll Learn | When You Need It |
+|-------|-------------------|------------------|
+| **[Learning Path Overview](learn/README.md)** | Recommended learning order | Start here |
+| **[Python for C++/Java Devs](learn/PYTHON_FOR_CPP_JAVA_DEVS.md)** | Python syntax, types, OOP | Backend changes |
+| **[Modern JavaScript](learn/MODERN_JAVASCRIPT.md)** | ES6+, TypeScript | Frontend changes |
+| **[REST API Basics](learn/REST_API_BASICS.md)** | HTTP, endpoints, JSON | Any web changes |
+| **[Async Programming](learn/ASYNC_PROGRAMMING.md)** | Promises, async/await | API calls |
+| **[React Fundamentals](learn/REACT_FUNDAMENTALS.md)** | Components, hooks, state | Frontend UI |
+| **[Next.js Guide](learn/NEXTJS_GUIDE.md)** | App router, SSR | Frontend pages |
+| **[FastAPI Guide](learn/FASTAPI_GUIDE.md)** | Python API development | Backend APIs |
+| **[Anthropic Claude API](learn/ANTHROPIC_CLAUDE_API.md)** | AI integration | Analysis logic |
+| **[OpenAI Whisper API](learn/OPENAI_WHISPER_API.md)** | Audio transcription | Audio features |
+
+**Estimated time:** 18-24 hours to complete all guides. You can skip guides for technologies you already know.
+
 ### Recommended Tools
 
 1. **Text Editor** (pick one):
@@ -198,12 +217,26 @@ Personal OS provides **two equivalent paths** to the same output:
 
 ```
 .claude/commands/
-├── yt.md        → Creates /yt command
-├── read.md      → Creates /read command
-├── arxiv.md     → Creates /arxiv command
-├── analyze.md   → Creates /analyze command
-├── batch.md     → Creates /batch command
-└── log.md       → Creates /log command
+├── yt.md           → Creates /yt command (YouTube videos)
+├── read.md         → Creates /read command (web articles)
+├── arxiv.md        → Creates /arxiv command (research papers)
+├── podcast.md      → Creates /podcast command (podcast episodes)
+├── pdf.md          → Creates /pdf command (PDF documents)
+├── github.md       → Creates /github command (GitHub repos)
+├── book.md         → Creates /book command (EPUB books)
+├── hn.md           → Creates /hn command (Hacker News)
+├── thread.md       → Creates /thread command (Twitter threads)
+├── email.md        → Creates /email command (newsletters)
+├── analyze.md      → Creates /analyze command (any content)
+├── batch.md        → Creates /batch command (multiple items)
+├── queue.md        → Creates /queue command (queue management)
+├── log.md          → Creates /log command (activity log)
+├── random.md       → Creates /random command (random report)
+├── similar.md      → Creates /similar command (find related)
+├── rss.md          → Creates /rss command (RSS feeds)
+├── digest.md       → Creates /digest command (weekly digest)
+├── export.md       → Creates /export command (Obsidian/Notion)
+└── flashcards.md   → Creates /flashcards command (Anki cards)
 ```
 
 **Key Point:** The filename (minus `.md`) becomes the command name.
@@ -375,6 +408,8 @@ $ARGUMENTS
 │   └── SKILL.md
 └── activity-log/            → Triggered by "today", "activity log"
     └── SKILL.md
+
+(Additional skills for new content types follow the same pattern)
 ```
 
 **Key Point:** Each skill is a **folder** containing a `SKILL.md` file.
@@ -2154,12 +2189,23 @@ web/
 │   ├── routers/                # API endpoint modules
 │   │   ├── reports.py          # GET /api/reports, search, by-id
 │   │   ├── analysis.py         # POST /api/analysis/youtube|article|arxiv
-│   │   └── logs.py             # GET /api/logs/today
+│   │   ├── logs.py             # GET /api/logs/today
+│   │   ├── batch.py            # Batch processing endpoints
+│   │   ├── tags.py             # Tag management endpoints
+│   │   ├── collections.py      # Collection management endpoints
+│   │   ├── transcription.py    # Audio transcription endpoints
+│   │   ├── rss.py              # RSS feed management endpoints
+│   │   └── export.py           # Export to Obsidian/Notion endpoints
 │   └── services/               # Business logic
 │       ├── analyzer.py         # Anthropic API integration
 │       ├── content_fetcher.py  # yt-dlp, httpx article fetch
 │       ├── indexer.py          # Filesystem-to-SQLite sync
-│       └── parser.py           # Markdown parsing utilities
+│       ├── parser.py           # Markdown parsing utilities
+│       ├── transcription.py    # Whisper audio transcription
+│       ├── rss.py              # RSS feed monitoring
+│       ├── digest.py           # Weekly digest generation
+│       ├── export.py           # Export to Obsidian/Notion
+│       └── flashcards.py       # Anki flashcard generation
 │
 └── frontend/                   # Next.js 14 React Frontend
     └── src/
@@ -2573,73 +2619,129 @@ ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 
 ## 25. Future Enhancement Ideas
 
-### Easy Enhancements
+### ✅ Implemented Features
+
+The following enhancements have been completed:
+
+| Feature | Implementation | Command/Service |
+|---------|---------------|-----------------|
+| Podcast transcripts | `/podcast` command with Whisper transcription | `podcast.md`, `transcription.py` |
+| Book chapters | `/book` command for EPUB files | `book.md` |
+| Email newsletters | `/email` command | `email.md` |
+| PDF documents | `/pdf` command | `pdf.md` |
+| GitHub repos | `/github` command | `github.md` |
+| Twitter threads | `/thread` command | `thread.md` |
+| Hacker News | `/hn` command | `hn.md` |
+| Weekly summaries | `/digest` command | `digest.md`, `digest.py` |
+| RSS feed processing | `/rss` command | `rss.md`, `rss.py` |
+| Search functionality | Full-text search in web UI | `reports.py` |
+| Related content | `/similar` command | `similar.md` |
+| Random rediscovery | `/random` command | `random.md` |
+| Queue management | `/queue` command | `queue.md` |
+| Export to Obsidian | `/export obsidian` command | `export.md`, `export.py` |
+| Export to Notion | `/export notion` command | `export.md`, `export.py` |
+| Anki flashcards | `/flashcards` command | `flashcards.md`, `flashcards.py` |
+| Tags system | Backend tags API | `tags.py` |
+| Collections | Backend collections API | `collections.py` |
+
+### Easy Enhancements (Still Available)
 
 1. **New content types**
-   - Podcast transcripts
-   - Meeting notes
-   - Book chapters
-   - Course materials
+   - Meeting notes from video conferencing (Zoom/Teams transcripts)
+   - Course materials (Coursera, Udemy)
+   - Reddit threads/AMAs
 
 2. **New prompt sections**
-   - Difficulty rating
-   - Time to read/watch
+   - Difficulty rating (beginner/intermediate/advanced)
+   - Time to read/watch estimate
    - Prerequisites needed
+   - Confidence score for AI analysis
 
-3. **Better logging**
-   - Weekly summaries
-   - Monthly reports
-   - Topic tracking
+3. **Enhanced logging**
+   - Monthly learning reports
+   - Topic tracking over time
+   - Reading streaks and goals
 
-### Medium Complexity
+### Medium Complexity (Still Available)
 
-1. **Tags and categories**
-   - Add tags to reports
-   - Search by tag
-   - Filter logs by tag
-
-2. **Templates**
-   - Different templates for different needs
-   - Quick template for short content
+1. **Templates system**
+   - Quick template for short content (<5 min)
    - Deep template for detailed analysis
+   - Custom templates per user
 
-3. **Comparisons**
-   - Compare two articles
-   - Track changing opinions
-   - Connect related content
+2. **Comparisons feature**
+   - Compare two articles on same topic
+   - Track author's changing opinions
+   - Debate summaries (opposing views)
 
-### Advanced Enhancements
+3. **Enhanced tags**
+   - Auto-tagging based on content
+   - Tag hierarchies (parent/child tags)
+   - Tag suggestions from AI
 
-1. **Search functionality**
-   - Search across all reports
-   - Find content by keyword
-   - Related content suggestions
+### Advanced Enhancements (Still Available)
 
-2. **Integration ideas**
-   - RSS feed processing
-   - Email newsletter import
-   - Readwise/Pocket integration
+1. **Semantic search**
+   - Vector embeddings for similarity
+   - "Find content like this" feature
+   - Concept clustering
 
-3. **Automation**
-   - Scheduled batch processing
-   - Automatic filing
-   - Summary generation
+2. **Additional integrations**
+   - Readwise integration
+   - Pocket integration
+   - Raindrop.io integration
+   - Calendar integration (learning time blocks)
+
+3. **Advanced automation**
+   - Scheduled daily/weekly processing
+   - Smart prioritization of queue
+   - Content recommendations based on history
+
+4. **Mobile & Desktop apps**
+   - Electron desktop app
+   - Progressive Web App (PWA)
+   - Share extension for mobile browsers
+
+5. **Multi-user support**
+   - User accounts
+   - Shared collections
+   - Team knowledge base
 
 ---
 
 ## Appendix: Reference Files
 
-### Current Command Files
+### Current Command Files (20 Commands)
 
 See the actual command files in `.claude/commands/` folder:
-- `yt.md` - YouTube transcript analysis
-- `read.md` - Web article analysis
-- `arxiv.md` - arXiv paper analysis
-- `analyze.md` - Generic content analysis
-- `batch.md` - Batch processing
-- `log.md` - Activity log display
 
-### Current Skill Files
+**Content Analysis Commands:**
+- `yt.md` - YouTube video analysis (`/yt`)
+- `read.md` - Web article analysis (`/read`)
+- `arxiv.md` - arXiv paper analysis (`/arxiv`)
+- `podcast.md` - Podcast episode analysis (`/podcast`)
+- `pdf.md` - PDF document analysis (`/pdf`)
+- `github.md` - GitHub repository analysis (`/github`)
+- `book.md` - EPUB book analysis (`/book`)
+- `hn.md` - Hacker News post analysis (`/hn`)
+- `thread.md` - Twitter thread analysis (`/thread`)
+- `email.md` - Newsletter/email analysis (`/email`)
+- `analyze.md` - Generic content analysis (`/analyze`)
+- `batch.md` - Batch processing (`/batch`)
+
+**Organization Commands:**
+- `queue.md` - Queue management (`/queue`)
+- `log.md` - Activity log display (`/log`)
+- `random.md` - Random report discovery (`/random`)
+- `similar.md` - Find related content (`/similar`)
+
+**Automation Commands:**
+- `rss.md` - RSS feed management (`/rss`)
+- `digest.md` - Weekly digest generation (`/digest`)
+- `export.md` - Export to Obsidian/Notion (`/export`)
+- `flashcards.md` - Anki flashcard generation (`/flashcards`)
+
+### Current Skill Files (6 Skills)
 
 See the skill folders in `.claude/skills/` directory:
 - `youtube-analysis/SKILL.md` - Triggered by "YouTube", "video transcript"
@@ -2654,63 +2756,166 @@ See the skill folders in `.claude/skills/` directory:
 See the agent files in `.claude/agents/` directory:
 - `markdown-format-verifier.md` - Triggered by "check markdown format", "validate .md files"
 
-### Prompt Templates
+### Prompt Templates (10 Templates)
 
-See files in the `prompts/` folder for examples:
-- `yt.md` - YouTube analysis style
-- `article.md` - Article analysis style
+See files in the `prompts/` folder:
+- `yt.md` - YouTube video analysis style
+- `article.md` - Article/blog analysis style
 - `paper.md` - Research paper analysis style
-- `default.md` - Generic analysis style
+- `podcast.md` - Podcast episode analysis style
+- `pdf.md` - PDF document analysis style
+- `github.md` - GitHub repository analysis style
+- `book.md` - Book/EPUB analysis style
+- `hn.md` - Hacker News post analysis style
+- `thread.md` - Twitter thread analysis style
+- `newsletter.md` - Newsletter/email analysis style
+- `default.md` - Generic content analysis style
+- `digest.md` - Weekly digest summary style
 
 ### Complete File Structure
 
 ```
-cerebro/
+personal-os/
 ├── .claude/
 │   ├── commands/              # SLASH COMMANDS (explicit)
-│   │   ├── yt.md              # /yt command
-│   │   ├── read.md            # /read command
-│   │   ├── arxiv.md           # /arxiv command
-│   │   ├── analyze.md         # /analyze command
-│   │   ├── batch.md           # /batch command
-│   │   └── log.md             # /log command
+│   │   ├── yt.md              # /yt - YouTube analysis
+│   │   ├── read.md            # /read - Article analysis
+│   │   ├── arxiv.md           # /arxiv - arXiv papers
+│   │   ├── podcast.md         # /podcast - Podcast episodes
+│   │   ├── pdf.md             # /pdf - PDF documents
+│   │   ├── github.md          # /github - GitHub repos
+│   │   ├── book.md            # /book - EPUB books
+│   │   ├── hn.md              # /hn - Hacker News posts
+│   │   ├── thread.md          # /thread - Twitter threads
+│   │   ├── email.md           # /email - Newsletters
+│   │   ├── analyze.md         # /analyze - Generic content
+│   │   ├── batch.md           # /batch - Batch processing
+│   │   ├── queue.md           # /queue - Queue management
+│   │   ├── log.md             # /log - Activity log
+│   │   ├── random.md          # /random - Random discovery
+│   │   ├── similar.md         # /similar - Related content
+│   │   ├── rss.md             # /rss - RSS feeds
+│   │   ├── digest.md          # /digest - Weekly digest
+│   │   ├── export.md          # /export - Obsidian/Notion
+│   │   └── flashcards.md      # /flashcards - Anki cards
 │   │
 │   ├── skills/                # SKILLS (automatic, natural language)
-│       ├── youtube-analysis/
-│       │   └── SKILL.md
-│       ├── article-analysis/
-│       │   └── SKILL.md
-│       ├── arxiv-analysis/
-│       │   └── SKILL.md
-│       ├── content-analysis/
-│       │   └── SKILL.md
-│       ├── batch-processing/
-│       │   └── SKILL.md
-│       └── activity-log/
-│           └── SKILL.md
+│   │   ├── youtube-analysis/
+│   │   │   └── SKILL.md
+│   │   ├── article-analysis/
+│   │   │   └── SKILL.md
+│   │   ├── arxiv-analysis/
+│   │   │   └── SKILL.md
+│   │   ├── content-analysis/
+│   │   │   └── SKILL.md
+│   │   ├── batch-processing/
+│   │   │   └── SKILL.md
+│   │   └── activity-log/
+│   │       └── SKILL.md
 │   │
 │   └── agents/                # AGENTS (specialized tasks)
 │       └── markdown-format-verifier.md
-├── CLAUDE.md                  # Project instructions
+│
+├── CLAUDE.md                  # Project instructions for Claude Code
 ├── README.md                  # Project overview
+│
 ├── inbox/                     # User input files
+│   └── (drop files here)
+│
 ├── prompts/                   # Analysis style prompts
-│   ├── yt.md
-│   ├── article.md
-│   ├── paper.md
-│   └── default.md
-├── reports/                   # Generated reports
+│   ├── yt.md                  # YouTube video template
+│   ├── article.md             # Article template
+│   ├── paper.md               # Research paper template
+│   ├── podcast.md             # Podcast template
+│   ├── pdf.md                 # PDF template
+│   ├── github.md              # GitHub repo template
+│   ├── book.md                # Book template
+│   ├── hn.md                  # Hacker News template
+│   ├── thread.md              # Twitter thread template
+│   ├── newsletter.md          # Newsletter template
+│   ├── digest.md              # Weekly digest template
+│   └── default.md             # Fallback template
+│
+├── reports/                   # Generated reports (organized by type)
 │   ├── youtube/
 │   ├── articles/
 │   ├── papers/
+│   ├── podcasts/
+│   ├── pdfs/
+│   ├── github/
+│   ├── books/
+│   ├── hackernews/
+│   ├── threads/
+│   ├── newsletters/
+│   ├── digests/
 │   └── other/
-├── logs/                      # Activity logs
-└── docs/                      # Documentation
-    ├── QUICK_START.md
-    ├── USER_GUIDE.md
-    ├── DEVELOPER_GUIDE.md
-    ├── transcript.txt
-    └── gpt5_summary.txt
+│
+├── logs/                      # Daily activity logs (YYYY-MM-DD.md)
+│
+├── exports/                   # Exported content
+│   ├── obsidian/              # Obsidian vault exports
+│   └── anki/                  # Anki flashcard exports
+│
+├── data/                      # Application data
+│   ├── queue.json             # Pending content queue
+│   └── rss_feeds.json         # RSS feed subscriptions
+│
+├── docs/                      # Documentation
+│   ├── QUICK_START.md         # 10 hands-on tutorials
+│   ├── USER_GUIDE.md          # Complete user reference
+│   ├── DEVELOPER_GUIDE.md     # Developer documentation
+│   ├── API_REFERENCE.md       # REST API documentation
+│   ├── ARCHITECTURE.md        # System architecture
+│   └── TROUBLESHOOTING.md     # Common issues & solutions
+│
+└── web/                       # Web application
+    ├── backend/               # Python FastAPI server
+    │   ├── main.py            # Application entry point
+    │   ├── config.py          # Configuration and settings
+    │   ├── database.py        # SQLite database setup
+    │   ├── requirements.txt   # Python dependencies
+    │   ├── .env               # Environment variables (API keys)
+    │   ├── routers/           # API endpoint modules
+    │   │   ├── reports.py     # Report CRUD endpoints
+    │   │   ├── analysis.py    # Analysis submission endpoints
+    │   │   ├── logs.py        # Activity log endpoints
+    │   │   ├── batch.py       # Batch processing
+    │   │   ├── tags.py        # Tag management
+    │   │   ├── collections.py # Collection management
+    │   │   ├── transcription.py  # Audio transcription
+    │   │   ├── rss.py         # RSS feed management
+    │   │   └── export.py      # Export endpoints
+    │   └── services/          # Business logic
+    │       ├── analyzer.py    # Anthropic API integration
+    │       ├── content_fetcher.py  # Content acquisition
+    │       ├── indexer.py     # Filesystem-to-DB sync
+    │       ├── parser.py      # Markdown parsing
+    │       ├── transcription.py  # Whisper integration
+    │       ├── rss.py         # RSS feed monitoring
+    │       ├── digest.py      # Digest generation
+    │       ├── export.py      # Export logic
+    │       └── flashcards.py  # Flashcard generation
+    │
+    └── frontend/              # React/Next.js UI
+        ├── package.json       # Node.js dependencies
+        ├── next.config.js     # Next.js configuration
+        ├── tailwind.config.ts # Tailwind CSS config
+        └── src/
+            ├── app/           # Next.js 14 App Router
+            │   ├── layout.tsx # Root layout
+            │   ├── page.tsx   # Dashboard
+            │   ├── analyze/   # Analysis form page
+            │   ├── reports/   # Report list + detail
+            │   ├── logs/      # Activity log page
+            │   └── search/    # Search page
+            ├── components/    # Reusable components
+            │   ├── Layout.tsx
+            │   ├── Sidebar.tsx
+            │   ├── AnalysisForm.tsx
+            │   ├── ReportCard.tsx
+            │   └── ReportViewer.tsx
+            └── lib/
+                └── api.ts     # Backend API client
 ```
 
 ### Key Differences: Commands vs Skills vs Agents vs Prompts
@@ -2764,8 +2969,27 @@ Without proper frontmatter, the skill won't be detected.
 | `/batch` | `batch-processing` | batch, multiple, reading list |
 | `/log` | `activity-log` | today, activity, what did I |
 
+**Commands without matching skills** (explicit invocation only):
+
+| Command | Purpose |
+|---------|---------|
+| `/podcast` | Podcast episode analysis |
+| `/pdf` | PDF document analysis |
+| `/github` | GitHub repository analysis |
+| `/book` | EPUB book analysis |
+| `/hn` | Hacker News post analysis |
+| `/thread` | Twitter thread analysis |
+| `/email` | Newsletter/email analysis |
+| `/queue` | Queue management |
+| `/random` | Random report discovery |
+| `/similar` | Find related content |
+| `/rss` | RSS feed management |
+| `/digest` | Weekly digest generation |
+| `/export` | Export to Obsidian/Notion |
+| `/flashcards` | Anki flashcard generation |
+
 ---
 
-*Developer Guide - Last updated: 2025-12-24*
+*Developer Guide - Last updated: 2025-12-25*
 
 *Built with [Claude Code](https://claude.ai/code) powered by Claude Opus 4.5*

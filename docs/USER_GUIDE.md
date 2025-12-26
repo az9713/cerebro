@@ -6,20 +6,14 @@
 2. [Prerequisites & Installation](#2-prerequisites--installation)
 3. [Understanding the System](#3-understanding-the-system)
 4. [Daily Workflow](#4-daily-workflow)
-5. [Two Ways to Interact: Commands & Skills](#5-two-ways-to-interact-commands--skills)
-6. [Command Reference](#6-command-reference)
-7. [Skills Reference](#7-skills-reference)
-8. [Working with YouTube Transcripts](#8-working-with-youtube-transcripts)
-9. [Working with Web Articles](#9-working-with-web-articles)
-10. [Working with Research Papers](#10-working-with-research-papers)
-11. [Batch Processing](#11-batch-processing)
-12. [Activity Logs](#12-activity-logs)
-13. [Web Application (GUI)](#13-web-application-gui)
-14. [Customizing Analysis Prompts](#14-customizing-analysis-prompts)
-15. [File Management](#15-file-management)
-16. [Troubleshooting](#16-troubleshooting)
-17. [Tips & Best Practices](#17-tips--best-practices)
-18. [Frequently Asked Questions](#18-frequently-asked-questions)
+5. [Command Reference](#5-command-reference)
+6. [Content Types](#6-content-types)
+7. [Organization Features](#7-organization-features)
+8. [Automation Features](#8-automation-features)
+9. [Web Application](#9-web-application)
+10. [Customizing Prompts](#10-customizing-prompts)
+11. [Troubleshooting](#11-troubleshooting)
+12. [FAQ](#12-faq)
 
 ---
 
@@ -315,650 +309,495 @@ Or close the terminal window.
 
 ---
 
-## 5. Two Ways to Interact: Commands & Skills
+## 5. Command Reference
 
-Personal OS gives you **two equivalent ways** to trigger the same workflows. Choose whichever feels more natural!
+Personal OS provides **20+ commands** for different content types and tasks. You can also use natural language - Claude will automatically invoke the right skill.
 
-### Option 1: Slash Commands (Explicit)
+### Content Analysis Commands
 
-Type a command directly - great for quick, precise actions when you know exactly what you want.
+| Command | Purpose | Example |
+|---------|---------|---------|
+| `/yt <url-or-file>` | Analyze YouTube video | `/yt https://youtu.be/abc123` |
+| `/read <url>` | Analyze web article | `/read https://example.com/post` |
+| `/arxiv <url>` | Analyze research paper | `/arxiv https://arxiv.org/abs/2401.12345` |
+| `/podcast <file-or-url>` | Analyze podcast episode | `/podcast inbox/episode.mp3` |
+| `/pdf <file>` | Analyze PDF document | `/pdf inbox/document.pdf` |
+| `/github <url>` | Analyze GitHub repository | `/github https://github.com/user/repo` |
+| `/book <file>` | Analyze book/EPUB | `/book inbox/mybook.epub` |
+| `/hn <url>` | Analyze Hacker News post | `/hn https://news.ycombinator.com/item?id=123` |
+| `/thread <url>` | Analyze Twitter thread | `/thread https://twitter.com/user/status/123` |
+| `/email <file>` | Analyze newsletter | `/email inbox/newsletter.txt` |
+| `/analyze <file>` | Analyze any content | `/analyze inbox/notes.txt` |
 
-```
-/yt inbox/video.txt
-/read https://example.com/article
-/arxiv https://arxiv.org/abs/2401.12345
-/analyze inbox/notes.txt
-/batch inbox/reading-list.txt
-/log
-```
+### Organization Commands
 
-**Best for:**
-- Quick, repetitive tasks
-- When you know the exact command
-- Scripting and automation
+| Command | Purpose | Example |
+|---------|---------|---------|
+| `/batch <file>` | Process multiple items | `/batch inbox/reading-list.txt` |
+| `/queue add <url>` | Add to processing queue | `/queue add https://youtu.be/abc` |
+| `/queue list` | View pending queue | `/queue list` |
+| `/queue process` | Process all queued items | `/queue process` |
+| `/log` | View today's activity | `/log` |
+| `/random` | Surface random past report | `/random youtube` |
+| `/similar <topic>` | Find related content | `/similar "machine learning"` |
 
-### Option 2: Skills (Natural Language)
+### Automation Commands
 
-Just describe what you want - Claude automatically uses the right skill.
-
-```
-"Analyze this YouTube transcript at inbox/video.txt"
-"Can you summarize this blog post for me?"
-"Explain this arXiv paper in simple terms"
-"What did I read today?"
-"Process all items in my reading list"
-```
-
-**Best for:**
-- Conversational interactions
-- When you're not sure of the exact command
-- Natural workflow integration
-
-### Commands ↔ Skills Mapping
-
-| Task | Command | Natural Language Triggers |
-|------|---------|--------------------------|
-| YouTube analysis | `/yt` | "video", "transcript", "YouTube" |
-| Article analysis | `/read` | "blog", "article", "newsletter", "Substack" |
-| Paper analysis | `/arxiv` | "paper", "research", "arXiv", "academic" |
-| Generic analysis | `/analyze` | "notes", "document", "content" |
-| Batch processing | `/batch` | "batch", "multiple", "list of items" |
-| Activity log | `/log` | "today", "activity", "what did I" |
+| Command | Purpose | Example |
+|---------|---------|---------|
+| `/rss add <url>` | Subscribe to RSS feed | `/rss add https://blog.com/feed.xml` |
+| `/rss check` | Check for new content | `/rss check` |
+| `/rss list` | List subscriptions | `/rss list` |
+| `/digest` | Generate weekly digest | `/digest` |
+| `/export obsidian` | Export to Obsidian | `/export obsidian` |
+| `/export notion` | Export to Notion | `/export notion` |
+| `/flashcards <report>` | Generate Anki flashcards | `/flashcards all` |
 
 ---
 
-## 6. Command Reference
+## 6. Content Types
 
-### /yt <url-or-filepath>
+This section details each content type Personal OS can analyze.
 
-**Purpose:** Analyze a YouTube video (from URL or transcript file)
+### YouTube Videos (`/yt`)
+
+**Purpose:** Analyze YouTube videos to extract key insights, takeaways, and actionable items.
 
 **Usage:**
-```
-# From YouTube URL (recommended - requires yt-dlp)
+```bash
+# From URL (recommended - auto-fetches transcript)
 /yt https://youtube.com/watch?v=abc123
 /yt https://youtu.be/abc123
 
 # From transcript file
 /yt inbox/video.txt
-/yt docs/transcript.txt
-/yt inbox/my-learning/course-video-1.txt
 ```
 
-**What Happens (URL input):**
-1. Detects YouTube URL
-2. Runs yt-dlp to fetch transcript
-3. Saves transcript to `inbox/<video-title>.en.srt`
-4. Applies `prompts/yt.md` analysis
-5. Saves report to `reports/youtube/YYYY-MM-DD_title.md`
-6. Logs to `logs/YYYY-MM-DD.md`
-
-**What Happens (file input):**
-1. Reads the transcript file
-2. Applies `prompts/yt.md` analysis
-3. Saves to `reports/youtube/YYYY-MM-DD_title.md`
-4. Logs to `logs/YYYY-MM-DD.md`
-
-**Prerequisites:**
-- For URL input: yt-dlp must be installed (`pip install yt-dlp`)
+**How It Works:**
+1. If URL provided: yt-dlp fetches the transcript automatically
+2. Reads transcript content
+3. Applies `prompts/yt.md` analysis template
+4. Saves report to `reports/youtube/YYYY-MM-DD_title.md`
+5. Logs to daily activity log
 
 **Output Includes:**
-- Summary (2-3 paragraphs)
-- Key Takeaways (5-7 points)
-- Notable Quotes
-- Action Items
-- Related Topics
+- Executive summary
+- All key takeaways (exhaustive, not just top 5)
+- Notable quotes with timestamps
+- Actionable items
+- Latent signals (implied insights)
+
+**Prerequisites:** yt-dlp (`pip install yt-dlp`) for URL analysis
 
 ---
 
-### /read <url>
+### Web Articles (`/read`)
 
-**Purpose:** Analyze a web article or blog post
+**Purpose:** Analyze blog posts, newsletters, and web articles.
 
 **Usage:**
-```
+```bash
 /read https://example.com/blog/article-title
-/read https://medium.com/@author/article
-/read https://newsletter.substack.com/p/post-title
+/read https://newsletter.substack.com/p/post
 ```
 
-**What Happens:**
-1. Fetches webpage content
-2. Applies `prompts/article.md` analysis
-3. Saves to `reports/articles/YYYY-MM-DD_title.md`
-4. Logs activity
-
 **Output Includes:**
-- Summary
-- Key Points
-- Evidence & Data cited
-- Author's Perspective
-- Takeaways
-- Critiques (if any)
+- Summary and main arguments
+- Key points and evidence
+- Author's perspective and potential biases
+- Critical analysis
+- Related topics to explore
 
-**Note:** Some websites block automated access. If `/read` fails, manually copy the content to a file and use `/analyze`.
+**Note:** Some sites block automated access. If `/read` fails, copy content to `inbox/` and use `/analyze`.
 
 ---
 
-### /arxiv <url>
+### Research Papers (`/arxiv`)
 
-**Purpose:** Analyze a research paper from arXiv
+**Purpose:** Make academic papers accessible with plain English explanations.
 
 **Usage:**
-```
+```bash
 /arxiv https://arxiv.org/abs/2401.12345
-/arxiv https://arxiv.org/abs/cs.AI/2401.12345
 ```
 
-**What Happens:**
-1. Fetches paper abstract and content
-2. Applies `prompts/paper.md` analysis
-3. Explains in accessible terms
-4. Saves to `reports/papers/YYYY-MM-DD_title.md`
-5. Logs activity
-
 **Output Includes:**
-- Plain English Summary
-- Key Findings
-- Methodology (simplified)
-- Limitations
-- Practical Implications
-- Related Work
+- Plain English summary (no jargon)
+- Key findings simplified
+- Methodology breakdown
+- Practical implications
+- Limitations acknowledged
+- Related work suggestions
 
 ---
 
-### /analyze <filepath>
+### Podcasts (`/podcast`)
 
-**Purpose:** Analyze any content file
+**Purpose:** Analyze podcast episodes from audio files or URLs.
 
 **Usage:**
+```bash
+# From audio file (requires transcription)
+/podcast inbox/episode.mp3
+
+# From transcript file
+/podcast inbox/podcast-transcript.txt
+
+# From URL with audio
+/podcast https://example.com/podcast.mp3
 ```
+
+**How It Works:**
+1. If audio file: Transcribes using Whisper (requires OpenAI API or local Whisper)
+2. Analyzes transcript
+3. Saves to `reports/podcasts/`
+
+**Prerequisites:** OPENAI_API_KEY in `.env` for audio transcription, or local Whisper installation.
+
+---
+
+### PDF Documents (`/pdf`)
+
+**Purpose:** Analyze PDF documents including reports, ebooks, and papers.
+
+**Usage:**
+```bash
+/pdf inbox/document.pdf
+/pdf inbox/research-report.pdf
+```
+
+**How It Works:**
+1. Extracts text from PDF using PyMuPDF
+2. Analyzes content with appropriate prompt
+3. Saves to `reports/pdfs/`
+
+---
+
+### GitHub Repositories (`/github`)
+
+**Purpose:** Analyze GitHub repositories to understand structure, purpose, and key components.
+
+**Usage:**
+```bash
+/github https://github.com/user/repo
+```
+
+**Output Includes:**
+- Repository overview
+- Key files and structure
+- Technologies used
+- Setup instructions
+- Notable patterns
+
+---
+
+### Books (`/book`)
+
+**Purpose:** Analyze books and EPUB files.
+
+**Usage:**
+```bash
+/book inbox/mybook.epub
+```
+
+**How It Works:**
+1. Extracts text from EPUB
+2. Analyzes content (may analyze chapter by chapter for long books)
+3. Saves to `reports/books/`
+
+---
+
+### Hacker News (`/hn`)
+
+**Purpose:** Analyze Hacker News posts including article and top comments.
+
+**Usage:**
+```bash
+/hn https://news.ycombinator.com/item?id=12345
+```
+
+**Output Includes:**
+- Article analysis
+- Top comment synthesis
+- Community sentiment
+- Key discussions and debates
+
+---
+
+### Twitter Threads (`/thread`)
+
+**Purpose:** Analyze Twitter/X threads.
+
+**Usage:**
+```bash
+/thread https://twitter.com/user/status/12345
+```
+
+**Output Includes:**
+- Thread summary
+- Key points
+- Linked resources
+
+---
+
+### Email Newsletters (`/email`)
+
+**Purpose:** Analyze email newsletters.
+
+**Usage:**
+```bash
+/email inbox/newsletter.txt
+```
+
+Save email content to a text file first, then analyze.
+
+---
+
+### Generic Content (`/analyze`)
+
+**Purpose:** Analyze any text content that doesn't fit other categories.
+
+**Usage:**
+```bash
 /analyze inbox/meeting-notes.txt
-/analyze inbox/email-thread.txt
 /analyze inbox/book-chapter.txt
 ```
 
-**What Happens:**
-1. Reads the file
-2. Asks you for title and category
-3. Applies `prompts/default.md` (or category-specific prompt)
-4. Saves to appropriate reports folder
-5. Logs activity
-
 **When to Use:**
-- Content that doesn't fit other categories
 - Meeting notes
-- Email threads
 - Book excerpts
-- Anything else!
+- Email threads
+- Any other text content
 
 ---
 
-### /batch <filepath>
+## 7. Organization Features
 
-**Purpose:** Process multiple items from a list
+Personal OS provides powerful tools to organize, rediscover, and manage your content.
 
-**Usage:**
-```
-/batch inbox/reading-list.txt
-/batch inbox/today.txt
-/batch inbox/research-papers.txt
-```
+### Queue System (`/queue`)
 
-**Batch File Formats:**
+Build a backlog of content to process later - perfect for saving interesting links throughout the day.
 
-Format 1 - Explicit commands:
-```
-# Lines starting with # are comments (ignored)
-# Format: COMMAND ARGUMENT
-
-yt inbox/video1.txt
-yt https://youtube.com/watch?v=abc123
-read https://example.com/article1
-read https://example.com/article2
-arxiv https://arxiv.org/abs/2401.12345
+**Adding to Queue:**
+```bash
+/queue add https://youtube.com/watch?v=abc123
+/queue add https://example.com/article
 ```
 
-Format 2 - URL-only (auto-detected):
+**Viewing Queue:**
+```bash
+/queue list
 ```
-# Just paste URLs - type is auto-detected!
+
+**Processing Queue:**
+```bash
+/queue process    # Process all items
+```
+
+**Workflow Example:**
+1. Throughout the day, `/queue add` interesting links
+2. In the evening, `/queue process` to analyze everything
+3. Review your reports
+
+---
+
+### Batch Processing (`/batch`)
+
+Process multiple items at once from a list file.
+
+**Creating a Batch File (`inbox/reading-list.txt`):**
+```
+# My weekly reading list - just paste URLs!
 https://youtube.com/watch?v=abc123
-https://youtu.be/def456
 https://example.com/article
 https://arxiv.org/abs/2401.12345
 ```
 
-**Auto-detection rules:**
-- Contains `youtube.com` or `youtu.be` → YouTube video (uses yt-dlp)
-- Contains `arxiv.org` → arXiv paper
+**Running the Batch:**
+```bash
+/batch inbox/reading-list.txt
+```
+
+**Auto-Detection:** URLs are automatically detected:
+- `youtube.com` or `youtu.be` → YouTube
+- `arxiv.org` → Research paper
 - Other URLs → Article
 
-**What Happens:**
-1. Reads the batch file
-2. Processes each line sequentially
-3. For YouTube URLs: fetches transcript with yt-dlp first
-4. Creates individual reports for each item
-5. Logs all activity
-6. Shows summary when complete
+---
 
-**Prerequisites:**
-- For YouTube URLs: yt-dlp must be installed (`pip install yt-dlp`)
+### Random Discovery (`/random`)
+
+Resurface random past reports for spaced repetition learning.
+
+```bash
+/random              # Any random report
+/random youtube      # Random YouTube report
+/random articles     # Random article report
+/random papers       # Random paper report
+```
+
+**Why Use Random:**
+- Spaced repetition - revisit old learning
+- Rediscover forgotten insights
+- Make unexpected connections
 
 ---
 
-### /log
+### Similar Content (`/similar`)
 
-**Purpose:** Show today's activity log
+Find reports related to a topic or another report.
 
-**Usage:**
+```bash
+/similar "machine learning"
+/similar "productivity habits"
 ```
+
+**Use Cases:**
+- Find all reports about a topic
+- Build reading lists on themes
+- Connect ideas across content types
+
+---
+
+### Activity Log (`/log`)
+
+Track everything you've analyzed today.
+
+```bash
 /log
 ```
 
-**What It Shows:**
-- Videos watched (with links to reports)
-- Articles read
-- Papers reviewed
+**Log Contents:**
+- Videos watched with links
+- Articles read with links
+- Papers reviewed with links
 - Timestamps for each entry
 
-**Log File Location:** `logs/YYYY-MM-DD.md`
+**Log Location:** `logs/YYYY-MM-DD.md`
 
 ---
 
-## 7. Skills Reference
+## 8. Automation Features
 
-Skills are the natural language equivalents of slash commands. Claude automatically detects when a skill is relevant based on what you say.
+Automate your content consumption workflow with RSS feeds, digests, and exports.
 
-### youtube-analysis
+### RSS Feed Monitoring (`/rss`)
 
-**Triggers when you mention:** YouTube, video transcript, video analysis, watching a video, YouTube URL
+Subscribe to blogs and YouTube channels for automatic content discovery.
 
-**Example phrases:**
-- "Analyze this YouTube video: https://youtube.com/watch?v=abc123"
-- "Analyze this YouTube transcript at inbox/video.txt"
-- "Can you summarize this video for me?"
-- "I watched a video and saved the transcript..."
+**Subscribe to a Feed:**
+```bash
+/rss add https://example.com/feed.xml
+/rss add https://www.youtube.com/feeds/videos.xml?channel_id=UCxyz
+```
 
-**Equivalent command:** `/yt`
+**List Subscriptions:**
+```bash
+/rss list
+```
 
-**What it does:** Same workflow as `/yt`:
-- For URLs: fetches transcript with yt-dlp, saves to `inbox/`, then analyzes
-- For files: reads transcript directly
-- Applies YouTube prompt, saves to `reports/youtube/`, logs activity
+**Check for New Content:**
+```bash
+/rss check
+```
+New items are automatically added to your queue!
+
+**Process New Content:**
+```bash
+/queue process
+```
+
+**Workflow:**
+1. Subscribe to your favorite content sources
+2. Daily: `/rss check` to find new content
+3. `/queue process` to analyze it all
 
 ---
 
-### article-analysis
+### Weekly Digest (`/digest`)
 
-**Triggers when you mention:** blog post, article, Substack, Medium, newsletter, web page
+Generate a summary of everything you've consumed.
 
-**Example phrases:**
-- "Summarize this blog post: https://..."
-- "Can you analyze this article for me?"
-- "Read this Substack newsletter"
+```bash
+/digest              # This week's digest
+/digest lastweek     # Last week's digest
+/digest month        # This month's digest
+```
 
-**Equivalent command:** `/read`
+**Digest Includes:**
+- Total content consumed
+- Breakdown by type
+- Key insights from each piece
+- Themes and patterns
+- Reflection prompts
 
-**What it does:** Same workflow as `/read` - fetches URL content, applies article prompt, saves to `reports/articles/`, logs activity.
+**Saved To:** `reports/digests/YYYY-MM-DD_weekly-digest.md`
 
 ---
 
-### arxiv-analysis
+### Export to Obsidian (`/export obsidian`)
 
-**Triggers when you mention:** arXiv, research paper, academic paper, scientific paper, preprint
+Move your knowledge to Obsidian for a linked knowledge base.
 
-**Example phrases:**
-- "Explain this arXiv paper to me"
-- "Can you summarize this research paper?"
-- "I found an interesting paper at https://arxiv.org/..."
+```bash
+/export obsidian
+```
 
-**Equivalent command:** `/arxiv`
+**What You Get:**
+- All reports with YAML frontmatter
+- Wikilinks for internal connections
+- Index note linking everything
+- Tags preserved
 
-**What it does:** Same workflow as `/arxiv` - fetches paper, applies paper prompt, explains in accessible terms, saves to `reports/papers/`, logs activity.
+**Location:** `exports/obsidian/`
+
+**Import to Obsidian:**
+1. Open Obsidian
+2. Select "Open folder as vault"
+3. Choose `exports/obsidian/`
 
 ---
 
-### content-analysis
+### Export to Notion (`/export notion`)
 
-**Triggers when you mention:** notes, meeting notes, document, book excerpt, generic text, email thread
+Export for Notion's API.
 
-**Example phrases:**
-- "Analyze these meeting notes"
-- "Can you summarize this document?"
-- "I have some notes I'd like you to review"
+```bash
+/export notion
+```
 
-**Equivalent command:** `/analyze`
+**Location:** `exports/notion/`
 
-**What it does:** Same workflow as `/analyze` - reads file, asks for title/category, applies appropriate prompt, saves to `reports/`, logs activity.
+Creates JSON files compatible with Notion's API.
 
 ---
 
-### batch-processing
+### Flashcard Generation (`/flashcards`)
 
-**Triggers when you mention:** batch, multiple items, reading list, process all, several videos/articles
+Generate Anki flashcards from your reports for spaced repetition.
 
-**Example phrases:**
-- "Process my reading list at inbox/list.txt"
-- "Analyze all the videos in my batch file"
-- "I have multiple articles to analyze"
+```bash
+/flashcards all                              # All reports
+/flashcards reports/youtube/2024-01-15_habits.md  # Specific report
+```
 
-**Equivalent command:** `/batch`
+**What Gets Converted:**
+- Key takeaways → Q&A pairs
+- Definitions → "What is X?" cards
+- Notable quotes → Completion exercises
 
-**What it does:** Same workflow as `/batch`:
-- Reads batch file
-- Auto-detects content type from URLs
-- For YouTube URLs: fetches transcript with yt-dlp first
-- Processes each item sequentially
-- Saves all reports, shows summary
+**Location:** `exports/anki/`
+
+**Import to Anki:**
+1. Open Anki → File → Import
+2. Select the `.txt` file from `exports/anki/`
+3. Set field separator to "Tab"
+4. Click Import
 
 ---
 
-### activity-log
-
-**Triggers when you mention:** today, activity log, what did I, daily log, consumption history
-
-**Example phrases:**
-- "What did I watch today?"
-- "Show me my activity log"
-- "What have I analyzed today?"
-
-**Equivalent command:** `/log`
-
-**What it does:** Same workflow as `/log` - reads today's log file, displays contents.
-
----
-
-## 8. Working with YouTube Transcripts
-
-### Method 1: Direct from URL (Recommended)
-
-The easiest way to analyze YouTube videos - just use the URL!
-
-**Prerequisites:** Install yt-dlp once: `pip install yt-dlp`
-
-**Step 1: Copy the video URL**
-- From browser address bar, or
-- Right-click video → "Copy video URL"
-
-**Step 2: Analyze**
-```
-/yt https://youtube.com/watch?v=YOUR_VIDEO_ID
-```
-
-Or with natural language:
-```
-Analyze this YouTube video: https://youtube.com/watch?v=YOUR_VIDEO_ID
-```
-
-**What happens:**
-1. yt-dlp fetches the transcript automatically
-2. Transcript saved to `inbox/<video-title>.en.srt`
-3. Analysis generated and saved to `reports/youtube/`
-4. Activity logged
-
-**That's it!** No manual copying required.
-
-### Method 2: Copy from YouTube (Alternative)
-
-Use this method if:
-- yt-dlp isn't installed
-- The video has no auto-captions
-- You want to edit the transcript before analysis
-
-**Step 1: Open the video on YouTube**
-
-**Step 2: Access the transcript**
-1. Below the video, click "...more" to expand description
-2. Click "Show transcript"
-3. A transcript panel appears on the right
-
-**Step 3: Copy the transcript**
-1. Click the three dots (⋮) in the transcript panel
-2. Click "Toggle timestamps" (optional - removes timestamps)
-3. Click inside the transcript
-4. Press Ctrl+A (select all)
-5. Press Ctrl+C (copy)
-
-**Step 4: Save to file**
-1. Open Notepad (Windows+R, type `notepad`, Enter)
-2. Press Ctrl+V (paste)
-3. Save: File → Save As
-4. Navigate to `inbox/` folder
-5. Filename: `descriptive-name.txt`
-6. Click Save
-
-**Step 5: Analyze**
-```
-/yt inbox/descriptive-name.txt
-```
-
-### Method 3: Use a Transcript Downloader
-
-Several browser extensions can download transcripts:
-- YouTube Transcript Downloader
-- Glasp
-- Others available in Chrome Web Store
-
-### Organizing Video Files
-
-Create subfolders in `inbox/` for organization:
-```
-inbox/
-├── courses/
-│   ├── python-course-01.txt
-│   ├── python-course-02.txt
-├── podcasts/
-│   ├── podcast-episode-45.txt
-├── tutorials/
-│   ├── photoshop-basics.txt
-```
-
-Analyze with full path:
-```
-/yt inbox/courses/python-course-01.txt
-```
-
----
-
-## 9. Working with Web Articles
-
-### Direct URL Method
-
-For most websites:
-```
-/read https://example.com/article-title
-```
-
-### Works Well With:
-- Substack newsletters
-- Medium articles
-- Most blog posts
-- News articles (some may block)
-
-### If Direct Access Fails
-
-**Manual Method:**
-1. Open the article in your browser
-2. Select all text (Ctrl+A)
-3. Copy (Ctrl+C)
-4. Paste into Notepad
-5. Save to `inbox/article-name.txt`
-6. Use `/analyze inbox/article-name.txt`
-
-### Tips for Better Results
-
-- Remove ads and sidebars if copying manually
-- Include the article title at the top
-- Keep author name if relevant
-
----
-
-## 10. Working with Research Papers
-
-### Finding Papers on arXiv
-
-1. Go to https://arxiv.org
-2. Use the search box
-3. Find a paper you want to analyze
-4. Copy the URL (e.g., `https://arxiv.org/abs/2401.12345`)
-
-### Analyzing a Paper
-
-```
-/arxiv https://arxiv.org/abs/2401.12345
-```
-
-### Understanding the Output
-
-The paper analysis is specifically designed to make academic research accessible:
-
-- **Plain English Summary** - No jargon, just what they did and why
-- **Key Findings** - The main results, simplified
-- **Methodology** - How they did it (simplified)
-- **Limitations** - What the study can't tell us
-- **Practical Implications** - Real-world applications
-- **Related Work** - What to read next
-
-### For Papers Not on arXiv
-
-1. Download the PDF
-2. Copy the text content
-3. Save to `inbox/paper-name.txt`
-4. Use `/analyze inbox/paper-name.txt` (select "paper" as category)
-
----
-
-## 11. Batch Processing
-
-### Creating a Batch File
-
-1. Open Notepad
-2. Add items, one per line:
-
-**Option 1: URL-only (easiest - auto-detects type):**
-```
-# My weekly reading list - just paste URLs!
-
-# YouTube videos (auto-fetched with yt-dlp)
-https://youtube.com/watch?v=abc123
-https://youtu.be/def456
-
-# Articles
-https://example.com/article1
-https://blog.example.com/post
-
-# Papers
-https://arxiv.org/abs/2401.11111
-https://arxiv.org/abs/2401.22222
-```
-
-**Option 2: Explicit commands (more control):**
-```
-# My weekly reading list
-# Videos to watch
-yt https://youtube.com/watch?v=abc123
-yt inbox/video1.txt
-
-# Articles to read
-read https://example.com/article1
-read https://blog.example.com/post
-
-# Papers to review
-arxiv https://arxiv.org/abs/2401.11111
-arxiv https://arxiv.org/abs/2401.22222
-```
-
-3. Save as `inbox/weekly-list.txt`
-
-### Running a Batch
-
-```
-/batch inbox/weekly-list.txt
-```
-
-### Batch Processing Tips
-
-1. **Use URLs when possible** - No need to pre-download transcripts anymore!
-2. **Use comments** - Lines starting with `#` are ignored, use them to organize
-3. **Check URLs** - Verify URLs work before adding to batch
-4. **Start small** - Test with 2-3 items before running large batches
-5. **Review after** - Check reports to ensure quality
-6. **Install yt-dlp** - Required for YouTube URL batch processing
-
-### Example Batch Workflows
-
-**Morning News Routine:**
-```
-# Daily news digest
-read https://news-site.com/article1
-read https://news-site.com/article2
-read https://tech-news.com/daily
-```
-
-**Course Processing:**
-```
-# Python Course - Week 1
-yt inbox/courses/python-w1-lesson1.txt
-yt inbox/courses/python-w1-lesson2.txt
-yt inbox/courses/python-w1-lesson3.txt
-```
-
-**Research Session:**
-```
-# AI Safety Papers - January 2024
-arxiv https://arxiv.org/abs/2401.11111
-arxiv https://arxiv.org/abs/2401.22222
-arxiv https://arxiv.org/abs/2401.33333
-```
-
----
-
-## 12. Activity Logs
-
-### What Gets Logged
-
-Every analysis automatically logs:
-- Timestamp (HH:MM)
-- Content type (Video/Article/Paper)
-- Title
-- Link to the report file
-
-### Log File Format
-
-```markdown
-# Activity Log: 2024-12-22
-
-## Videos Watched
-- [Video Title](../reports/youtube/2024-12-22_video-title.md) - 14:32
-- [Another Video](../reports/youtube/2024-12-22_another-video.md) - 16:45
-
-## Articles Read
-- [Article Title](../reports/articles/2024-12-22_article-title.md) - 10:15
-
-## Papers Reviewed
-- [Paper Title](../reports/papers/2024-12-22_paper-title.md) - 11:30
-```
-
-### Viewing Logs
-
-**Today's log:**
-```
-/log
-```
-
-**Past logs:**
-- Navigate to `logs/` folder
-- Open any `YYYY-MM-DD.md` file
-
-### Using Logs for Review
-
-1. **Weekly Review:** Open each day's log, review what you learned
-2. **Find Old Reports:** Logs contain links to reports
-3. **Track Progress:** See how much you're consuming over time
-
----
-
-## 13. Web Application (GUI)
+## 9. Web Application (GUI)
 
 In addition to the CLI, Personal OS includes a full-stack web application for users who prefer a graphical interface.
 
@@ -1196,7 +1035,7 @@ Both produce **identical reports** saved to the same `reports/` folder.
 
 ---
 
-## 14. Customizing Analysis Prompts
+## 10. Customizing Prompts
 
 ### Understanding the Prompt System
 
@@ -1405,56 +1244,7 @@ Or manually restore from the section descriptions in this guide.
 
 ---
 
-## 15. File Management
-
-### Naming Conventions
-
-**Reports are auto-named:**
-```
-YYYY-MM-DD_sanitized-title.md
-```
-Example: `2024-12-22_how-to-use-claude-code.md`
-
-**Recommended input naming:**
-```
-descriptive-name-with-hyphens.txt
-```
-Examples:
-- `python-tutorial-basics.txt`
-- `ai-safety-paper-2024.txt`
-- `weekly-newsletter-issue-45.txt`
-
-### Organizing Input Files
-
-Create subfolders in `inbox/`:
-```
-inbox/
-├── videos/
-├── articles/
-├── papers/
-├── courses/
-│   ├── course-name/
-├── books/
-└── misc/
-```
-
-### Cleaning Up
-
-**Delete old input files:**
-- After analysis, you can delete files from `inbox/`
-- Reports are saved separately
-
-**Archive old reports:**
-- Create `reports/archive/` folder
-- Move old reports there periodically
-
-**Backup strategy:**
-- Copy entire `reports/` folder periodically
-- Copy `logs/` folder for activity history
-
----
-
-## 16. Troubleshooting
+## 11. Troubleshooting
 
 ### Problem: Command Not Recognized / Unknown Slash Command
 
@@ -1537,36 +1327,7 @@ inbox/
 
 ---
 
-## 17. Tips & Best Practices
-
-### Efficiency Tips
-
-1. **Create batch files in advance** - Add items throughout the day, process later
-2. **Use consistent naming** - Makes files easier to find
-3. **Review logs weekly** - Track your learning patterns
-4. **Customize prompts once** - Get reports you actually want to read
-
-### Quality Tips
-
-1. **Keep transcripts clean** - Remove ads, sponsors, irrelevant content
-2. **Add context** - Include video title and URL at top of transcripts
-3. **Choose good sources** - Quality in = quality out
-
-### Organization Tips
-
-1. **Use subfolders** - Organize by topic, course, or project
-2. **Date your batches** - `inbox/2024-12-22-reading.txt`
-3. **Archive regularly** - Don't let reports folder get huge
-
-### Learning Tips
-
-1. **Add personal notes** - Reports have a "My Notes" section
-2. **Connect ideas** - Reference other reports in your notes
-3. **Review reports** - Don't just generate them, read them!
-
----
-
-## 18. Frequently Asked Questions
+## 12. FAQ
 
 ### General Questions
 
@@ -1606,10 +1367,38 @@ A: Some videos don't have captions. Copy the transcript manually from YouTube an
 A: Copy the content manually to a file and use `/analyze`.
 
 **Q: Can I analyze PDFs?**
-A: Not directly. Copy text from PDF to a .txt file first.
+A: Yes! Use `/pdf inbox/document.pdf` to analyze PDF files.
+
+**Q: Can I analyze podcasts?**
+A: Yes! Use `/podcast inbox/episode.mp3`. Requires OpenAI API key or local Whisper for transcription.
 
 **Q: Can I analyze images?**
 A: No, this system is for text content only.
+
+### Organization Questions
+
+**Q: How do I save content for later?**
+A: Use `/queue add <url>` to add to your queue, then `/queue process` when ready.
+
+**Q: How do I find old reports on a topic?**
+A: Use `/similar "topic"` to find related reports.
+
+**Q: How do I rediscover past content?**
+A: Use `/random` to surface a random past report for spaced repetition.
+
+### Automation Questions
+
+**Q: Can I subscribe to blogs and YouTube channels?**
+A: Yes! Use `/rss add <feed-url>` to subscribe, then `/rss check` daily for new content.
+
+**Q: How do I get a weekly summary?**
+A: Use `/digest` to generate a summary of everything you've consumed that week.
+
+**Q: Can I export to Obsidian?**
+A: Yes! Use `/export obsidian` to create an Obsidian-compatible vault.
+
+**Q: Can I create Anki flashcards?**
+A: Yes! Use `/flashcards all` to generate flashcards from all your reports.
 
 ### Customization Questions
 
@@ -1617,34 +1406,38 @@ A: No, this system is for text content only.
 A: Edit the appropriate file in `prompts/` folder.
 
 **Q: Can I add new commands?**
-A: Yes! Create a new `.md` file in `.claude/commands/` folder. For example, create `podcast.md` to add a `/podcast` command. See DEVELOPER_GUIDE.md for full instructions.
-
-**Q: Can I add new skills?**
-A: Yes! Create a new folder in `.claude/skills/` with a `SKILL.md` file inside. The SKILL.md needs YAML frontmatter with `name` and `description`. See DEVELOPER_GUIDE.md for full instructions.
+A: Yes! Create a new `.md` file in `.claude/commands/` folder. See DEVELOPER_GUIDE.md for instructions.
 
 **Q: What's the difference between commands, skills, and prompts?**
 A:
-- **Commands** (`.claude/commands/`) define explicit slash command workflows (user types `/command`)
-- **Skills** (`.claude/skills/`) define automatic workflows (Claude detects from natural language)
-- **Prompts** (`prompts/`) define how content is analyzed (used by both commands and skills)
+- **Commands** (`.claude/commands/`) define explicit slash command workflows
+- **Skills** (`.claude/skills/`) define automatic natural language workflows
+- **Prompts** (`prompts/`) define how content is analyzed
 
-**Q: When should I use a command vs just talking naturally?**
-A: Use commands when you want quick, precise actions. Use natural language when you prefer conversational interaction. Both produce identical results.
+### Learning & Development Questions
 
-**Q: Can I use different prompts for different types of videos?**
-A: Currently one prompt per category. You could create custom categories by creating new commands and skills (advanced - see DEVELOPER_GUIDE.md).
+**Q: I want to contribute or modify the code. Where do I start?**
+A: Check the [Learning Path](learn/README.md) for comprehensive guides on the technologies used:
+- Python, JavaScript/TypeScript for the languages
+- React, Next.js for the frontend
+- FastAPI for the backend
+- Anthropic Claude API and OpenAI Whisper API for AI integration
+
+**Q: I have C++/Java experience but not web development. Can I still contribute?**
+A: Absolutely! The [Learning Path](learn/README.md) was designed specifically for developers with traditional programming backgrounds. It covers all technologies used in this project with comparison tables for familiar concepts.
 
 ---
 
 ## Getting Help
 
 1. **Check this guide** - Most answers are here
-2. **Review QUICK_START.md** - Step-by-step examples
-3. **Check DEVELOPER_GUIDE.md** - For advanced customization
-4. **Claude itself** - Ask Claude for help with commands!
+2. **Review [QUICK_START.md](QUICK_START.md)** - 10 hands-on tutorials
+3. **Check [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md)** - For extending the system
+4. **Check [TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Common issues and solutions
+5. **Check [Learning Path](learn/README.md)** - For learning the technologies used
 
 ---
 
-*Last updated: 2025-12-24*
+*Last updated: 2025-12-25*
 
 *Built with [Claude Code](https://claude.ai/code) powered by Claude Opus 4.5*
