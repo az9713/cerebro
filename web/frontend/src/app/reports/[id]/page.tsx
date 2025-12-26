@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ReportViewer } from '@/components/ReportViewer';
+import { AudioPlayer } from '@/components/AudioPlayer';
+import CredibilityPanel from '@/components/CredibilityPanel';
+import TranslationPanel from '@/components/TranslationPanel';
 import { fetchReport, type Report } from '@/lib/api';
 
 export default function ReportDetailPage() {
@@ -60,6 +63,24 @@ export default function ReportDetailPage() {
         >
           ← Back to Reports
         </Link>
+      </div>
+
+      {/* Tools Bar */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+        {/* Audio Player */}
+        <div className="lg:col-span-1">
+          <AudioPlayer reportId={report.id} />
+        </div>
+
+        {/* Credibility Analysis */}
+        <div className="lg:col-span-1">
+          <CredibilityPanel reportId={report.id} />
+        </div>
+
+        {/* Translation */}
+        <div className="lg:col-span-1">
+          <TranslationPanel reportId={report.id} />
+        </div>
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8">

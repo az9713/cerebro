@@ -2186,7 +2186,7 @@ web/
 │   ├── config.py               # Settings, paths, model definitions
 │   ├── database.py             # SQLite + FTS5 schema and operations
 │   ├── models.py               # Pydantic request/response models
-│   ├── routers/                # API endpoint modules
+│   ├── routers/                # API endpoint modules (18 total)
 │   │   ├── reports.py          # GET /api/reports, search, by-id
 │   │   ├── analysis.py         # POST /api/analysis/youtube|article|arxiv
 │   │   ├── logs.py             # GET /api/logs/today
@@ -2195,8 +2195,17 @@ web/
 │   │   ├── collections.py      # Collection management endpoints
 │   │   ├── transcription.py    # Audio transcription endpoints
 │   │   ├── rss.py              # RSS feed management endpoints
-│   │   └── export.py           # Export to Obsidian/Notion endpoints
-│   └── services/               # Business logic
+│   │   ├── export.py           # Export to Obsidian/Notion endpoints
+│   │   ├── knowledge_graph.py  # Knowledge graph API
+│   │   ├── qa.py               # Q&A system API
+│   │   ├── comparison.py       # Content comparison API
+│   │   ├── tts.py              # Text-to-speech audio API
+│   │   ├── spaced_repetition.py # Spaced repetition review API
+│   │   ├── credibility.py      # Source credibility analysis API
+│   │   ├── goals.py            # Learning goals API
+│   │   ├── translate.py        # Multi-language translation API
+│   │   └── recommendations.py  # Smart recommendations API
+│   └── services/               # Business logic (12 total)
 │       ├── analyzer.py         # Anthropic API integration
 │       ├── content_fetcher.py  # yt-dlp, httpx article fetch
 │       ├── indexer.py          # Filesystem-to-SQLite sync
@@ -2205,7 +2214,10 @@ web/
 │       ├── rss.py              # RSS feed monitoring
 │       ├── digest.py           # Weekly digest generation
 │       ├── export.py           # Export to Obsidian/Notion
-│       └── flashcards.py       # Anki flashcard generation
+│       ├── flashcards.py       # Anki flashcard generation
+│       ├── knowledge_graph.py  # Concept extraction for knowledge graph
+│       ├── spaced_repetition.py # SM-2 algorithm implementation
+│       └── similarity.py       # Content similarity scoring
 │
 └── frontend/                   # Next.js 14 React Frontend
     └── src/
@@ -2390,6 +2402,186 @@ async def get_report(report_id: int):
     return report
 ```
 
+### AI-Powered Features (10 New Modules)
+
+The following advanced features have been added to enhance learning and content consumption:
+
+#### 1. Knowledge Graph Visualization
+
+**Backend:** `routers/knowledge_graph.py`
+
+Extracts concepts from reports and shows their relationships.
+
+```python
+# Key endpoints
+GET /api/knowledge-graph           # Get full graph data
+GET /api/knowledge-graph/concept/{name}  # Get concept details
+POST /api/knowledge-graph/rebuild  # Rebuild graph from reports
+GET /api/knowledge-graph/stats     # Graph statistics
+```
+
+**How it works:**
+- Parses all reports and extracts key concepts/entities
+- Builds relationships based on co-occurrence
+- Serves graph data for D3.js/Cytoscape visualization
+
+#### 2. AI-Powered Q&A System
+
+**Backend:** `routers/qa.py`
+
+Ask questions across your entire knowledge base.
+
+```python
+# Key endpoints
+POST /api/qa/ask                   # Submit question
+GET /api/qa/history                # Get Q&A history
+```
+
+**How it works:**
+- Searches all reports for relevant content
+- Uses Claude to synthesize an answer
+- Provides citations to source reports
+
+#### 3. Content Comparison Mode
+
+**Backend:** `routers/comparison.py`
+
+Compare two reports with AI-powered analysis.
+
+```python
+# Key endpoints
+POST /api/compare                  # Compare two reports
+GET /api/compare/history           # Get comparison history
+```
+
+**Response includes:**
+- Key similarities and differences
+- Complementary insights
+- Recommended reading order
+
+#### 4. Text-to-Speech (Audio Reports)
+
+**Backend:** `routers/tts.py`
+
+Generate audio versions of reports using OpenAI TTS.
+
+```python
+# Key endpoints
+POST /api/tts/generate/{report_id} # Generate audio
+GET /api/tts/audio/{report_id}     # Stream audio file
+GET /api/tts/voices                # Available voices
+GET /api/tts/status/{report_id}    # Check generation status
+```
+
+**Prerequisites:** `OPENAI_API_KEY` in `.env`
+
+#### 5. Spaced Repetition Review System
+
+**Backend:** `routers/spaced_repetition.py`, `services/spaced_repetition.py`
+
+Uses SM-2 algorithm for long-term retention.
+
+```python
+# Key endpoints
+GET /api/review/due                # Get reports due for review
+POST /api/review/{report_id}       # Submit review rating (1-5)
+GET /api/review/stats              # Get review statistics
+GET /api/review/schedule           # Get review schedule
+```
+
+**SM-2 Algorithm:** Rating affects next review interval:
+- 1-2: Review again soon (failed recall)
+- 3: Good retention
+- 4-5: Excellent, longer interval
+
+#### 6. Source Credibility Analysis
+
+**Backend:** `routers/credibility.py`
+
+Analyze trustworthiness of content sources.
+
+```python
+# Key endpoint
+POST /api/credibility/{report_id}  # Analyze credibility
+```
+
+**Response includes:**
+- Overall credibility score (0-100)
+- Evidence quality score
+- Source reliability assessment
+- Bias detection
+- Red flags and strengths
+
+#### 7. Learning Goals & Progress Tracking
+
+**Backend:** `routers/goals.py`
+
+Set and track learning objectives.
+
+```python
+# Key endpoints
+GET /api/goals                     # List all goals
+POST /api/goals                    # Create new goal
+GET /api/goals/{id}                # Get goal details
+PUT /api/goals/{id}                # Update goal
+DELETE /api/goals/{id}             # Delete goal
+GET /api/goals/{id}/reports        # Get matching reports
+```
+
+**Goal structure:**
+- Name and description
+- Target report count
+- Keywords for matching (e.g., "machine learning, AI")
+- Optional deadline
+
+#### 8. Multi-Language Translation
+
+**Backend:** `routers/translate.py`
+
+Translate reports using Claude AI.
+
+```python
+# Key endpoints
+GET /api/translate/languages       # Supported languages
+POST /api/translate/{report_id}    # Translate report
+```
+
+**Supported languages:** Spanish, French, German, Chinese, Japanese, Korean, Russian, Arabic, Portuguese, Italian, and more.
+
+#### 9. Smart Content Recommendations
+
+**Backend:** `routers/recommendations.py`, `services/similarity.py`
+
+Personalized content suggestions based on reading patterns.
+
+```python
+# Key endpoints
+GET /api/recommendations           # Get recommendations
+GET /api/recommendations/similar/{id}  # Similar to report
+GET /api/recommendations/trending  # Trending topics
+```
+
+**Features:**
+- Match scores showing relevance
+- Trending topics in your collection
+- Content similarity based on keywords and concepts
+
+#### 10. Browser Extension
+
+**Location:** `extension/` folder
+
+Chrome extension for analyzing content directly from browser.
+
+**Files:**
+- `manifest.json` - Extension configuration
+- `popup.html/js` - Extension popup UI
+- `content.js` - Page content extraction
+- `background.js` - API communication
+
+**Installation:**
+1. Chrome → Extensions → Developer mode
+2. Load unpacked → Select `extension/` folder
+
 ### Frontend Development
 
 #### Project Structure
@@ -2402,16 +2594,28 @@ frontend/src/
 │   ├── analyze/page.tsx        # Analysis form
 │   ├── reports/
 │   │   ├── page.tsx            # Report list
-│   │   └── [id]/page.tsx       # Report viewer
-│   └── logs/page.tsx           # Activity log
+│   │   └── [id]/page.tsx       # Report detail with tools
+│   ├── logs/page.tsx           # Activity log
+│   ├── search/page.tsx         # Full-text search
+│   ├── knowledge-graph/page.tsx # Knowledge graph visualization
+│   ├── qa/page.tsx             # Q&A interface
+│   ├── compare/page.tsx        # Content comparison
+│   ├── review/page.tsx         # Spaced repetition review
+│   ├── goals/page.tsx          # Learning goals management
+│   └── discover/page.tsx       # Recommendations & discovery
 ├── components/
 │   ├── Layout.tsx              # Main layout with navigation
 │   ├── Sidebar.tsx             # Navigation sidebar
+│   ├── ThemeProvider.tsx       # Dark mode context
 │   ├── AnalysisForm.tsx        # URL submission form
 │   ├── ReportCard.tsx          # Report list item
-│   └── ReportViewer.tsx        # Markdown renderer
+│   ├── ReportViewer.tsx        # Markdown renderer
+│   ├── AudioPlayer.tsx         # TTS audio player
+│   ├── CredibilityPanel.tsx    # Credibility analysis panel
+│   ├── TranslationPanel.tsx    # Translation controls
+│   └── KnowledgeGraph.tsx      # D3.js graph visualization
 └── lib/
-    └── api.ts                  # Backend API client
+    └── api.ts                  # Backend API client (all endpoints)
 ```
 
 #### Adding a New Page
@@ -2990,6 +3194,6 @@ Without proper frontmatter, the skill won't be detected.
 
 ---
 
-*Developer Guide - Last updated: 2025-12-25*
+*Developer Guide - Last updated: 2025-12-26*
 
 *Built with [Claude Code](https://claude.ai/code) powered by Claude Opus 4.5*

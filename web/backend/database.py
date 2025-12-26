@@ -116,6 +116,95 @@ CREATE TABLE IF NOT EXISTS collection_reports (
     FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE CASCADE
 );
 
+-- Concepts extracted from reports (Knowledge Graph)
+CREATE TABLE IF NOT EXISTS concepts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT UNIQUE NOT NULL,
+    concept_type TEXT NOT NULL,
+    description TEXT,
+    mention_count INTEGER DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Report-Concept junction (which concepts appear in which reports)
+CREATE TABLE IF NOT EXISTS report_concepts (
+    report_id INTEGER NOT NULL,
+    concept_id INTEGER NOT NULL,
+    relevance_score REAL DEFAULT 1.0,
+    context_snippet TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (report_id, concept_id),
+    FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE CASCADE,
+    FOREIGN KEY (concept_id) REFERENCES concepts(id) ON DELETE CASCADE
+);
+
+-- Concept relationships (edges in the graph)
+CREATE TABLE IF NOT EXISTS concept_relationships (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    source_concept_id INTEGER NOT NULL,
+    target_concept_id INTEGER NOT NULL,
+    relationship_type TEXT NOT NULL,
+    strength REAL DEFAULT 1.0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (source_concept_id) REFERENCES concepts(id) ON DELETE CASCADE,
+    FOREIGN KEY (target_concept_id) REFERENCES concepts(id) ON DELETE CASCADE,
+    UNIQUE(source_concept_id, target_concept_id, relationship_type)
+);
+
+-- Spaced repetition reviews
+CREATE TABLE IF NOT EXISTS reviews (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    report_id INTEGER NOT NULL UNIQUE,
+    ease_factor REAL DEFAULT 2.5,
+    interval_days INTEGER DEFAULT 1,
+    repetitions INTEGER DEFAULT 0,
+    next_review_date DATE NOT NULL,
+    last_review_date DATE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE CASCADE
+);
+
+-- Review history
+CREATE TABLE IF NOT EXISTS review_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    report_id INTEGER NOT NULL,
+    quality INTEGER NOT NULL,
+    reviewed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    interval_days INTEGER,
+    ease_factor REAL,
+    FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE CASCADE
+);
+
+-- Learning goals
+CREATE TABLE IF NOT EXISTS learning_goals (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT,
+    target_count INTEGER DEFAULT 10,
+    status TEXT DEFAULT 'active',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    completed_at DATETIME
+);
+
+-- Goal keywords for matching reports
+CREATE TABLE IF NOT EXISTS goal_keywords (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    goal_id INTEGER NOT NULL,
+    keyword TEXT NOT NULL,
+    FOREIGN KEY (goal_id) REFERENCES learning_goals(id) ON DELETE CASCADE
+);
+
+-- Reports linked to goals
+CREATE TABLE IF NOT EXISTS goal_reports (
+    goal_id INTEGER NOT NULL,
+    report_id INTEGER NOT NULL,
+    added_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (goal_id, report_id),
+    FOREIGN KEY (goal_id) REFERENCES learning_goals(id) ON DELETE CASCADE,
+    FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE CASCADE
+);
+
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_reports_type ON reports(content_type);
 CREATE INDEX IF NOT EXISTS idx_reports_created ON reports(created_at DESC);
@@ -124,6 +213,16 @@ CREATE INDEX IF NOT EXISTS idx_report_tags_report ON report_tags(report_id);
 CREATE INDEX IF NOT EXISTS idx_report_tags_tag ON report_tags(tag_id);
 CREATE INDEX IF NOT EXISTS idx_collection_reports_collection ON collection_reports(collection_id);
 CREATE INDEX IF NOT EXISTS idx_collection_reports_report ON collection_reports(report_id);
+CREATE INDEX IF NOT EXISTS idx_concepts_type ON concepts(concept_type);
+CREATE INDEX IF NOT EXISTS idx_concepts_name ON concepts(name);
+CREATE INDEX IF NOT EXISTS idx_report_concepts_report ON report_concepts(report_id);
+CREATE INDEX IF NOT EXISTS idx_report_concepts_concept ON report_concepts(concept_id);
+CREATE INDEX IF NOT EXISTS idx_relationships_source ON concept_relationships(source_concept_id);
+CREATE INDEX IF NOT EXISTS idx_relationships_target ON concept_relationships(target_concept_id);
+CREATE INDEX IF NOT EXISTS idx_reviews_next ON reviews(next_review_date);
+CREATE INDEX IF NOT EXISTS idx_reviews_report ON reviews(report_id);
+CREATE INDEX IF NOT EXISTS idx_goal_keywords ON goal_keywords(goal_id);
+CREATE INDEX IF NOT EXISTS idx_goal_reports ON goal_reports(goal_id);
 """
 
 
@@ -626,3 +725,374 @@ async def get_collection_by_id(collection_id: int) -> Optional[dict]:
         )
         row = await cursor.fetchone()
         return dict(row) if row else None
+
+
+# ============ KNOWLEDGE GRAPH OPERATIONS ============
+
+async def upsert_concept(name: str, concept_type: str, description: str = None) -> int:
+    """Insert or update a concept, return its ID."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute(
+            "SELECT id, mention_count FROM concepts WHERE name = ?",
+            (name.lower(),)
+        )
+        existing = await cursor.fetchone()
+
+        if existing:
+            await db.execute(
+                """UPDATE concepts SET mention_count = mention_count + 1,
+                   updated_at = CURRENT_TIMESTAMP WHERE id = ?""",
+                (existing["id"],)
+            )
+            await db.commit()
+            return existing["id"]
+        else:
+            cursor = await db.execute(
+                """INSERT INTO concepts (name, concept_type, description)
+                   VALUES (?, ?, ?) RETURNING id""",
+                (name.lower(), concept_type, description)
+            )
+            row = await cursor.fetchone()
+            await db.commit()
+            return row["id"]
+
+
+async def link_concept_to_report(report_id: int, concept_id: int, relevance: float = 1.0, context: str = None):
+    """Link a concept to a report."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        await db.execute(
+            """INSERT OR REPLACE INTO report_concepts
+               (report_id, concept_id, relevance_score, context_snippet)
+               VALUES (?, ?, ?, ?)""",
+            (report_id, concept_id, relevance, context)
+        )
+        await db.commit()
+
+
+async def create_concept_relationship(source_id: int, target_id: int, rel_type: str, strength: float = 1.0):
+    """Create or strengthen a relationship between concepts."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        cursor = await db.execute(
+            """SELECT id, strength FROM concept_relationships
+               WHERE source_concept_id = ? AND target_concept_id = ? AND relationship_type = ?""",
+            (source_id, target_id, rel_type)
+        )
+        existing = await cursor.fetchone()
+
+        if existing:
+            await db.execute(
+                "UPDATE concept_relationships SET strength = strength + ? WHERE id = ?",
+                (strength, existing[0])
+            )
+        else:
+            await db.execute(
+                """INSERT INTO concept_relationships
+                   (source_concept_id, target_concept_id, relationship_type, strength)
+                   VALUES (?, ?, ?, ?)""",
+                (source_id, target_id, rel_type, strength)
+            )
+        await db.commit()
+
+
+async def get_knowledge_graph(limit: int = 100) -> dict:
+    """Get nodes and edges for the knowledge graph."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+
+        cursor = await db.execute(
+            """SELECT id, name, concept_type, description, mention_count
+               FROM concepts ORDER BY mention_count DESC LIMIT ?""",
+            (limit,)
+        )
+        nodes = [dict(row) for row in await cursor.fetchall()]
+        node_ids = {n["id"] for n in nodes}
+
+        if node_ids:
+            placeholders = ",".join("?" * len(node_ids))
+            cursor = await db.execute(
+                f"""SELECT source_concept_id, target_concept_id, relationship_type, strength
+                   FROM concept_relationships
+                   WHERE source_concept_id IN ({placeholders})
+                   AND target_concept_id IN ({placeholders})""",
+                list(node_ids) + list(node_ids)
+            )
+            edges = [dict(row) for row in await cursor.fetchall()]
+        else:
+            edges = []
+
+        return {"nodes": nodes, "edges": edges}
+
+
+async def get_concept_details(concept_id: int) -> Optional[dict]:
+    """Get a concept with its related reports."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+
+        cursor = await db.execute(
+            "SELECT * FROM concepts WHERE id = ?", (concept_id,)
+        )
+        row = await cursor.fetchone()
+        if not row:
+            return None
+
+        concept = dict(row)
+
+        cursor = await db.execute(
+            """SELECT r.id, r.title, r.content_type, r.created_at, rc.relevance_score
+               FROM reports r
+               JOIN report_concepts rc ON r.id = rc.report_id
+               WHERE rc.concept_id = ?
+               ORDER BY rc.relevance_score DESC""",
+            (concept_id,)
+        )
+        concept["reports"] = [dict(row) for row in await cursor.fetchall()]
+
+        return concept
+
+
+# ============ SPACED REPETITION OPERATIONS ============
+
+from datetime import date, timedelta
+
+async def get_due_reviews(limit: int = 10) -> list[dict]:
+    """Get reports due for review today or earlier."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        today = date.today().isoformat()
+        cursor = await db.execute(
+            """SELECT r.id, r.title, r.content_type, r.summary,
+                      rv.ease_factor, rv.interval_days, rv.repetitions, rv.next_review_date
+               FROM reviews rv
+               JOIN reports r ON rv.report_id = r.id
+               WHERE rv.next_review_date <= ?
+               ORDER BY rv.next_review_date ASC
+               LIMIT ?""",
+            (today, limit)
+        )
+        return [dict(row) for row in await cursor.fetchall()]
+
+
+async def add_to_review_queue(report_id: int):
+    """Add a report to the review queue."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        tomorrow = (date.today() + timedelta(days=1)).isoformat()
+        await db.execute(
+            """INSERT OR IGNORE INTO reviews (report_id, next_review_date)
+               VALUES (?, ?)""",
+            (report_id, tomorrow)
+        )
+        await db.commit()
+
+
+async def record_review(report_id: int, quality: int) -> dict:
+    """Record a review using SM-2 algorithm."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+
+        cursor = await db.execute(
+            "SELECT * FROM reviews WHERE report_id = ?",
+            (report_id,)
+        )
+        review = await cursor.fetchone()
+
+        if not review:
+            ease_factor = 2.5
+            interval = 1
+            repetitions = 0
+        else:
+            ease_factor = review["ease_factor"]
+            interval = review["interval_days"]
+            repetitions = review["repetitions"]
+
+        # SM-2 algorithm
+        if quality < 3:
+            repetitions = 0
+            interval = 1
+        else:
+            if repetitions == 0:
+                interval = 1
+            elif repetitions == 1:
+                interval = 6
+            else:
+                interval = round(interval * ease_factor)
+            repetitions += 1
+
+        ease_factor = max(1.3, ease_factor + 0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02))
+        next_date = (date.today() + timedelta(days=interval)).isoformat()
+        today = date.today().isoformat()
+
+        await db.execute(
+            """INSERT INTO reviews (report_id, ease_factor, interval_days, repetitions, next_review_date, last_review_date)
+               VALUES (?, ?, ?, ?, ?, ?)
+               ON CONFLICT(report_id) DO UPDATE SET
+                   ease_factor = excluded.ease_factor,
+                   interval_days = excluded.interval_days,
+                   repetitions = excluded.repetitions,
+                   next_review_date = excluded.next_review_date,
+                   last_review_date = excluded.last_review_date""",
+            (report_id, ease_factor, interval, repetitions, next_date, today)
+        )
+
+        await db.execute(
+            """INSERT INTO review_history (report_id, quality, interval_days, ease_factor)
+               VALUES (?, ?, ?, ?)""",
+            (report_id, quality, interval, ease_factor)
+        )
+
+        await db.commit()
+
+        return {
+            "report_id": report_id,
+            "next_review_date": next_date,
+            "interval_days": interval,
+            "ease_factor": ease_factor,
+            "repetitions": repetitions
+        }
+
+
+async def get_review_stats() -> dict:
+    """Get review statistics."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        today = date.today().isoformat()
+
+        cursor = await db.execute(
+            "SELECT COUNT(*) as count FROM reviews WHERE next_review_date <= ?",
+            (today,)
+        )
+        due_count = (await cursor.fetchone())["count"]
+
+        cursor = await db.execute("SELECT COUNT(*) as count FROM reviews")
+        total_count = (await cursor.fetchone())["count"]
+
+        cursor = await db.execute(
+            "SELECT COUNT(*) as count FROM review_history WHERE date(reviewed_at) = ?",
+            (today,)
+        )
+        reviewed_today = (await cursor.fetchone())["count"]
+
+        cursor = await db.execute(
+            """SELECT COUNT(DISTINCT date(reviewed_at)) as streak
+               FROM review_history
+               WHERE date(reviewed_at) >= date('now', '-30 days')"""
+        )
+        streak = (await cursor.fetchone())["streak"]
+
+        return {
+            "due_count": due_count,
+            "total_in_queue": total_count,
+            "reviewed_today": reviewed_today,
+            "streak_days": streak
+        }
+
+
+# ============ LEARNING GOALS OPERATIONS ============
+
+async def create_goal(title: str, description: str = None, keywords: list[str] = None, target_count: int = 10) -> dict:
+    """Create a new learning goal."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute(
+            "INSERT INTO learning_goals (title, description, target_count) VALUES (?, ?, ?) RETURNING *",
+            (title, description, target_count)
+        )
+        goal = dict(await cursor.fetchone())
+
+        if keywords:
+            for kw in keywords:
+                await db.execute(
+                    "INSERT INTO goal_keywords (goal_id, keyword) VALUES (?, ?)",
+                    (goal["id"], kw.lower())
+                )
+
+        await db.commit()
+        goal["keywords"] = keywords or []
+        goal["report_count"] = 0
+        return goal
+
+
+async def get_goals() -> list[dict]:
+    """Get all learning goals with progress."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+
+        cursor = await db.execute(
+            """SELECT g.*, COUNT(gr.report_id) as report_count
+               FROM learning_goals g
+               LEFT JOIN goal_reports gr ON g.id = gr.goal_id
+               GROUP BY g.id
+               ORDER BY g.created_at DESC"""
+        )
+        goals = [dict(row) for row in await cursor.fetchall()]
+
+        for goal in goals:
+            cursor = await db.execute(
+                "SELECT keyword FROM goal_keywords WHERE goal_id = ?",
+                (goal["id"],)
+            )
+            goal["keywords"] = [row["keyword"] for row in await cursor.fetchall()]
+
+        return goals
+
+
+async def get_goal_by_id(goal_id: int) -> Optional[dict]:
+    """Get a goal with its reports."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+
+        cursor = await db.execute(
+            "SELECT * FROM learning_goals WHERE id = ?", (goal_id,)
+        )
+        row = await cursor.fetchone()
+        if not row:
+            return None
+
+        goal = dict(row)
+
+        cursor = await db.execute(
+            "SELECT keyword FROM goal_keywords WHERE goal_id = ?",
+            (goal_id,)
+        )
+        goal["keywords"] = [row["keyword"] for row in await cursor.fetchall()]
+
+        cursor = await db.execute(
+            """SELECT r.id, r.title, r.content_type, r.created_at, r.summary
+               FROM reports r
+               JOIN goal_reports gr ON r.id = gr.report_id
+               WHERE gr.goal_id = ?
+               ORDER BY gr.added_at DESC""",
+            (goal_id,)
+        )
+        goal["reports"] = [dict(row) for row in await cursor.fetchall()]
+        goal["report_count"] = len(goal["reports"])
+
+        return goal
+
+
+async def link_report_to_goal(goal_id: int, report_id: int):
+    """Link a report to a goal."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        await db.execute(
+            "INSERT OR IGNORE INTO goal_reports (goal_id, report_id) VALUES (?, ?)",
+            (goal_id, report_id)
+        )
+        await db.commit()
+
+
+async def update_goal_status(goal_id: int, status: str):
+    """Update goal status."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        completed_at = datetime.now().isoformat() if status == "completed" else None
+        await db.execute(
+            "UPDATE learning_goals SET status = ?, completed_at = ? WHERE id = ?",
+            (status, completed_at, goal_id)
+        )
+        await db.commit()
+
+
+async def delete_goal(goal_id: int):
+    """Delete a learning goal."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        await db.execute("DELETE FROM learning_goals WHERE id = ?", (goal_id,))
+        await db.commit()

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Personal OS - Extension Options</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: #60a5fa;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #94a3b8;
+      margin-bottom: 32px;
+    }
+
+    .section {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .section h2 {
+      font-size: 16px;
+      color: #e2e8f0;
+      margin-bottom: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px 14px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      color: #e2e8f0;
+      font-size: 14px;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-primary {
+      background: #3b82f6;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #2563eb;
+    }
+
+    .status {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .status.success {
+      background: #065f46;
+      color: #6ee7b7;
+      display: block;
+    }
+
+    .status.error {
+      background: #7f1d1d;
+      color: #fca5a5;
+      display: block;
+    }
+
+    .queue-list {
+      margin-top: 16px;
+    }
+
+    .queue-item {
+      background: #0f172a;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .queue-item .url {
+      font-size: 13px;
+      word-break: break-all;
+      flex: 1;
+      margin-right: 12px;
+    }
+
+    .queue-item .type {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: #3b82f6;
+      color: white;
+    }
+
+    .empty-queue {
+      text-align: center;
+      color: #94a3b8;
+      padding: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Personal OS Settings</h1>
+    <p class="subtitle">Configure your browser extension preferences</p>
+
+    <div class="section">
+      <h2>API Configuration</h2>
+      <div class="form-group">
+        <label for="api-url">Backend URL</label>
+        <input type="text" id="api-url" value="http://localhost:8000" placeholder="http://localhost:8000">
+      </div>
+      <div class="form-group">
+        <label for="default-model">Default Model</label>
+        <select id="default-model">
+          <option value="haiku">Haiku (Fast & Affordable)</option>
+          <option value="sonnet" selected>Sonnet (Balanced)</option>
+          <option value="opus">Opus (Most Capable)</option>
+        </select>
+      </div>
+      <button id="save-btn" class="btn btn-primary">Save Settings</button>
+      <div id="save-status" class="status"></div>
+    </div>
+
+    <div class="section">
+      <h2>Queued Items</h2>
+      <div id="queue-list" class="queue-list">
+        <div class="empty-queue">No items in queue</div>
+      </div>
+      <button id="clear-queue-btn" class="btn btn-primary" style="margin-top: 16px;">Clear Queue</button>
+    </div>
+
+    <div class="section">
+      <h2>About</h2>
+      <p style="color: #94a3b8; line-height: 1.6;">
+        Personal OS is your intelligent content consumption system.
+        This extension lets you save web pages, YouTube videos, and articles
+        for AI-powered analysis directly from your browser.
+      </p>
+      <p style="color: #94a3b8; margin-top: 12px;">
+        <a href="http://localhost:3000" target="_blank" style="color: #60a5fa;">Open Dashboard</a>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // Load saved settings
+    document.addEventListener('DOMContentLoaded', () => {
+      chrome.storage.sync.get(['apiUrl', 'preferredModel'], (result) => {
+        if (result.apiUrl) {
+          document.getElementById('api-url').value = result.apiUrl;
+        }
+        if (result.preferredModel) {
+          document.getElementById('default-model').value = result.preferredModel;
+        }
+      });
+
+      loadQueue();
+    });
+
+    // Save settings
+    document.getElementById('save-btn').addEventListener('click', () => {
+      const apiUrl = document.getElementById('api-url').value;
+      const preferredModel = document.getElementById('default-model').value;
+
+      chrome.storage.sync.set({ apiUrl, preferredModel }, () => {
+        const status = document.getElementById('save-status');
+        status.textContent = 'Settings saved!';
+        status.className = 'status success';
+        setTimeout(() => { status.className = 'status'; }, 3000);
+      });
+    });
+
+    // Load queue
+    function loadQueue() {
+      chrome.storage.local.get(['queue'], (result) => {
+        const queue = result.queue || [];
+        const container = document.getElementById('queue-list');
+
+        if (queue.length === 0) {
+          container.innerHTML = '<div class="empty-queue">No items in queue</div>';
+          return;
+        }
+
+        container.innerHTML = queue.map(item => `
+          <div class="queue-item">
+            <span class="url">${item.url}</span>
+            <span class="type">${item.contentType}</span>
+          </div>
+        `).join('');
+      });
+    }
+
+    // Clear queue
+    document.getElementById('clear-queue-btn').addEventListener('click', () => {
+      chrome.storage.local.set({ queue: [] }, () => {
+        loadQueue();
+      });
+    });
+  </script>
+</body>
+</html>

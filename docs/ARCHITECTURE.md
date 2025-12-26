@@ -15,8 +15,9 @@ This document provides a comprehensive overview of Personal OS's architecture, e
 7. [Web Application Architecture](#web-application-architecture)
 8. [Database Design](#database-design)
 9. [External Services](#external-services)
-10. [Design Decisions](#design-decisions)
-11. [Scalability Considerations](#scalability-considerations)
+10. [AI-Powered Features Architecture](#ai-powered-features-architecture)
+11. [Design Decisions](#design-decisions)
+12. [Scalability Considerations](#scalability-considerations)
 
 ---
 
@@ -483,7 +484,7 @@ web/backend/
 │   └── Connection pool
 │   └── Query helpers
 │
-├── routers/                # API endpoints (grouped)
+├── routers/                # API endpoints (18 routers)
 │   ├── reports.py          # CRUD for reports
 │   ├── analysis.py         # Submit analysis jobs
 │   ├── logs.py             # Activity log access
@@ -492,9 +493,18 @@ web/backend/
 │   ├── collections.py      # Collection management
 │   ├── rss.py              # Feed subscriptions
 │   ├── export.py           # Export functions
-│   └── transcription.py    # Audio transcription
+│   ├── transcription.py    # Audio transcription
+│   ├── knowledge_graph.py  # Knowledge graph API (NEW)
+│   ├── qa.py               # Q&A system API (NEW)
+│   ├── comparison.py       # Content comparison API (NEW)
+│   ├── tts.py              # Text-to-speech API (NEW)
+│   ├── spaced_repetition.py # Spaced repetition API (NEW)
+│   ├── credibility.py      # Credibility analysis API (NEW)
+│   ├── goals.py            # Learning goals API (NEW)
+│   ├── translate.py        # Translation API (NEW)
+│   └── recommendations.py  # Recommendations API (NEW)
 │
-└── services/               # Business logic
+└── services/               # Business logic (12 services)
     ├── analyzer.py         # Core analysis
     ├── content_fetcher.py  # Content acquisition
     ├── indexer.py          # DB sync
@@ -503,7 +513,10 @@ web/backend/
     ├── rss.py              # Feed monitoring
     ├── digest.py           # Summary generation
     ├── export.py           # Export logic
-    └── flashcards.py       # Card generation
+    ├── flashcards.py       # Card generation
+    ├── knowledge_graph.py  # Concept extraction (NEW)
+    ├── spaced_repetition.py # SM-2 algorithm (NEW)
+    └── similarity.py       # Content similarity (NEW)
 ```
 
 ### Frontend (Next.js 14)
@@ -518,22 +531,39 @@ web/frontend/src/
 │   ├── reports/
 │   │   ├── page.tsx        # Report list
 │   │   └── [id]/
-│   │       └── page.tsx    # Report detail
+│   │       └── page.tsx    # Report detail with tools
 │   ├── logs/
 │   │   └── page.tsx        # Activity log
-│   └── search/
-│       └── page.tsx        # Search page
+│   ├── search/
+│   │   └── page.tsx        # Full-text search
+│   ├── knowledge-graph/
+│   │   └── page.tsx        # Knowledge graph visualization (NEW)
+│   ├── qa/
+│   │   └── page.tsx        # Q&A interface (NEW)
+│   ├── compare/
+│   │   └── page.tsx        # Content comparison (NEW)
+│   ├── review/
+│   │   └── page.tsx        # Spaced repetition review (NEW)
+│   ├── goals/
+│   │   └── page.tsx        # Learning goals (NEW)
+│   └── discover/
+│       └── page.tsx        # Recommendations & discovery (NEW)
 │
 ├── components/             # Reusable components
 │   ├── Layout.tsx          # Main layout
-│   ├── Sidebar.tsx         # Navigation
+│   ├── Sidebar.tsx         # Navigation (11 nav items)
+│   ├── ThemeProvider.tsx   # Dark mode context (NEW)
 │   ├── AnalysisForm.tsx    # URL submission
 │   ├── ReportCard.tsx      # Report list item
 │   ├── ReportViewer.tsx    # Markdown renderer
-│   └── ProgressIndicator.tsx
+│   ├── ProgressIndicator.tsx
+│   ├── AudioPlayer.tsx     # TTS audio player (NEW)
+│   ├── CredibilityPanel.tsx # Credibility analysis (NEW)
+│   ├── TranslationPanel.tsx # Translation controls (NEW)
+│   └── KnowledgeGraph.tsx  # D3.js graph visualization (NEW)
 │
 └── lib/
-    └── api.ts              # Backend API client
+    └── api.ts              # Backend API client (all endpoints)
 ```
 
 ### API Client Pattern
@@ -663,6 +693,64 @@ CREATE TABLE rss_feeds (
     last_checked DATETIME,
     last_item_date DATETIME
 );
+
+-- Learning goals (NEW)
+CREATE TABLE learning_goals (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    description TEXT,
+    target_count INTEGER DEFAULT 10,
+    keywords TEXT,              -- Comma-separated keywords
+    deadline DATETIME,
+    current_count INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Spaced repetition schedule (NEW)
+CREATE TABLE spaced_repetition (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    report_id INTEGER REFERENCES reports(id) ON DELETE CASCADE,
+    ease_factor REAL DEFAULT 2.5,      -- SM-2 ease factor
+    interval INTEGER DEFAULT 1,         -- Days until next review
+    repetitions INTEGER DEFAULT 0,      -- Number of successful reviews
+    next_review DATETIME,
+    last_review DATETIME,
+    UNIQUE(report_id)
+);
+
+-- Q&A history (NEW)
+CREATE TABLE qa_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    question TEXT NOT NULL,
+    answer TEXT NOT NULL,
+    citations TEXT,             -- JSON array of report IDs
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Knowledge graph concepts (NEW)
+CREATE TABLE concepts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT UNIQUE NOT NULL,
+    frequency INTEGER DEFAULT 1,
+    first_seen DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Concept-Report relationship (NEW)
+CREATE TABLE concept_reports (
+    concept_id INTEGER REFERENCES concepts(id) ON DELETE CASCADE,
+    report_id INTEGER REFERENCES reports(id) ON DELETE CASCADE,
+    PRIMARY KEY (concept_id, report_id)
+);
+
+-- TTS audio files (NEW)
+CREATE TABLE tts_audio (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    report_id INTEGER REFERENCES reports(id) ON DELETE CASCADE,
+    voice TEXT DEFAULT 'alloy',
+    audio_path TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(report_id, voice)
+);
 ```
 
 ### Indexer Design
@@ -759,6 +847,167 @@ yt-dlp --write-auto-sub --write-sub \
 yt-dlp -x --audio-format mp3 \
        -o "inbox/%(title)s.%(ext)s" \
        "<URL>"
+```
+
+---
+
+## AI-Powered Features Architecture
+
+Personal OS includes 10 advanced AI-powered features that enhance learning and content consumption.
+
+### Feature Overview
+
+```
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                         AI-POWERED FEATURES                                   │
+├─────────────────────────────────────────────────────────────────────────────┬┤
+│                                                                              │
+│  ┌─────────────────────┐  ┌─────────────────────┐  ┌─────────────────────┐  │
+│  │  Knowledge Graph    │  │  Q&A System         │  │  Comparison Mode    │  │
+│  │  (Concept mapping)  │  │  (Cross-report Q&A) │  │  (Side-by-side)     │  │
+│  └─────────────────────┘  └─────────────────────┘  └─────────────────────┘  │
+│                                                                              │
+│  ┌─────────────────────┐  ┌─────────────────────┐  ┌─────────────────────┐  │
+│  │  Audio Reports      │  │  Spaced Repetition  │  │  Credibility        │  │
+│  │  (TTS via OpenAI)   │  │  (SM-2 algorithm)   │  │  (Source analysis)  │  │
+│  └─────────────────────┘  └─────────────────────┘  └─────────────────────┘  │
+│                                                                              │
+│  ┌─────────────────────┐  ┌─────────────────────┐  ┌─────────────────────┐  │
+│  │  Learning Goals     │  │  Translation        │  │  Recommendations    │  │
+│  │  (Progress track)   │  │  (Multi-language)   │  │  (Smart discovery)  │  │
+│  └─────────────────────┘  └─────────────────────┘  └─────────────────────┘  │
+│                                                                              │
+│  ┌─────────────────────┐                                                     │
+│  │  Browser Extension  │                                                     │
+│  │  (Chrome analysis)  │                                                     │
+│  └─────────────────────┘                                                     │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 1. Knowledge Graph
+
+Extracts concepts from reports and visualizes relationships.
+
+**Data Flow:**
+```
+Reports → Concept Extractor → concepts table → Graph API → D3.js Visualization
+```
+
+**Key Components:**
+- `services/knowledge_graph.py` - Concept extraction logic
+- `routers/knowledge_graph.py` - REST API endpoints
+- `KnowledgeGraph.tsx` - D3.js interactive visualization
+
+### 2. Q&A System
+
+Ask questions across your entire knowledge base.
+
+**Data Flow:**
+```
+Question → Search Reports → Extract Context → Claude AI → Answer + Citations
+```
+
+**Key Components:**
+- `routers/qa.py` - Question submission and history
+- Uses existing report search + Claude for synthesis
+
+### 3. Content Comparison
+
+AI-powered side-by-side analysis of two reports.
+
+**Data Flow:**
+```
+Report A + Report B → Claude AI → Comparison Analysis (similarities, differences, insights)
+```
+
+### 4. Text-to-Speech
+
+Generate audio versions of reports using OpenAI TTS.
+
+**Data Flow:**
+```
+Report → OpenAI TTS API → Audio file (.mp3) → tts_audio table → Streaming playback
+```
+
+**Prerequisites:** `OPENAI_API_KEY` environment variable
+
+### 5. Spaced Repetition
+
+SM-2 algorithm for optimal review scheduling.
+
+**Data Flow:**
+```
+Review Rating (1-5) → SM-2 Algorithm → Update ease_factor, interval → Schedule next review
+```
+
+**SM-2 Implementation:**
+```python
+# Simplified SM-2 formula
+if rating >= 3:  # Successful recall
+    if repetitions == 0:
+        interval = 1
+    elif repetitions == 1:
+        interval = 6
+    else:
+        interval = round(interval * ease_factor)
+    ease_factor = max(1.3, ease_factor + (0.1 - (5 - rating) * (0.08 + (5 - rating) * 0.02)))
+    repetitions += 1
+else:  # Failed recall
+    repetitions = 0
+    interval = 1
+```
+
+### 6. Source Credibility
+
+AI-powered trustworthiness analysis.
+
+**Analysis Dimensions:**
+- Evidence quality (citations, data, methodology)
+- Source reliability (author expertise, publication reputation)
+- Bias detection (language patterns, selective reporting)
+- Fact-checkable claims identification
+
+### 7. Learning Goals
+
+Track progress toward learning objectives.
+
+**Matching Logic:**
+```python
+# Keywords match against report titles and content
+matching_reports = [r for r in reports
+                   if any(kw.lower() in r.content.lower()
+                         for kw in goal.keywords)]
+goal.current_count = len(matching_reports)
+```
+
+### 8. Multi-Language Translation
+
+Translate reports using Claude AI.
+
+**Supported Languages:** Spanish, French, German, Chinese, Japanese, Korean, Russian, Arabic, Portuguese, Italian, Dutch, Hindi
+
+### 9. Smart Recommendations
+
+Personalized content suggestions.
+
+**Recommendation Algorithm:**
+1. Analyze user's reading history
+2. Extract frequently occurring keywords/concepts
+3. Score unread reports by keyword overlap
+4. Return top matches with relevance scores
+
+### 10. Browser Extension
+
+Chrome extension for in-browser analysis.
+
+**Architecture:**
+```
+extension/
+├── manifest.json      # Extension config (Manifest V3)
+├── popup.html/js      # Extension popup UI
+├── content.js         # Page content extraction
+└── background.js      # API communication with backend
 ```
 
 ---
@@ -878,6 +1127,6 @@ Single Process → Multiple Workers + Load Balancer
 
 ---
 
-*Architecture Document - Last updated: 2025-12-25*
+*Architecture Document - Last updated: 2025-12-26*
 
 *Built with [Claude Code](https://claude.ai/code) powered by Claude Opus 4.5*

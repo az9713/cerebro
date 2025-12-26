@@ -24,6 +24,15 @@ This document provides complete documentation for the Personal OS REST API. The 
    - [RSS Feeds](#rss-feeds)
    - [Export](#export)
    - [Transcription](#transcription)
+   - [Knowledge Graph](#knowledge-graph)
+   - [Q&A](#qa)
+   - [Comparison](#comparison)
+   - [Text-to-Speech](#text-to-speech)
+   - [Spaced Repetition](#spaced-repetition)
+   - [Credibility Analysis](#credibility-analysis)
+   - [Learning Goals](#learning-goals)
+   - [Translation](#translation)
+   - [Recommendations](#recommendations)
    - [System](#system)
 6. [WebSocket Events](#websocket-events)
 7. [Examples](#examples)
@@ -884,6 +893,769 @@ POST /api/transcription/url
 
 ---
 
+### Knowledge Graph
+
+#### Get Knowledge Graph
+
+Retrieve the knowledge graph with concepts and relationships.
+
+```http
+GET /api/knowledge-graph
+```
+
+**Query Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `limit` | integer | 100 | Maximum number of concepts to return |
+
+**Example Response:**
+
+```json
+{
+  "nodes": [
+    {"id": 1, "name": "Machine Learning", "type": "topic", "description": "AI approach using data patterns", "mention_count": 15},
+    {"id": 2, "name": "Neural Networks", "type": "concept", "description": "Computing systems inspired by brain", "mention_count": 12}
+  ],
+  "links": [
+    {"source": 1, "target": 2, "type": "contains", "strength": 0.8}
+  ]
+}
+```
+
+---
+
+#### Get Concept Details
+
+Get detailed information about a specific concept.
+
+```http
+GET /api/knowledge-graph/concept/{concept_id}
+```
+
+**Example Response:**
+
+```json
+{
+  "id": 1,
+  "name": "Machine Learning",
+  "concept_type": "topic",
+  "description": "AI approach using data patterns",
+  "mention_count": 15,
+  "reports": [
+    {"id": 42, "title": "Introduction to ML", "content_type": "youtube"},
+    {"id": 43, "title": "Deep Learning Basics", "content_type": "paper"}
+  ]
+}
+```
+
+---
+
+#### Extract Concepts from Report
+
+Extract concepts from a specific report.
+
+```http
+POST /api/knowledge-graph/extract/{report_id}
+```
+
+**Example Response:**
+
+```json
+{
+  "concepts_extracted": 8,
+  "concepts_stored": 6,
+  "relationships_stored": 12
+}
+```
+
+---
+
+#### Batch Extract Concepts
+
+Extract concepts from multiple reports.
+
+```http
+POST /api/knowledge-graph/extract-all
+```
+
+**Query Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `limit` | integer | 50 | Maximum reports to process |
+
+---
+
+### Q&A
+
+#### Ask Question
+
+Ask a question across your knowledge base.
+
+```http
+POST /api/qa
+```
+
+**Request Body:**
+
+```json
+{
+  "question": "What are the best practices for habit formation?",
+  "model": "sonnet",
+  "max_reports": 5
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `question` | string | Yes | The question to ask |
+| `model` | string | No | AI model: `haiku`, `sonnet`, `opus` |
+| `max_reports` | integer | No | Maximum reports to search (default: 5) |
+
+**Example Response:**
+
+```json
+{
+  "answer": "Based on your knowledge base, the best practices for habit formation include...",
+  "sources": [
+    {"id": 42, "title": "Building Better Habits", "content_type": "youtube", "source_url": "https://..."},
+    {"id": 43, "title": "Atomic Habits Summary", "content_type": "article", "source_url": "https://..."}
+  ],
+  "tokens_used": 2500,
+  "cost": 0.0075,
+  "model": "claude-sonnet-4-20250514",
+  "followup_suggestions": [
+    "How long does it take to form a habit?",
+    "What are common habit formation mistakes?"
+  ]
+}
+```
+
+---
+
+#### Get Question Suggestions
+
+Get suggested questions based on your content.
+
+```http
+GET /api/qa/suggestions
+```
+
+**Example Response:**
+
+```json
+{
+  "suggestions": [
+    "What are the key differences between supervised and unsupervised learning?",
+    "How do transformers work in NLP?",
+    "What productivity techniques are mentioned in your videos?"
+  ]
+}
+```
+
+---
+
+### Comparison
+
+#### Compare Two Reports
+
+Compare two reports with AI-generated analysis.
+
+```http
+POST /api/comparison
+```
+
+**Request Body:**
+
+```json
+{
+  "report_id_a": 42,
+  "report_id_b": 43,
+  "model": "sonnet"
+}
+```
+
+**Example Response:**
+
+```json
+{
+  "comparison": "## Similarities\n\n- Both discuss habit formation...\n\n## Differences\n\n- Report A focuses on...",
+  "report_a": {"id": 42, "title": "Building Habits", "content_type": "youtube", "source_url": "https://..."},
+  "report_b": {"id": 43, "title": "Atomic Habits", "content_type": "article", "source_url": "https://..."},
+  "tokens_used": 3000,
+  "cost": 0.009,
+  "model": "claude-sonnet-4-20250514"
+}
+```
+
+---
+
+#### Get Comparison Suggestions
+
+Get suggested reports to compare with a given report.
+
+```http
+GET /api/comparison/suggestions/{report_id}
+```
+
+**Query Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `limit` | integer | 5 | Maximum suggestions to return |
+
+**Example Response:**
+
+```json
+{
+  "suggestions": [
+    {"id": 43, "title": "Related Topic", "content_type": "article"},
+    {"id": 44, "title": "Similar Video", "content_type": "youtube"}
+  ]
+}
+```
+
+---
+
+### Text-to-Speech
+
+#### List Available Voices
+
+Get available TTS voices.
+
+```http
+GET /api/tts/voices
+```
+
+**Example Response:**
+
+```json
+{
+  "voices": [
+    {"id": "alloy", "description": "Neutral and balanced"},
+    {"id": "echo", "description": "Warm and conversational"},
+    {"id": "fable", "description": "British accent"},
+    {"id": "onyx", "description": "Deep and authoritative"},
+    {"id": "nova", "description": "Friendly and upbeat"},
+    {"id": "shimmer", "description": "Soft and gentle"}
+  ],
+  "default": "nova"
+}
+```
+
+---
+
+#### Generate Audio
+
+Generate audio for a report.
+
+```http
+POST /api/tts/{report_id}
+```
+
+**Request Body:**
+
+```json
+{
+  "voice": "nova",
+  "force_regenerate": false
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `voice` | string | No | Voice ID (default: `nova`) |
+| `force_regenerate` | boolean | No | Force regeneration even if cached |
+
+**Example Response:**
+
+```json
+{
+  "audio_path": "audio/42_nova.mp3",
+  "voice": "nova",
+  "duration_estimate": 420,
+  "cached": false
+}
+```
+
+---
+
+#### Get Report Audio
+
+Get existing audio versions for a report.
+
+```http
+GET /api/tts/{report_id}
+```
+
+**Example Response:**
+
+```json
+{
+  "report_id": 42,
+  "audio_versions": [
+    {"voice": "nova", "description": "Friendly and upbeat", "path": "audio/42_nova.mp3"},
+    {"voice": "onyx", "description": "Deep and authoritative", "path": "audio/42_onyx.mp3"}
+  ]
+}
+```
+
+---
+
+#### Stream Audio
+
+Stream audio file for playback.
+
+```http
+GET /api/tts/{report_id}/stream/{voice}
+```
+
+Returns audio file with `Content-Type: audio/mpeg`.
+
+---
+
+### Spaced Repetition
+
+#### Get Due Reviews
+
+Get reports due for review.
+
+```http
+GET /api/reviews/due
+```
+
+**Query Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `limit` | integer | 10 | Maximum items to return |
+
+**Example Response:**
+
+```json
+{
+  "items": [
+    {
+      "id": 1,
+      "report_id": 42,
+      "title": "Building Habits",
+      "content_type": "youtube",
+      "source_url": "https://...",
+      "repetitions": 3,
+      "ease_factor": 2.5,
+      "interval": 7,
+      "next_review": "2024-01-15",
+      "summary": "A guide to building lasting habits..."
+    }
+  ],
+  "count": 5
+}
+```
+
+---
+
+#### Add to Review Queue
+
+Add a report to the spaced repetition queue.
+
+```http
+POST /api/reviews/add
+```
+
+**Request Body:**
+
+```json
+{
+  "report_id": 42
+}
+```
+
+**Example Response:**
+
+```json
+{
+  "message": "Report added to review queue"
+}
+```
+
+---
+
+#### Submit Review
+
+Submit a review rating for a report.
+
+```http
+POST /api/reviews/{report_id}/review
+```
+
+**Request Body:**
+
+```json
+{
+  "quality": 4
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `quality` | integer | Yes | Rating 0-5 (0=blackout, 5=perfect recall) |
+
+**Quality Scale:**
+- 0: Complete blackout, no memory
+- 1: Incorrect, but recognized when shown
+- 2: Incorrect, but seemed familiar
+- 3: Correct with difficulty
+- 4: Correct with some hesitation
+- 5: Perfect recall
+
+**Example Response:**
+
+```json
+{
+  "report_id": 42,
+  "next_review": "2024-01-22",
+  "interval": 7,
+  "ease_factor": 2.6,
+  "repetitions": 4
+}
+```
+
+---
+
+#### Get Review Statistics
+
+Get spaced repetition statistics.
+
+```http
+GET /api/reviews/stats
+```
+
+**Example Response:**
+
+```json
+{
+  "total_reviews": 150,
+  "due_today": 5,
+  "reviewed_today": 3,
+  "average_ease": 2.45,
+  "streak": 7
+}
+```
+
+---
+
+### Credibility Analysis
+
+#### Analyze Report Credibility
+
+Analyze the credibility of a report's source.
+
+```http
+GET /api/credibility/{report_id}
+```
+
+**Example Response:**
+
+```json
+{
+  "overall_score": 78,
+  "domain_score": 85,
+  "ai_score": 72,
+  "source_quality": {"score": 80, "notes": "Established author with relevant expertise"},
+  "evidence_quality": {"score": 75, "notes": "Claims supported by citations"},
+  "bias_level": {"score": 70, "notes": "Some promotional language detected"},
+  "fact_checkability": {"score": 85, "notes": "Most claims are verifiable"},
+  "red_flags": [
+    "Some claims lack citations",
+    "Promotional language in conclusion"
+  ],
+  "strengths": [
+    "Author credentials verified",
+    "Multiple expert sources cited",
+    "Data from reputable studies"
+  ],
+  "recommendation": "Generally reliable source. Verify promotional claims independently."
+}
+```
+
+---
+
+### Learning Goals
+
+#### List Goals
+
+Get all learning goals with progress.
+
+```http
+GET /api/goals
+```
+
+**Example Response:**
+
+```json
+{
+  "goals": [
+    {
+      "id": 1,
+      "title": "Learn Machine Learning",
+      "description": "Complete ML fundamentals",
+      "keywords": ["machine learning", "AI", "neural networks"],
+      "target_count": 20,
+      "current_count": 12,
+      "status": "active",
+      "progress_percent": 60,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  ]
+}
+```
+
+---
+
+#### Create Goal
+
+Create a new learning goal.
+
+```http
+POST /api/goals
+```
+
+**Request Body:**
+
+```json
+{
+  "title": "Master Python",
+  "description": "Learn advanced Python concepts",
+  "keywords": ["python", "programming", "async"],
+  "target_count": 15
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `title` | string | Yes | Goal title |
+| `description` | string | No | Goal description |
+| `keywords` | array | No | Keywords for auto-linking reports |
+| `target_count` | integer | No | Target number of reports (default: 10) |
+
+---
+
+#### Get Goal Details
+
+Get a specific goal with linked reports.
+
+```http
+GET /api/goals/{goal_id}
+```
+
+---
+
+#### Update Goal Status
+
+Update goal status.
+
+```http
+PUT /api/goals/{goal_id}
+```
+
+**Request Body:**
+
+```json
+{
+  "status": "completed"
+}
+```
+
+| Status | Description |
+|--------|-------------|
+| `active` | Currently working on |
+| `paused` | Temporarily paused |
+| `completed` | Goal achieved |
+
+---
+
+#### Delete Goal
+
+Delete a learning goal.
+
+```http
+DELETE /api/goals/{goal_id}
+```
+
+---
+
+#### Link Report to Goal
+
+Link a report to a learning goal.
+
+```http
+POST /api/goals/{goal_id}/reports/{report_id}
+```
+
+---
+
+### Translation
+
+#### Get Supported Languages
+
+List supported translation languages.
+
+```http
+GET /api/translate/languages
+```
+
+**Example Response:**
+
+```json
+{
+  "languages": [
+    {"code": "es", "name": "Spanish"},
+    {"code": "fr", "name": "French"},
+    {"code": "de", "name": "German"},
+    {"code": "it", "name": "Italian"},
+    {"code": "pt", "name": "Portuguese"},
+    {"code": "ja", "name": "Japanese"},
+    {"code": "ko", "name": "Korean"},
+    {"code": "zh", "name": "Chinese (Simplified)"},
+    {"code": "ru", "name": "Russian"},
+    {"code": "ar", "name": "Arabic"}
+  ]
+}
+```
+
+---
+
+#### Translate Report
+
+Translate a report to another language.
+
+```http
+POST /api/translate/{report_id}
+```
+
+**Request Body:**
+
+```json
+{
+  "target_language": "es",
+  "sections": []
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `target_language` | string | Yes | Language code (e.g., `es`, `fr`, `de`) |
+| `sections` | array | No | Specific sections to translate (empty = all) |
+
+**Example Response:**
+
+```json
+{
+  "report_id": 42,
+  "original_title": "Building Better Habits",
+  "translated_title": "Construyendo Mejores Hábitos",
+  "translated_content": "# Construyendo Mejores Hábitos\n\n**Fuente**: https://...\n...",
+  "target_language": "es",
+  "language_name": "Spanish"
+}
+```
+
+---
+
+### Recommendations
+
+#### Get Recommendations
+
+Get personalized content recommendations.
+
+```http
+GET /api/recommendations
+```
+
+**Query Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `limit` | integer | 10 | Maximum recommendations |
+
+**Example Response:**
+
+```json
+{
+  "recommendations": [
+    {
+      "id": 42,
+      "title": "Advanced Python Techniques",
+      "content_type": "youtube",
+      "source_url": "https://...",
+      "reason": "Explore more youtube content",
+      "score": 0.85
+    },
+    {
+      "id": 43,
+      "title": "ML Fundamentals Review",
+      "content_type": "paper",
+      "source_url": "https://...",
+      "reason": "Revisit older content",
+      "score": 0.72
+    }
+  ],
+  "message": null
+}
+```
+
+---
+
+#### Get Similar Reports
+
+Find reports similar to a given report.
+
+```http
+GET /api/recommendations/similar/{report_id}
+```
+
+**Query Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `limit` | integer | 5 | Maximum results |
+
+**Example Response:**
+
+```json
+{
+  "similar": [
+    {"id": 43, "title": "Related Topic", "content_type": "article", "source_url": null, "reason": "Similar content", "score": 0.78}
+  ]
+}
+```
+
+---
+
+#### Get Trending Topics
+
+Get trending topics from recent content.
+
+```http
+GET /api/recommendations/trending
+```
+
+**Example Response:**
+
+```json
+{
+  "trending": [
+    {"topic": "machine", "count": 12},
+    {"topic": "learning", "count": 10},
+    {"topic": "python", "count": 8},
+    {"topic": "productivity", "count": 6}
+  ]
+}
+```
+
+---
+
 ### System
 
 #### Health Check
@@ -1085,6 +1857,19 @@ Consider implementing local caching to reduce API calls.
 
 ## Changelog
 
+### Version 1.1.0 (2025-12-26)
+
+**New Features:**
+- Knowledge Graph API - Concept extraction and visualization
+- Q&A System API - Natural language questions across knowledge base
+- Comparison API - Side-by-side report analysis
+- Text-to-Speech API - Audio generation with OpenAI TTS
+- Spaced Repetition API - SM-2 algorithm for review scheduling
+- Credibility Analysis API - Source trustworthiness scoring
+- Learning Goals API - Progress tracking and goal management
+- Translation API - Multi-language report translation
+- Recommendations API - Personalized content suggestions
+
 ### Version 1.0.0 (2025-12-25)
 
 - Initial API release
@@ -1098,6 +1883,6 @@ Consider implementing local caching to reduce API calls.
 
 ---
 
-*API Reference - Last updated: 2025-12-25*
+*API Reference - Last updated: 2025-12-26*
 
 *Built with [Claude Code](https://claude.ai/code) powered by Claude Opus 4.5*

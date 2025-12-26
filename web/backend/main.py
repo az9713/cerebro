@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from config import CORS_ORIGINS, API_PREFIX
-from routers import reports, logs, analysis, batch, tags, collections, transcription, rss, export
+from routers import reports, logs, analysis, batch, tags, collections, transcription, rss, export, knowledge_graph, qa, comparison, tts, reviews, credibility, goals, translate, recommendations
 from services.indexer import run_initial_index
 
 # Configure logging
@@ -58,6 +58,15 @@ app.include_router(collections.router, prefix=f"{API_PREFIX}/collections", tags=
 app.include_router(transcription.router, prefix=f"{API_PREFIX}/transcription", tags=["Transcription"])
 app.include_router(rss.router, prefix=f"{API_PREFIX}/rss", tags=["RSS Feeds"])
 app.include_router(export.router, prefix=f"{API_PREFIX}/export", tags=["Export"])
+app.include_router(knowledge_graph.router, prefix=f"{API_PREFIX}/knowledge-graph", tags=["Knowledge Graph"])
+app.include_router(qa.router, prefix=f"{API_PREFIX}/qa", tags=["Q&A"])
+app.include_router(comparison.router, prefix=f"{API_PREFIX}/comparison", tags=["Comparison"])
+app.include_router(tts.router, prefix=f"{API_PREFIX}/tts", tags=["Text-to-Speech"])
+app.include_router(reviews.router, prefix=f"{API_PREFIX}/reviews", tags=["Spaced Repetition"])
+app.include_router(credibility.router, prefix=f"{API_PREFIX}/credibility", tags=["Credibility"])
+app.include_router(goals.router, prefix=f"{API_PREFIX}/goals", tags=["Learning Goals"])
+app.include_router(translate.router, prefix=f"{API_PREFIX}/translate", tags=["Translation"])
+app.include_router(recommendations.router, prefix=f"{API_PREFIX}/recommendations", tags=["Recommendations"])
 
 
 @app.get("/")

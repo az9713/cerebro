@@ -11,9 +11,10 @@
 7. [Organization Features](#7-organization-features)
 8. [Automation Features](#8-automation-features)
 9. [Web Application](#9-web-application)
-10. [Customizing Prompts](#10-customizing-prompts)
-11. [Troubleshooting](#11-troubleshooting)
-12. [FAQ](#12-faq)
+10. [Advanced Features](#10-advanced-features)
+11. [Customizing Prompts](#11-customizing-prompts)
+12. [Troubleshooting](#12-troubleshooting)
+13. [FAQ](#13-faq)
 
 ---
 
@@ -1035,7 +1036,250 @@ Both produce **identical reports** saved to the same `reports/` folder.
 
 ---
 
-## 10. Customizing Prompts
+## 10. Advanced Features
+
+Personal OS includes powerful AI-driven features to enhance your learning and content consumption.
+
+### Knowledge Graph Visualization
+
+See how concepts connect across all your analyzed content.
+
+**Access:** Navigate to `http://localhost:3000/knowledge-graph` in the web UI.
+
+**Features:**
+- **Interactive Graph** - Drag, zoom, and explore concept connections
+- **Concept Nodes** - Extracted topics from all reports
+- **Relationship Edges** - Shows how concepts relate
+- **Click to Explore** - Click any concept to see related reports
+
+**Use Cases:**
+- Discover unexpected connections between topics
+- See which concepts appear across different content types
+- Find knowledge gaps in your learning
+
+---
+
+### AI-Powered Q&A System
+
+Ask questions across your entire knowledge base.
+
+**Access:** Navigate to `http://localhost:3000/qa` in the web UI.
+
+**How to Use:**
+1. Type any question in natural language
+2. Click "Ask" or press Enter
+3. Get an answer synthesized from all your reports
+
+**Example Questions:**
+- "What are the main productivity frameworks I've learned?"
+- "How do the papers I've read approach machine learning evaluation?"
+- "What common themes appear in the YouTube videos about startups?"
+
+**Features:**
+- Searches across all analyzed content
+- Provides citations to source reports
+- Synthesizes information from multiple sources
+
+---
+
+### Content Comparison Mode
+
+Compare two reports side-by-side with AI analysis.
+
+**Access:** Navigate to `http://localhost:3000/compare` in the web UI.
+
+**How to Use:**
+1. Select two reports from your library
+2. Click "Compare"
+3. View side-by-side comparison with AI insights
+
+**Comparison Includes:**
+- **Key Similarities** - Common themes and ideas
+- **Key Differences** - Contrasting viewpoints
+- **Complementary Insights** - How they build on each other
+- **Recommended Order** - Which to read first
+
+**Use Cases:**
+- Compare two articles on the same topic
+- Contrast different perspectives
+- Find complementary content for deeper understanding
+
+---
+
+### Browser Extension
+
+Analyze content directly from your browser.
+
+**Installation:**
+1. Navigate to `extension/` folder
+2. Open Chrome → Extensions → Enable "Developer mode"
+3. Click "Load unpacked" → Select `extension/` folder
+
+**Usage:**
+1. Browse to any supported content (YouTube, articles)
+2. Click the extension icon
+3. Click "Analyze" to send to Personal OS
+
+**Supported Content:**
+- YouTube videos (with captions)
+- Web articles and blog posts
+- Any text content you select
+
+---
+
+### Audio Report Generation (Text-to-Speech)
+
+Listen to your reports instead of reading them.
+
+**Access:** Click "Listen to Report" on any report detail page.
+
+**How to Use:**
+1. Open a report in the web UI
+2. Click the "Generate Audio" button in the AudioPlayer panel
+3. Wait for audio generation
+4. Use play/pause/seek controls
+
+**Features:**
+- Multiple voice options
+- Adjustable playback speed
+- Download audio for offline listening
+- Resume from where you left off
+
+**Prerequisites:** Requires `OPENAI_API_KEY` in `web/backend/.env` for TTS API.
+
+---
+
+### Spaced Repetition Review System
+
+Retain information long-term using the SM-2 algorithm.
+
+**Access:** Navigate to `http://localhost:3000/review` in the web UI.
+
+**How It Works:**
+1. System presents reports due for review
+2. Read/review the content
+3. Rate your recall (1-5):
+   - 1-2: Will show again soon
+   - 3: Good retention
+   - 4-5: Excellent, longer interval
+
+**Features:**
+- SM-2 algorithm optimizes review intervals
+- Focus on reports you're forgetting
+- Track mastery progress
+- Daily/weekly review sessions
+
+**Best Practices:**
+- Review daily for 10-15 minutes
+- Be honest with your ratings
+- Focus on key insights, not memorizing everything
+
+---
+
+### Source Credibility Analysis
+
+Assess the trustworthiness of your content sources.
+
+**Access:** Available on report detail pages in the CredibilityPanel.
+
+**How to Use:**
+1. Open a report in the web UI
+2. Click "Analyze Credibility" in the CredibilityPanel
+3. View detailed credibility assessment
+
+**Analysis Includes:**
+- **Overall Credibility Score** (0-100)
+- **Evidence Quality** - How well claims are supported
+- **Source Reliability** - Author/publisher reputation
+- **Bias Detection** - Potential biases identified
+- **Fact-Checkable Claims** - Claims that can be verified
+- **Red Flags** - Warning signs
+- **Strengths** - Credibility positives
+
+**Use Cases:**
+- Verify research paper methodology
+- Check article bias before sharing
+- Evaluate source quality for important decisions
+
+---
+
+### Learning Goals & Progress Tracking
+
+Set and track progress toward your learning objectives.
+
+**Access:** Navigate to `http://localhost:3000/goals` in the web UI.
+
+**Creating a Goal:**
+1. Click "New Goal"
+2. Enter goal name (e.g., "Learn Machine Learning Fundamentals")
+3. Set target report count
+4. Add keywords to match (e.g., "machine learning, neural networks, AI")
+5. Set optional deadline
+
+**Tracking Progress:**
+- Progress bar shows completion percentage
+- Reports matching keywords auto-count toward goal
+- View which reports contributed
+
+**Example Goals:**
+- "Read 10 papers on distributed systems" (keywords: distributed, consensus, replication)
+- "Watch 20 videos on productivity" (keywords: productivity, habits, time management)
+- "Analyze 5 startup case studies" (keywords: startup, founder, growth)
+
+---
+
+### Multi-Language Translation
+
+Translate reports to read in your preferred language.
+
+**Access:** Available on report detail pages in the TranslationPanel.
+
+**Supported Languages:**
+- Spanish, French, German, Italian, Portuguese
+- Chinese, Japanese, Korean
+- Russian, Arabic
+- And more...
+
+**How to Use:**
+1. Open a report
+2. Select target language from TranslationPanel
+3. Click "Translate"
+4. View translated title and content
+5. Copy to clipboard if needed
+
+**Features:**
+- Preserves report structure
+- High-quality AI translation
+- Instant translation on demand
+
+---
+
+### Smart Content Recommendations
+
+Get personalized content suggestions based on your reading history.
+
+**Access:** Navigate to `http://localhost:3000/discover` in the web UI.
+
+**Features:**
+- **Personalized Recommendations** - Based on your history
+- **Match Scores** - Shows relevance percentage
+- **Trending Topics** - Popular topics in your collection
+- **Similar Content** - Find related reports
+
+**How It Works:**
+1. System analyzes your reading patterns
+2. Identifies topics you engage with most
+3. Suggests similar content you haven't explored
+4. Updates as you consume more content
+
+**Use Cases:**
+- Discover overlooked content in your library
+- Find reports related to current interests
+- Balance content consumption across topics
+
+---
+
+## 11. Customizing Prompts
 
 ### Understanding the Prompt System
 
@@ -1244,7 +1488,7 @@ Or manually restore from the section descriptions in this guide.
 
 ---
 
-## 11. Troubleshooting
+## 12. Troubleshooting
 
 ### Problem: Command Not Recognized / Unknown Slash Command
 
@@ -1327,7 +1571,7 @@ Or manually restore from the section descriptions in this guide.
 
 ---
 
-## 12. FAQ
+## 13. FAQ
 
 ### General Questions
 
@@ -1438,6 +1682,6 @@ A: Absolutely! The [Learning Path](learn/README.md) was designed specifically fo
 
 ---
 
-*Last updated: 2025-12-25*
+*Last updated: 2025-12-26*
 
 *Built with [Claude Code](https://claude.ai/code) powered by Claude Opus 4.5*

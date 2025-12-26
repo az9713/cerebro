@@ -8,6 +8,12 @@ const navItems = [
   { href: '/', label: 'Dashboard', icon: '🏠' },
   { href: '/reports', label: 'Reports', icon: '📄' },
   { href: '/analyze', label: 'Analyze', icon: '🔍' },
+  { href: '/discover', label: 'Discover', icon: '🔮' },
+  { href: '/qa', label: 'Ask Q&A', icon: '💬' },
+  { href: '/compare', label: 'Compare', icon: '⚖️' },
+  { href: '/review', label: 'Review', icon: '🧠' },
+  { href: '/goals', label: 'Goals', icon: '🎯' },
+  { href: '/knowledge-graph', label: 'Knowledge Graph', icon: '🕸️' },
   { href: '/logs', label: 'Activity', icon: '📊' },
   { href: '/search', label: 'Search', icon: '🔎' },
 ];

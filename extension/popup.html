@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 320px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+    }
+
+    .header {
+      padding: 16px;
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
+    }
+
+    .header h1 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #60a5fa;
+    }
+
+    .header p {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+
+    .content {
+      padding: 16px;
+    }
+
+    .url-preview {
+      background: #1e293b;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+
+    .url-preview .label {
+      font-size: 10px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .url-preview .url {
+      font-size: 13px;
+      color: #e2e8f0;
+      word-break: break-all;
+    }
+
+    .url-preview .type {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 2px 8px;
+      background: #3b82f6;
+      color: white;
+      font-size: 11px;
+      border-radius: 4px;
+    }
+
+    .url-preview .type.youtube { background: #ef4444; }
+    .url-preview .type.arxiv { background: #a855f7; }
+    .url-preview .type.article { background: #22c55e; }
+
+    .model-select {
+      margin-bottom: 16px;
+    }
+
+    .model-select label {
+      display: block;
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 6px;
+    }
+
+    .model-select select {
+      width: 100%;
+      padding: 8px 12px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      color: #e2e8f0;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .model-select select:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-primary {
+      background: #3b82f6;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #2563eb;
+    }
+
+    .btn-primary:disabled {
+      background: #475569;
+      cursor: not-allowed;
+    }
+
+    .btn-queue {
+      background: #1e293b;
+      color: #e2e8f0;
+      border: 1px solid #334155;
+      margin-top: 8px;
+    }
+
+    .btn-queue:hover {
+      background: #334155;
+    }
+
+    .status {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      display: none;
+    }
+
+    .status.success {
+      background: #065f46;
+      color: #6ee7b7;
+      display: block;
+    }
+
+    .status.error {
+      background: #7f1d1d;
+      color: #fca5a5;
+      display: block;
+    }
+
+    .status.loading {
+      background: #1e3a5f;
+      color: #93c5fd;
+      display: block;
+    }
+
+    .footer {
+      padding: 12px 16px;
+      background: #1e293b;
+      border-top: 1px solid #334155;
+      text-align: center;
+    }
+
+    .footer a {
+      color: #60a5fa;
+      text-decoration: none;
+      font-size: 12px;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    .not-supported {
+      padding: 16px;
+      text-align: center;
+      color: #94a3b8;
+    }
+
+    .not-supported p {
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Personal OS</h1>
+    <p>Save content for AI analysis</p>
+  </div>
+
+  <div id="main-content" class="content">
+    <div class="url-preview">
+      <div class="label">Current Page</div>
+      <div id="current-url" class="url">Loading...</div>
+      <span id="content-type" class="type">detecting...</span>
+    </div>
+
+    <div class="model-select">
+      <label for="model">Analysis Model</label>
+      <select id="model">
+        <option value="haiku">Haiku (Fast & Affordable)</option>
+        <option value="sonnet" selected>Sonnet (Balanced)</option>
+        <option value="opus">Opus (Most Capable)</option>
+      </select>
+    </div>
+
+    <button id="analyze-btn" class="btn btn-primary">
+      Analyze Now
+    </button>
+
+    <button id="queue-btn" class="btn btn-queue">
+      Add to Queue
+    </button>
+
+    <div id="status" class="status"></div>
+  </div>
+
+  <div id="not-supported" class="not-supported" style="display: none;">
+    <p>This page type is not supported for analysis.</p>
+    <p>Supported: YouTube, Articles, arXiv papers</p>
+  </div>
+
+  <div class="footer">
+    <a href="http://localhost:3000" target="_blank">Open Dashboard</a>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
