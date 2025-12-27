@@ -8,7 +8,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from config import CORS_ORIGINS, API_PREFIX
 from routers import reports, logs, analysis, batch, tags, collections, transcription, rss, export, knowledge_graph, qa, comparison, tts, reviews, credibility, goals, translate, recommendations
-from services.indexer import run_initial_index
+from services.indexer import run_initial_index, FileWatcher
+
+# File watcher for auto-indexing new reports
+file_watcher = FileWatcher()
 
 # Configure logging
 logging.basicConfig(
@@ -21,14 +24,16 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan - startup and shutdown."""
-    # Startup: index filesystem
+    # Startup: index filesystem and start file watcher
     logger.info("Starting Cerebro backend...")
     await run_initial_index()
-    logger.info("Cerebro backend ready")
+    file_watcher.start()
+    logger.info("Cerebro backend ready (file watcher active)")
 
     yield
 
     # Shutdown
+    file_watcher.stop()
     logger.info("Shutting down Cerebro backend...")
 
 

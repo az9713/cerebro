@@ -50,33 +50,46 @@ export default function LogsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-slate-500 dark:text-slate-400">Loading...</div>
+        <div className="text-[var(--text-tertiary)]">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-8">Activity Log</h1>
+    <div className="animate-fade-in">
+      {/* Header */}
+      <div className="mb-10">
+        <h1 className="font-display text-hero font-bold text-[var(--text-primary)] leading-tight">
+          Activity Log
+        </h1>
+        <p className="mt-2 text-lg text-[var(--text-secondary)]">
+          Track your daily content consumption.
+        </p>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Date selector */}
+        {/* Date Selector */}
         <div>
-          <h2 className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-4">Select Date</h2>
+          <h2 className="text-sm font-medium text-[var(--text-tertiary)] uppercase tracking-wide mb-4">
+            Select Date
+          </h2>
 
           {dates.length === 0 ? (
-            <p className="text-slate-500 dark:text-slate-400 text-sm">No activity logs found.</p>
+            <p className="text-[var(--text-muted)] text-sm">No activity logs found.</p>
           ) : (
             <div className="space-y-1">
               {dates.map((item) => (
                 <button
                   key={item.date}
                   onClick={() => setSelectedDate(item.date)}
-                  className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
-                    selectedDate === item.date
-                      ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300'
-                      : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
-                  }`}
+                  className={`
+                    w-full text-left px-4 py-3 rounded-lg transition-all duration-150
+                    ${
+                      selectedDate === item.date
+                        ? 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] font-medium'
+                        : 'hover:bg-[var(--bg-secondary)] text-[var(--text-secondary)]'
+                    }
+                  `}
                 >
                   {new Date(item.date).toLocaleDateString('en-US', {
                     weekday: 'short',
@@ -90,11 +103,11 @@ export default function LogsPage() {
           )}
         </div>
 
-        {/* Log content */}
+        {/* Log Content */}
         <div className="lg:col-span-3">
           {log ? (
-            <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
-              <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-6">
+            <div className="bg-[var(--bg-card)] rounded-xl p-6 shadow-card">
+              <h2 className="font-display text-h2 font-bold text-[var(--text-primary)] mb-6">
                 {new Date(log.date).toLocaleDateString('en-US', {
                   weekday: 'long',
                   year: 'numeric',
@@ -106,8 +119,11 @@ export default function LogsPage() {
               <ActivityLog log={log} />
             </div>
           ) : (
-            <div className="text-center py-12 text-slate-500 dark:text-slate-400">
-              Select a date to view activity
+            <div className="bg-[var(--bg-secondary)] rounded-xl p-12 text-center">
+              <svg className="w-16 h-16 mx-auto mb-4 text-[var(--text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <p className="text-[var(--text-secondary)]">Select a date to view activity</p>
             </div>
           )}
         </div>

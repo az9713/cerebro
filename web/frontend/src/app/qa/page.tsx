@@ -105,21 +105,22 @@ export default function QAPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div className="max-w-4xl mx-auto animate-fade-in">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-10">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
+          <h1 className="font-display text-hero font-bold text-[var(--text-primary)] leading-tight">
             Ask Your Knowledge Base
           </h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">
-            Get AI-powered answers from your analyzed content with citations
+          <p className="mt-2 text-lg text-[var(--text-secondary)]">
+            Get AI-powered answers from your analyzed content with citations.
           </p>
         </div>
 
         {conversation.length > 0 && (
           <button
             onClick={clearConversation}
-            className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
+            className="px-4 py-2 text-sm text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
           >
             Clear conversation
           </button>
@@ -131,28 +132,31 @@ export default function QAPage() {
         {conversation.map((entry, index) => (
           <div
             key={index}
-            className={`${
-              entry.type === 'question'
-                ? 'bg-primary-50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-800'
-                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'
-            } border rounded-lg p-4`}
+            className={`
+              rounded-xl p-5
+              ${
+                entry.type === 'question'
+                  ? 'bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20'
+                  : 'bg-[var(--bg-card)] shadow-card'
+              }
+            `}
           >
             {entry.type === 'question' ? (
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white font-semibold">
+              <div className="flex items-start gap-4">
+                <div className="w-8 h-8 rounded-full bg-[var(--accent-primary)] flex items-center justify-center text-white font-semibold shrink-0">
                   Q
                 </div>
-                <p className="text-slate-900 dark:text-slate-100 pt-1">
+                <p className="text-[var(--text-primary)] pt-1">
                   {entry.content}
                 </p>
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center text-white font-semibold">
+                <div className="flex items-start gap-4">
+                  <div className="w-8 h-8 rounded-full bg-sage-500 flex items-center justify-center text-white font-semibold shrink-0">
                     A
                   </div>
-                  <div className="flex-1 prose prose-slate dark:prose-invert max-w-none">
+                  <div className="flex-1 prose prose-stone dark:prose-invert max-w-none">
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
                       {entry.content}
                     </ReactMarkdown>
@@ -161,8 +165,8 @@ export default function QAPage() {
 
                 {/* Sources */}
                 {entry.sources && entry.sources.length > 0 && (
-                  <div className="ml-11 pt-4 border-t border-slate-200 dark:border-slate-700">
-                    <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  <div className="ml-12 pt-4 border-t border-[var(--border-light)]">
+                    <h4 className="text-sm font-semibold text-[var(--text-secondary)] mb-2">
                       Sources ({entry.sources.length})
                     </h4>
                     <div className="flex flex-wrap gap-2">
@@ -170,10 +174,10 @@ export default function QAPage() {
                         <Link
                           key={source.id}
                           href={`/reports/${source.id}`}
-                          className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-700 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[var(--bg-secondary)] text-sm text-[var(--text-secondary)] hover:bg-[var(--border-light)] transition-colors"
                         >
                           <span className="capitalize">{source.content_type}</span>
-                          <span className="text-slate-400 dark:text-slate-500">|</span>
+                          <span className="text-[var(--text-muted)]">|</span>
                           <span className="truncate max-w-[200px]">{source.title}</span>
                         </Link>
                       ))}
@@ -183,7 +187,7 @@ export default function QAPage() {
 
                 {/* Usage info */}
                 {(entry.tokens || entry.model) && (
-                  <div className="ml-11 text-xs text-slate-500 dark:text-slate-400">
+                  <div className="ml-12 text-xs text-[var(--text-muted)]">
                     {entry.model && <span>{entry.model}</span>}
                     {entry.tokens && <span> • {entry.tokens} tokens</span>}
                     {entry.cost && <span> • ${entry.cost.toFixed(4)}</span>}
@@ -196,18 +200,18 @@ export default function QAPage() {
 
         {/* Loading indicator */}
         {loading && (
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center text-white font-semibold">
+          <div className="bg-[var(--bg-card)] shadow-card rounded-xl p-5">
+            <div className="flex items-start gap-4">
+              <div className="w-8 h-8 rounded-full bg-sage-500 flex items-center justify-center text-white font-semibold shrink-0">
                 A
               </div>
               <div className="pt-1">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" />
-                  <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce [animation-delay:0.2s]" />
-                  <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce [animation-delay:0.4s]" />
+                  <div className="w-2 h-2 bg-[var(--accent-primary)] rounded-full animate-bounce" />
+                  <div className="w-2 h-2 bg-[var(--accent-primary)] rounded-full animate-bounce [animation-delay:0.2s]" />
+                  <div className="w-2 h-2 bg-[var(--accent-primary)] rounded-full animate-bounce [animation-delay:0.4s]" />
                 </div>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
+                <p className="text-sm text-[var(--text-tertiary)] mt-2">
                   Searching your knowledge base and generating answer...
                 </p>
               </div>
@@ -219,7 +223,7 @@ export default function QAPage() {
       {/* Follow-up suggestions */}
       {followups.length > 0 && !loading && (
         <div className="mb-6">
-          <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+          <h4 className="text-sm font-semibold text-[var(--text-secondary)] mb-2">
             Follow-up questions
           </h4>
           <div className="flex flex-wrap gap-2">
@@ -227,7 +231,7 @@ export default function QAPage() {
               <button
                 key={index}
                 onClick={() => handleFollowupClick(followup)}
-                className="px-3 py-2 text-sm bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors text-left"
+                className="px-3 py-2 text-sm bg-[var(--bg-secondary)] text-[var(--text-secondary)] rounded-lg hover:bg-[var(--border-light)] transition-colors text-left"
               >
                 {followup}
               </button>
@@ -244,7 +248,18 @@ export default function QAPage() {
             onChange={(e) => setQuestion(e.target.value)}
             placeholder="Ask a question about your analyzed content..."
             rows={3}
-            className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
+            className="
+              w-full px-4 py-3.5
+              bg-[var(--bg-card)]
+              border border-[var(--border-light)]
+              rounded-xl
+              text-[var(--text-primary)]
+              placeholder:text-[var(--text-muted)]
+              focus:outline-none focus:border-[var(--accent-primary)]
+              focus:ring-2 focus:ring-[var(--accent-primary)]/10
+              transition-all duration-150
+              resize-none
+            "
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -259,7 +274,15 @@ export default function QAPage() {
             <select
               value={model}
               onChange={(e) => setModel(e.target.value as ModelKey)}
-              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="
+                px-3 py-2
+                bg-[var(--bg-card)]
+                border border-[var(--border-light)]
+                rounded-lg
+                text-[var(--text-primary)] text-sm
+                focus:outline-none focus:border-[var(--accent-primary)]
+                focus:ring-2 focus:ring-[var(--accent-primary)]/10
+              "
             >
               <option value="haiku">Haiku (Fast)</option>
               <option value="sonnet">Sonnet (Balanced)</option>
@@ -270,7 +293,15 @@ export default function QAPage() {
           <button
             type="submit"
             disabled={!question.trim() || loading}
-            className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="
+              px-6 py-2.5
+              bg-[var(--accent-primary)] text-white
+              rounded-xl font-medium
+              hover:bg-[var(--accent-hover)]
+              disabled:opacity-50 disabled:cursor-not-allowed
+              transition-all duration-150
+              active:scale-[0.98]
+            "
           >
             {loading ? 'Thinking...' : 'Ask'}
           </button>
@@ -279,8 +310,8 @@ export default function QAPage() {
 
       {/* Initial suggestions */}
       {conversation.length === 0 && suggestions.length > 0 && (
-        <div className="mt-8">
-          <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+        <div className="mt-10">
+          <h3 className="text-sm font-semibold text-[var(--text-secondary)] mb-4">
             Try asking...
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -288,9 +319,13 @@ export default function QAPage() {
               <button
                 key={index}
                 onClick={() => handleSuggestionClick(suggestion)}
-                className="p-4 text-left bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="
+                  p-4 text-left
+                  bg-[var(--bg-secondary)] rounded-xl
+                  hover:bg-[var(--border-light)] transition-colors
+                "
               >
-                <span className="text-slate-700 dark:text-slate-300">
+                <span className="text-[var(--text-secondary)]">
                   {suggestion}
                 </span>
               </button>

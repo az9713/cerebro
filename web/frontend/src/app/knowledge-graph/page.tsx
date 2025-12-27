@@ -11,16 +11,16 @@ import {
   type ConceptDetails,
 } from '@/lib/api';
 
-// Node colors by type
+// Node colors by type - warm palette
 const TYPE_COLORS: Record<string, string> = {
-  person: '#ef4444',
-  organization: '#f97316',
-  technology: '#22c55e',
-  concept: '#3b82f6',
-  event: '#a855f7',
-  place: '#06b6d4',
-  product: '#ec4899',
-  method: '#84cc16',
+  person: '#DC7F5A',      // warm coral (youtube-like)
+  organization: '#D97706', // amber
+  technology: '#7C8B6F',   // sage
+  concept: '#C45B28',      // terracotta (accent)
+  event: '#8B7355',        // warm brown (paper)
+  place: '#06b6d4',        // cyan
+  product: '#ec4899',      // pink
+  method: '#A3B18A',       // light sage
 };
 
 interface SimNode extends GraphNode {
@@ -171,7 +171,7 @@ export default function KnowledgeGraphPage() {
     };
   }, [loading, simulate]);
 
-  // Draw graph
+  // Draw graph with warm colors
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -181,12 +181,13 @@ export default function KnowledgeGraphPage() {
 
     const nodeMap = new Map(nodes.map((n) => [n.id, n]));
 
-    // Clear
-    ctx.fillStyle = '#0f172a';
+    // Clear with warm background
+    const isDark = document.documentElement.classList.contains('dark');
+    ctx.fillStyle = isDark ? '#1C1917' : '#F7F3EE';
     ctx.fillRect(0, 0, dimensions.width, dimensions.height);
 
-    // Draw links
-    ctx.strokeStyle = '#334155';
+    // Draw links with warm color
+    ctx.strokeStyle = isDark ? '#3D3835' : '#E8E2DB';
     ctx.lineWidth = 1;
     links.forEach((link) => {
       const source = nodeMap.get(link.source as number);
@@ -202,20 +203,20 @@ export default function KnowledgeGraphPage() {
     // Draw nodes
     nodes.forEach((node) => {
       const radius = Math.min(20, 8 + node.mention_count * 2);
-      const color = TYPE_COLORS[node.type] || '#64748b';
+      const color = TYPE_COLORS[node.type] || '#9C8E82';
 
       // Node circle
       ctx.beginPath();
       ctx.arc(node.x, node.y, radius, 0, Math.PI * 2);
       ctx.fillStyle = color;
       ctx.fill();
-      ctx.strokeStyle = '#fff';
+      ctx.strokeStyle = isDark ? '#F5F0EB' : '#FFFFFF';
       ctx.lineWidth = 2;
       ctx.stroke();
 
       // Label
-      ctx.font = '11px sans-serif';
-      ctx.fillStyle = '#e2e8f0';
+      ctx.font = '11px "Source Sans 3", system-ui, sans-serif';
+      ctx.fillStyle = isDark ? '#F5F0EB' : '#2C2520';
       ctx.textAlign = 'center';
       ctx.fillText(node.name, node.x, node.y + radius + 14);
     });
@@ -275,35 +276,43 @@ export default function KnowledgeGraphPage() {
   };
 
   return (
-    <div>
+    <div className="animate-fade-in">
+      {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
-          Knowledge Graph
-        </h1>
+        <div>
+          <h1 className="font-display text-hero font-bold text-[var(--text-primary)] leading-tight">
+            Knowledge Graph
+          </h1>
+          <p className="mt-2 text-lg text-[var(--text-secondary)]">
+            Explore connections between concepts across all your content.
+          </p>
+        </div>
 
         <button
           onClick={handleExtractAll}
           disabled={extracting}
-          className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="
+            px-5 py-2.5
+            bg-[var(--accent-primary)] text-white
+            rounded-xl font-medium
+            hover:bg-[var(--accent-hover)]
+            disabled:opacity-50 disabled:cursor-not-allowed
+            transition-colors
+          "
         >
           {extracting ? 'Extracting...' : 'Extract from All Reports'}
         </button>
       </div>
 
-      <p className="text-slate-600 dark:text-slate-400 mb-6">
-        Explore connections between concepts across all your analyzed content.
-        Click on a node to see details and related reports.
-      </p>
-
       {/* Legend */}
-      <div className="flex flex-wrap gap-4 mb-6">
+      <div className="flex flex-wrap gap-4 mb-6 p-4 bg-[var(--bg-secondary)] rounded-xl">
         {Object.entries(TYPE_COLORS).map(([type, color]) => (
           <div key={type} className="flex items-center gap-2">
             <div
               className="w-3 h-3 rounded-full"
               style={{ backgroundColor: color }}
             />
-            <span className="text-sm text-slate-600 dark:text-slate-400 capitalize">
+            <span className="text-sm text-[var(--text-secondary)] capitalize">
               {type}
             </span>
           </div>
@@ -312,22 +321,30 @@ export default function KnowledgeGraphPage() {
 
       <div className="flex gap-6">
         {/* Graph Canvas */}
-        <div className="flex-1 bg-slate-900 rounded-lg overflow-hidden">
+        <div className="flex-1 bg-[var(--bg-secondary)] rounded-xl overflow-hidden">
           {loading ? (
             <div className="flex items-center justify-center h-96">
-              <div className="text-slate-400">Loading knowledge graph...</div>
+              <div className="flex items-center gap-3">
+                <svg className="w-6 h-6 text-[var(--accent-primary)] animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span className="text-[var(--text-secondary)]">Loading knowledge graph...</span>
+              </div>
             </div>
           ) : error ? (
             <div className="flex items-center justify-center h-96">
-              <div className="text-red-400">{error}</div>
+              <div className="text-red-500">{error}</div>
             </div>
           ) : nodes.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-96 gap-4">
-              <div className="text-slate-400">No concepts extracted yet.</div>
+              <svg className="w-16 h-16 text-[var(--text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+              </svg>
+              <div className="text-[var(--text-secondary)]">No concepts extracted yet.</div>
               <button
                 onClick={handleExtractAll}
                 disabled={extracting}
-                className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+                className="px-5 py-2.5 bg-[var(--accent-primary)] text-white rounded-xl font-medium hover:bg-[var(--accent-hover)] transition-colors"
               >
                 Extract Concepts from Reports
               </button>
@@ -345,33 +362,33 @@ export default function KnowledgeGraphPage() {
 
         {/* Concept Details Sidebar */}
         {selectedNode && (
-          <div className="w-80 bg-white dark:bg-slate-800 rounded-lg p-6 shadow-lg">
-            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+          <div className="w-80 bg-[var(--bg-card)] rounded-xl p-6 shadow-card h-fit">
+            <h2 className="font-display text-h2 font-bold text-[var(--text-primary)] mb-2">
               {selectedNode.name}
             </h2>
 
             <div
-              className="inline-block px-2 py-1 rounded text-xs text-white mb-4"
+              className="inline-block px-2.5 py-1 rounded-full text-xs font-medium text-white mb-4"
               style={{
-                backgroundColor: TYPE_COLORS[selectedNode.concept_type] || '#64748b',
+                backgroundColor: TYPE_COLORS[selectedNode.concept_type] || '#9C8E82',
               }}
             >
               {selectedNode.concept_type}
             </div>
 
             {selectedNode.description && (
-              <p className="text-slate-600 dark:text-slate-400 text-sm mb-4">
+              <p className="text-[var(--text-secondary)] text-sm mb-4">
                 {selectedNode.description}
               </p>
             )}
 
-            <div className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+            <div className="text-sm text-[var(--text-tertiary)] mb-4">
               Mentioned in {selectedNode.mention_count} report(s)
             </div>
 
             {selectedNode.reports.length > 0 && (
               <div>
-                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <h3 className="text-sm font-semibold text-[var(--text-secondary)] mb-2">
                   Related Reports
                 </h3>
                 <div className="space-y-2">
@@ -379,12 +396,12 @@ export default function KnowledgeGraphPage() {
                     <Link
                       key={report.id}
                       href={`/reports/${report.id}`}
-                      className="block p-2 rounded bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                      className="block p-3 rounded-lg bg-[var(--bg-secondary)] hover:bg-[var(--border-light)] transition-colors"
                     >
-                      <div className="text-sm text-slate-900 dark:text-slate-100 truncate">
+                      <div className="text-sm text-[var(--text-primary)] truncate">
                         {report.title}
                       </div>
-                      <div className="text-xs text-slate-500 dark:text-slate-400 capitalize">
+                      <div className="text-xs text-[var(--text-tertiary)] capitalize">
                         {report.content_type}
                       </div>
                     </Link>
@@ -395,7 +412,7 @@ export default function KnowledgeGraphPage() {
 
             <button
               onClick={() => setSelectedNode(null)}
-              className="mt-4 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+              className="mt-4 text-sm text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
             >
               Close
             </button>
@@ -404,12 +421,12 @@ export default function KnowledgeGraphPage() {
       </div>
 
       {/* Stats */}
-      <div className="mt-6 flex gap-6 text-sm text-slate-600 dark:text-slate-400">
+      <div className="mt-6 flex gap-6 text-sm text-[var(--text-tertiary)]">
         <div>
-          <span className="font-semibold">{nodes.length}</span> concepts
+          <span className="font-semibold text-[var(--text-primary)]">{nodes.length}</span> concepts
         </div>
         <div>
-          <span className="font-semibold">{links.length}</span> connections
+          <span className="font-semibold text-[var(--text-primary)]">{links.length}</span> connections
         </div>
       </div>
     </div>

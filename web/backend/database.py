@@ -374,6 +374,43 @@ async def delete_report(filepath: str):
         await db.commit()
 
 
+async def get_report_filepath_by_id(report_id: int) -> Optional[str]:
+    """Get the filepath for a report by ID."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute(
+            "SELECT filepath FROM reports WHERE id = ?",
+            (report_id,)
+        )
+        row = await cursor.fetchone()
+        return row["filepath"] if row else None
+
+
+async def delete_report_by_id(report_id: int) -> bool:
+    """Delete a report by ID. Returns True if deleted, False if not found."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        cursor = await db.execute(
+            "DELETE FROM reports WHERE id = ? RETURNING id",
+            (report_id,)
+        )
+        row = await cursor.fetchone()
+        await db.commit()
+        return row is not None
+
+
+async def update_report_category(report_id: int, new_filepath: str, new_content_type: str) -> bool:
+    """Update a report's filepath and content_type. Returns True if updated."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        cursor = await db.execute(
+            """UPDATE reports SET filepath = ?, content_type = ?, indexed_at = CURRENT_TIMESTAMP
+               WHERE id = ? RETURNING id""",
+            (new_filepath, new_content_type, report_id)
+        )
+        row = await cursor.fetchone()
+        await db.commit()
+        return row is not None
+
+
 # Job operations
 async def create_job(job_id: str, job_type: str, input_value: str):
     """Create a new analysis job."""

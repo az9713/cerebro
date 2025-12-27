@@ -14,19 +14,19 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          // Custom heading rendering with anchor links
+          // Custom heading rendering - serif editorial style
           h1: ({ children }) => (
-            <h1 className="text-3xl font-bold mb-4 text-slate-900 pb-2 border-b border-slate-200">
+            <h1 className="font-display text-h1 font-bold mb-6 text-[var(--text-primary)] pb-4 border-b border-[var(--border-light)]">
               {children}
             </h1>
           ),
           h2: ({ children }) => (
-            <h2 className="text-2xl font-semibold mt-8 mb-3 text-slate-800">
+            <h2 className="font-display text-h2 font-bold mt-12 mb-4 text-[var(--text-primary)]">
               {children}
             </h2>
           ),
           h3: ({ children }) => (
-            <h3 className="text-xl font-semibold mt-6 mb-2 text-slate-700">
+            <h3 className="font-display text-h3 font-bold mt-8 mb-3 text-[var(--text-primary)]">
               {children}
             </h3>
           ),
@@ -35,7 +35,10 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
             const isInline = !className;
             if (isInline) {
               return (
-                <code className="bg-slate-100 px-1.5 py-0.5 rounded text-sm font-mono text-slate-800" {...props}>
+                <code
+                  className="font-mono text-[0.875em] bg-[var(--bg-secondary)] px-1.5 py-0.5 rounded text-[var(--accent-primary)]"
+                  {...props}
+                >
                   {children}
                 </code>
               );
@@ -46,22 +49,33 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
               </code>
             );
           },
-          // Enhanced blockquotes
+          // Enhanced pre (code blocks)
+          pre: ({ children }) => (
+            <pre className="font-mono bg-charcoal-400 text-cream-100 p-5 rounded-xl overflow-x-auto my-6 text-sm leading-relaxed">
+              {children}
+            </pre>
+          ),
+          // Enhanced blockquotes - editorial pull quote style
           blockquote: ({ children }) => (
-            <blockquote className="border-l-4 border-primary-500 pl-4 italic text-slate-600 my-4 bg-slate-50 py-2 rounded-r">
+            <blockquote className="relative border-l-[3px] border-[var(--accent-primary)] pl-6 my-8 font-display italic text-lg text-[var(--text-tertiary)]">
               {children}
             </blockquote>
           ),
-          // Enhanced lists
+          // Enhanced lists with terracotta markers
           ul: ({ children }) => (
-            <ul className="mb-4 pl-6 list-disc space-y-1">
+            <ul className="mb-5 pl-0 space-y-2 list-none">
               {children}
             </ul>
           ),
           ol: ({ children }) => (
-            <ol className="mb-4 pl-6 list-decimal space-y-1">
+            <ol className="mb-5 pl-6 list-decimal space-y-2 marker:text-[var(--accent-primary)] marker:font-medium">
               {children}
             </ol>
+          ),
+          li: ({ children }) => (
+            <li className="relative pl-6 text-[var(--text-secondary)] leading-relaxed before:content-[''] before:absolute before:left-0 before:top-[0.6em] before:w-1.5 before:h-1.5 before:bg-[var(--accent-primary)] before:rounded-full">
+              {children}
+            </li>
           ),
           // Enhanced links
           a: ({ href, children }) => (
@@ -69,44 +83,70 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-primary-600 hover:text-primary-800 underline"
+              className="text-[var(--accent-primary)] hover:text-[var(--accent-hover)] underline underline-offset-2 transition-colors"
             >
               {children}
             </a>
           ),
           // Enhanced tables
           table: ({ children }) => (
-            <div className="overflow-x-auto my-4">
-              <table className="min-w-full border border-slate-200 rounded-lg">
+            <div className="overflow-x-auto my-8">
+              <table className="min-w-full border-collapse">
                 {children}
               </table>
             </div>
           ),
+          thead: ({ children }) => (
+            <thead className="border-b-2 border-[var(--border-medium)]">
+              {children}
+            </thead>
+          ),
           th: ({ children }) => (
-            <th className="bg-slate-100 px-4 py-2 text-left text-sm font-semibold text-slate-700 border-b border-slate-200">
+            <th className="px-4 py-3 text-left text-sm font-semibold text-[var(--text-primary)] bg-[var(--bg-secondary)]">
               {children}
             </th>
           ),
           td: ({ children }) => (
-            <td className="px-4 py-2 text-sm text-slate-700 border-b border-slate-100">
+            <td className="px-4 py-3 text-sm text-[var(--text-secondary)] border-b border-[var(--border-light)]">
               {children}
             </td>
           ),
           // Enhanced horizontal rule
           hr: () => (
-            <hr className="my-8 border-slate-200" />
+            <hr className="my-12 border-none h-px bg-[var(--border-light)]" />
           ),
           // Enhanced paragraphs
           p: ({ children }) => (
-            <p className="mb-4 leading-relaxed text-slate-700">
+            <p className="mb-5 leading-[1.8] text-[var(--text-secondary)]">
               {children}
             </p>
           ),
           // Strong text
           strong: ({ children }) => (
-            <strong className="font-semibold text-slate-900">
+            <strong className="font-semibold text-[var(--text-primary)]">
               {children}
             </strong>
+          ),
+          // Emphasis
+          em: ({ children }) => (
+            <em className="italic text-[var(--text-secondary)]">
+              {children}
+            </em>
+          ),
+          // Images with rounded corners
+          img: ({ src, alt }) => (
+            <figure className="my-8">
+              <img
+                src={src}
+                alt={alt || ''}
+                className="rounded-xl w-full"
+              />
+              {alt && (
+                <figcaption className="mt-3 text-center text-sm text-[var(--text-tertiary)] italic">
+                  {alt}
+                </figcaption>
+              )}
+            </figure>
           ),
         }}
       >

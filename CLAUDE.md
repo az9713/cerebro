@@ -129,10 +129,13 @@ web/
 │       │   ├── qa/, compare/, review/, goals/
 │       │   ├── discover/, knowledge-graph/
 │       │   └── reports/[id]/ (detail with tools)
-│       ├── components/  # UI components
+│       ├── components/  # UI components (15 components)
 │       │   ├── Sidebar.tsx, ReportViewer.tsx, ThemeProvider.tsx
-│       │   ├── AudioPlayer.tsx, CredibilityPanel.tsx
-│       │   └── TranslationPanel.tsx
+│       │   ├── AudioPlayer.tsx, CredibilityPanel.tsx, TranslationPanel.tsx
+│       │   ├── ReportCard.tsx, AnalysisForm.tsx, ActivityLog.tsx
+│       │   ├── Toast.tsx, ConfirmDialog.tsx, DropdownMenu.tsx
+│       │   ├── MoveCategoryDialog.tsx, ProgressIndicator.tsx
+│       │   └── MarkdownRenderer.tsx, Skeleton.tsx
 │       └── lib/api.ts  # API client functions
 └── extension/      # Chrome Extension (Manifest V3)
     ├── manifest.json, popup.html, popup.js
@@ -175,6 +178,13 @@ cd web/frontend && npm install && npm run dev
 - **Learning Goals**: Track progress toward learning objectives
 - **Audio Reports (TTS)**: Listen to reports via text-to-speech
 - **Multi-Language Translation**: Translate reports to 10+ languages
+
+**File Management Features:**
+- **Delete Reports**: Single and bulk delete with confirmation dialogs
+- **Move to Category**: Change report's content type (moves file on disk)
+- **Bulk Selection Mode**: Select multiple reports with checkboxes
+- **Keyboard Shortcuts**: Delete, Ctrl+A (select all), Escape (exit selection)
+- **Auto-Indexing**: FileWatcher monitors reports folder for real-time sync
 
 **Browser Extension:**
 - Chrome extension for one-click content saving
@@ -299,6 +309,43 @@ Personalized content suggestions based on reading patterns and trending topics.
 - `GET /api/recommendations` - Get personalized recommendations
 - `GET /api/recommendations/similar/{report_id}` - Find similar reports
 - `GET /api/recommendations/trending` - Get trending topics
+
+### 11. File Management System
+Complete report file management with delete, bulk operations, and category moves.
+
+**Backend:** `routers/reports.py`, `database.py`
+**Frontend:** `/reports` page with selection mode, `/reports/[id]` with action buttons
+**New Components:**
+- `Toast.tsx` - Toast notification system with success/error/info variants
+- `ConfirmDialog.tsx` - Reusable confirmation modal with danger variant
+- `DropdownMenu.tsx` - Kebab menu component with click-outside handling
+- `MoveCategoryDialog.tsx` - Category selection modal with radio buttons
+
+**API Endpoints:**
+- `DELETE /api/reports/{id}` - Delete single report (file + DB record)
+- `POST /api/reports/bulk-delete` - Delete multiple reports at once
+- `PATCH /api/reports/{id}/category` - Move report to different category
+
+**Keyboard Shortcuts (in selection mode):**
+- `Delete` - Delete selected reports
+- `Ctrl+A` / `Cmd+A` - Select all visible reports
+- `Escape` - Exit selection mode
+
+### 12. Auto-Indexing with FileWatcher
+Real-time filesystem monitoring for automatic database synchronization.
+
+**Backend:** `services/indexer.py`, `main.py`
+**Technology:** `watchdog` library for cross-platform file monitoring
+
+**Behavior:**
+- Starts automatically when backend launches
+- Monitors `reports/` folder recursively for `.md` file changes
+- Auto-indexes new files within seconds of creation
+- Auto-removes deleted files from database
+- Debounces rapid changes to prevent duplicate indexing
+- Logs all indexing activity for debugging
+
+**No manual sync required** - the database stays in sync with the filesystem automatically
 
 ## Prompt System Philosophy
 
