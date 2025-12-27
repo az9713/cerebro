@@ -65,18 +65,18 @@ web\scripts\start.bat
 ```
 web/
 ├── backend/                 # FastAPI Python backend
-│   ├── main.py              # Entry point, CORS, lifespan
+│   ├── main.py              # Entry point, CORS, lifespan, FileWatcher
 │   ├── config.py            # Paths, models, API keys
 │   ├── database.py          # SQLite + FTS5 schema & operations
 │   ├── models.py            # Pydantic request/response models
 │   ├── routers/
-│   │   ├── reports.py       # GET /api/reports, search, by-id
+│   │   ├── reports.py       # CRUD + search + delete + move
 │   │   ├── analysis.py      # POST /api/analysis/youtube|article|arxiv
 │   │   └── logs.py          # GET /api/logs/today
 │   └── services/
 │       ├── analyzer.py      # Anthropic API integration
 │       ├── content_fetcher.py # yt-dlp, httpx article fetch
-│       ├── indexer.py       # Filesystem-to-SQLite sync
+│       ├── indexer.py       # Filesystem sync + FileWatcher
 │       └── parser.py        # Markdown parsing utilities
 │
 ├── frontend/                # Next.js 14 React frontend
@@ -84,11 +84,17 @@ web/
 │       ├── app/             # App Router pages
 │       │   ├── page.tsx     # Dashboard
 │       │   ├── analyze/     # Analysis form
-│       │   ├── reports/     # Report list & viewer
+│       │   ├── reports/     # Report list with selection mode
+│       │   ├── reports/[id] # Detail page with delete/move
 │       │   └── logs/        # Activity log
 │       ├── components/      # Reusable React components
+│       │   ├── ReportCard.tsx      # Card with action menu
+│       │   ├── Toast.tsx           # Notification system
+│       │   ├── ConfirmDialog.tsx   # Confirmation modal
+│       │   ├── DropdownMenu.tsx    # Kebab menu
+│       │   └── MoveCategoryDialog.tsx # Category picker
 │       └── lib/
-│           └── api.ts       # API client
+│           └── api.ts       # API client with delete/move
 │
 └── scripts/
     ├── start.py             # Unified startup script
@@ -97,6 +103,7 @@ web/
 
 ## Features
 
+### Core Features
 | Feature | Description |
 |---------|-------------|
 | **Dashboard** | Recent reports + quick analysis form |
@@ -106,6 +113,24 @@ web/
 | **Report Viewer** | Rendered markdown with syntax highlighting |
 | **Activity Log** | Today's consumption history |
 | **Real-time Progress** | SSE-based live updates during analysis |
+| **Dark Mode** | Toggle between light and dark themes |
+
+### File Management
+| Feature | Description |
+|---------|-------------|
+| **Delete Reports** | Single report delete with confirmation dialog |
+| **Bulk Delete** | Select multiple reports and delete at once |
+| **Move Category** | Change report's content type (moves file on disk) |
+| **Selection Mode** | Checkbox selection with floating action bar |
+| **Keyboard Shortcuts** | Delete, Ctrl+A (select all), Escape (exit) |
+
+### Auto-Indexing
+| Feature | Description |
+|---------|-------------|
+| **FileWatcher** | Real-time filesystem monitoring with `watchdog` |
+| **Auto-Sync** | New files indexed automatically within seconds |
+| **Auto-Remove** | Deleted files removed from database automatically |
+| **No Manual Sync** | Database stays in sync with filesystem |
 
 ## How It Works
 
@@ -132,17 +157,29 @@ Typical analysis costs ~$0.01 (Haiku) to ~$0.25 (Opus) depending on content leng
 
 ## API Endpoints
 
+### Reports
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/reports` | List reports (paginated) |
 | GET | `/api/reports/{id}` | Get report with full content |
 | GET | `/api/reports/search?q=term` | Full-text search |
 | GET | `/api/reports/recent?limit=5` | Recent reports |
+| DELETE | `/api/reports/{id}` | Delete report (file + DB record) |
+| POST | `/api/reports/bulk-delete` | Delete multiple reports |
+| PATCH | `/api/reports/{id}/category` | Move report to category |
+
+### Analysis
+| Method | Endpoint | Description |
+|--------|----------|-------------|
 | POST | `/api/analysis/youtube` | Analyze YouTube URL |
 | POST | `/api/analysis/article` | Analyze article URL |
 | POST | `/api/analysis/arxiv` | Analyze arXiv paper |
 | GET | `/api/analysis/models` | Available models |
 | GET | `/api/analysis/jobs/{id}` | Job status |
+
+### Other
+| Method | Endpoint | Description |
+|--------|----------|-------------|
 | GET | `/api/logs/today` | Today's activity log |
 | POST | `/api/sync` | Trigger database re-index |
 
@@ -165,6 +202,33 @@ Typical analysis costs ~$0.01 (Haiku) to ~$0.25 (Opus) depending on content leng
 ```
 
 Poll `/api/analysis/jobs/{job_id}` for status updates.
+
+### Bulk Delete Request Body
+
+```json
+{
+  "report_ids": [1, 2, 3]
+}
+```
+
+### Bulk Delete Response
+
+```json
+{
+  "deleted": [1, 2, 3],
+  "errors": []
+}
+```
+
+### Move Category Request Body
+
+```json
+{
+  "new_category": "article"
+}
+```
+
+Valid categories: `youtube`, `article`, `paper`, `other`
 
 ## Database Schema
 
@@ -277,8 +341,9 @@ curl -X POST http://localhost:8000/api/sync
 
 ## Tech Stack
 
-- **Backend**: Python 3.10+, FastAPI, aiosqlite, httpx, anthropic SDK
+- **Backend**: Python 3.10+, FastAPI, aiosqlite, httpx, anthropic SDK, watchdog
 - **Frontend**: Next.js 14, React 18, TypeScript, Tailwind CSS
 - **Database**: SQLite with FTS5 full-text search
 - **AI**: Anthropic Claude API (Haiku/Sonnet/Opus)
 - **Content Fetching**: yt-dlp (YouTube), httpx (articles)
+- **File Monitoring**: watchdog (cross-platform filesystem events)

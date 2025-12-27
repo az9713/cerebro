@@ -65,32 +65,40 @@ export default function ComparePage() {
     setReportB(temp);
   };
 
-  const getReportById = (id: number) => reports.find((r) => r.id === id);
-
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
+    <div className="max-w-6xl mx-auto animate-fade-in">
+      {/* Header */}
+      <div className="mb-10">
+        <h1 className="font-display text-hero font-bold text-[var(--text-primary)] leading-tight">
           Compare Content
         </h1>
-        <p className="text-slate-600 dark:text-slate-400 mt-1">
-          Select two reports to compare and discover similarities, differences, and unique insights
+        <p className="mt-2 text-lg text-[var(--text-secondary)]">
+          Select two reports to compare and discover similarities, differences, and unique insights.
         </p>
       </div>
 
       {/* Selection Panel */}
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-6 mb-8">
+      <div className="bg-[var(--bg-card)] rounded-xl p-6 shadow-card mb-8">
         <div className="grid grid-cols-1 md:grid-cols-[1fr,auto,1fr] gap-4 items-end">
           {/* Report A */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
               First Report
             </label>
             <select
               value={reportA ?? ''}
               onChange={(e) => setReportA(e.target.value ? Number(e.target.value) : null)}
               disabled={loadingReports}
-              className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="
+                w-full px-4 py-3
+                bg-[var(--bg-primary)]
+                border border-[var(--border-light)]
+                rounded-xl
+                text-[var(--text-primary)]
+                focus:outline-none focus:border-[var(--accent-primary)]
+                focus:ring-2 focus:ring-[var(--accent-primary)]/10
+                transition-all duration-150
+              "
             >
               <option value="">Select a report...</option>
               {reports.map((report) => (
@@ -105,22 +113,39 @@ export default function ComparePage() {
           <button
             onClick={swapReports}
             disabled={!reportA || !reportB}
-            className="px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="
+              p-3 rounded-lg
+              text-[var(--text-tertiary)] hover:text-[var(--text-primary)]
+              hover:bg-[var(--bg-secondary)]
+              disabled:opacity-50 disabled:cursor-not-allowed
+              transition-all duration-150
+            "
             title="Swap reports"
           >
-            ⇄
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+            </svg>
           </button>
 
           {/* Report B */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
               Second Report
             </label>
             <select
               value={reportB ?? ''}
               onChange={(e) => setReportB(e.target.value ? Number(e.target.value) : null)}
               disabled={loadingReports}
-              className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="
+                w-full px-4 py-3
+                bg-[var(--bg-primary)]
+                border border-[var(--border-light)]
+                rounded-xl
+                text-[var(--text-primary)]
+                focus:outline-none focus:border-[var(--accent-primary)]
+                focus:ring-2 focus:ring-[var(--accent-primary)]/10
+                transition-all duration-150
+              "
             >
               <option value="">Select a report...</option>
               {reports.map((report) => (
@@ -132,15 +157,21 @@ export default function ComparePage() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
+        <div className="flex items-center justify-between mt-6 pt-6 border-t border-[var(--border-light)]">
           <div className="flex items-center gap-4">
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-              Model:
-            </label>
+            <label className="text-sm font-medium text-[var(--text-secondary)]">Model:</label>
             <select
               value={model}
               onChange={(e) => setModel(e.target.value as ModelKey)}
-              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="
+                px-3 py-2
+                bg-[var(--bg-primary)]
+                border border-[var(--border-light)]
+                rounded-lg
+                text-[var(--text-primary)] text-sm
+                focus:outline-none focus:border-[var(--accent-primary)]
+                focus:ring-2 focus:ring-[var(--accent-primary)]/10
+              "
             >
               <option value="haiku">Haiku (Fast)</option>
               <option value="sonnet">Sonnet (Balanced)</option>
@@ -151,7 +182,15 @@ export default function ComparePage() {
           <button
             onClick={handleCompare}
             disabled={!reportA || !reportB || loading}
-            className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="
+              px-6 py-2.5
+              bg-[var(--accent-primary)] text-white
+              rounded-xl font-medium
+              hover:bg-[var(--accent-hover)]
+              disabled:opacity-50 disabled:cursor-not-allowed
+              transition-all duration-150
+              active:scale-[0.98]
+            "
           >
             {loading ? 'Comparing...' : 'Compare'}
           </button>
@@ -160,21 +199,21 @@ export default function ComparePage() {
 
       {/* Error Message */}
       {error && (
-        <div className="mb-8 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300">
+        <div className="mb-8 p-4 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/50 rounded-xl text-red-700 dark:text-red-300">
           {error}
         </div>
       )}
 
       {/* Loading State */}
       {loading && (
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-8">
+        <div className="bg-[var(--bg-card)] rounded-xl p-8 shadow-card">
           <div className="flex flex-col items-center justify-center gap-4">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-primary-600 rounded-full animate-bounce" />
-              <div className="w-3 h-3 bg-primary-600 rounded-full animate-bounce [animation-delay:0.2s]" />
-              <div className="w-3 h-3 bg-primary-600 rounded-full animate-bounce [animation-delay:0.4s]" />
+              <div className="w-3 h-3 bg-[var(--accent-primary)] rounded-full animate-bounce" />
+              <div className="w-3 h-3 bg-[var(--accent-primary)] rounded-full animate-bounce [animation-delay:0.2s]" />
+              <div className="w-3 h-3 bg-[var(--accent-primary)] rounded-full animate-bounce [animation-delay:0.4s]" />
             </div>
-            <p className="text-slate-600 dark:text-slate-400">
+            <p className="text-[var(--text-secondary)]">
               Analyzing and comparing content...
             </p>
           </div>
@@ -186,47 +225,47 @@ export default function ComparePage() {
         <div className="space-y-6">
           {/* Report Headers */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-              <div className="text-xs text-blue-600 dark:text-blue-400 uppercase font-semibold mb-1">
+            <div className="bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20 rounded-xl p-4">
+              <div className="text-xs text-[var(--accent-primary)] uppercase font-semibold mb-1">
                 Report A
               </div>
               <Link
                 href={`/reports/${result.report_a.id}`}
-                className="text-lg font-semibold text-slate-900 dark:text-slate-100 hover:text-primary-600 dark:hover:text-primary-400"
+                className="font-display font-bold text-lg text-[var(--text-primary)] hover:text-[var(--accent-primary)] transition-colors"
               >
                 {result.report_a.title}
               </Link>
-              <div className="text-sm text-slate-600 dark:text-slate-400 capitalize mt-1">
+              <div className="text-sm text-[var(--text-secondary)] capitalize mt-1">
                 {result.report_a.content_type}
               </div>
             </div>
 
-            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-              <div className="text-xs text-green-600 dark:text-green-400 uppercase font-semibold mb-1">
+            <div className="bg-sage-500/10 border border-sage-500/20 rounded-xl p-4">
+              <div className="text-xs text-sage-600 dark:text-sage-400 uppercase font-semibold mb-1">
                 Report B
               </div>
               <Link
                 href={`/reports/${result.report_b.id}`}
-                className="text-lg font-semibold text-slate-900 dark:text-slate-100 hover:text-primary-600 dark:hover:text-primary-400"
+                className="font-display font-bold text-lg text-[var(--text-primary)] hover:text-sage-600 dark:hover:text-sage-400 transition-colors"
               >
                 {result.report_b.title}
               </Link>
-              <div className="text-sm text-slate-600 dark:text-slate-400 capitalize mt-1">
+              <div className="text-sm text-[var(--text-secondary)] capitalize mt-1">
                 {result.report_b.content_type}
               </div>
             </div>
           </div>
 
           {/* Comparison Content */}
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-6">
-            <div className="prose prose-slate dark:prose-invert max-w-none">
+          <div className="bg-[var(--bg-card)] rounded-xl p-6 shadow-card">
+            <div className="prose prose-stone dark:prose-invert max-w-none">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {result.comparison}
               </ReactMarkdown>
             </div>
 
             {/* Usage Info */}
-            <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700 text-sm text-slate-500 dark:text-slate-400">
+            <div className="mt-6 pt-4 border-t border-[var(--border-light)] text-sm text-[var(--text-muted)]">
               {result.model && <span>{result.model}</span>}
               {result.tokens_used && <span> • {result.tokens_used} tokens</span>}
               {result.cost && <span> • ${result.cost.toFixed(4)}</span>}
@@ -237,8 +276,11 @@ export default function ComparePage() {
 
       {/* Empty State */}
       {!loading && !result && !error && (
-        <div className="text-center py-12 text-slate-500 dark:text-slate-400">
-          <p>Select two reports above to compare them</p>
+        <div className="bg-[var(--bg-secondary)] rounded-xl p-12 text-center">
+          <svg className="w-16 h-16 mx-auto mb-4 text-[var(--text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          <p className="text-[var(--text-secondary)]">Select two reports above to compare them</p>
         </div>
       )}
     </div>

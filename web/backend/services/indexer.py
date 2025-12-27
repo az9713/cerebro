@@ -104,14 +104,14 @@ def get_content_type_from_path(filepath: Path) -> Optional[str]:
     return None
 
 
-# Optional: File watcher for live sync
-# This can be enabled later if needed
+# File watcher for live sync of CLI-generated reports
 
 class FileWatcher:
-    """Watch reports directory for changes (optional, for live sync)."""
+    """Watch reports directory for changes and auto-index new/modified files."""
 
     def __init__(self):
         self._observer = None
+        self._loop = None
 
     def start(self):
         """Start watching for file changes."""
@@ -119,34 +119,48 @@ class FileWatcher:
             from watchdog.observers import Observer
             from watchdog.events import FileSystemEventHandler
 
+            # Capture the main event loop for thread-safe async calls
+            self._loop = asyncio.get_event_loop()
+            watcher = self  # Reference for inner class
+
             class ReportHandler(FileSystemEventHandler):
                 def on_created(self, event):
                     if event.is_directory or not event.src_path.endswith('.md'):
                         return
                     filepath = Path(event.src_path)
                     content_type = get_content_type_from_path(filepath)
-                    if content_type:
-                        asyncio.create_task(index_report_file(filepath, content_type))
+                    if content_type and watcher._loop:
+                        # Schedule async task from watchdog thread
+                        asyncio.run_coroutine_threadsafe(
+                            index_report_file(filepath, content_type),
+                            watcher._loop
+                        )
+                        logger.info(f"Auto-indexing new file: {filepath.name}")
 
                 def on_modified(self, event):
                     if event.is_directory or not event.src_path.endswith('.md'):
                         return
                     filepath = Path(event.src_path)
                     content_type = get_content_type_from_path(filepath)
-                    if content_type:
-                        asyncio.create_task(index_report_file(filepath, content_type))
+                    if content_type and watcher._loop:
+                        asyncio.run_coroutine_threadsafe(
+                            index_report_file(filepath, content_type),
+                            watcher._loop
+                        )
+                        logger.debug(f"Re-indexing modified file: {filepath.name}")
 
             self._observer = Observer()
             handler = ReportHandler()
             self._observer.schedule(handler, str(REPORTS_DIR), recursive=True)
             self._observer.start()
-            logger.info("File watcher started")
+            logger.info(f"File watcher started for: {REPORTS_DIR}")
 
         except ImportError:
-            logger.warning("watchdog not installed, file watcher disabled")
+            logger.warning("watchdog not installed - run: pip install watchdog")
 
     def stop(self):
         """Stop watching."""
         if self._observer:
             self._observer.stop()
             self._observer.join()
+            logger.info("File watcher stopped")

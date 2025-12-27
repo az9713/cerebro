@@ -212,17 +212,17 @@ export function formatDate(dateStr: string): string {
   });
 }
 
-// Content type badge colors
+// Content type badge colors - Editorial warm palette
 export function getTypeColor(type: string): string {
   switch (type) {
     case 'youtube':
-      return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
+      return 'bg-type-youtube text-white';
     case 'article':
-      return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
+      return 'bg-type-article text-white';
     case 'paper':
-      return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300';
+      return 'bg-type-paper text-white';
     default:
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
+      return 'bg-type-other text-white';
   }
 }
 
@@ -800,5 +800,52 @@ export async function getSimilarReports(
 export async function getTrendingTopics(): Promise<{ trending: TrendingTopic[] }> {
   const res = await fetch(`${API_BASE}/recommendations/trending`);
   if (!res.ok) throw new Error('Failed to fetch trending topics');
+  return res.json();
+}
+
+// ============ REPORT MANAGEMENT API ============
+
+export interface DeleteResult {
+  status: string;
+  report_id: number;
+}
+
+export interface BulkDeleteResult {
+  deleted: number[];
+  errors: Array<{ id: number; error: string }>;
+}
+
+export interface MoveResult {
+  status: string;
+  report_id: number;
+  new_category: string;
+  new_filepath: string;
+}
+
+export type ContentType = 'youtube' | 'article' | 'paper' | 'other';
+
+export async function deleteReport(id: number): Promise<DeleteResult> {
+  const res = await fetch(`${API_BASE}/reports/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Failed to delete report');
+  return res.json();
+}
+
+export async function bulkDeleteReports(ids: number[]): Promise<BulkDeleteResult> {
+  const res = await fetch(`${API_BASE}/reports/bulk-delete`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ report_ids: ids }),
+  });
+  if (!res.ok) throw new Error('Failed to delete reports');
+  return res.json();
+}
+
+export async function moveReportCategory(id: number, newCategory: ContentType): Promise<MoveResult> {
+  const res = await fetch(`${API_BASE}/reports/${id}/category`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ new_category: newCategory }),
+  });
+  if (!res.ok) throw new Error('Failed to move report');
   return res.json();
 }

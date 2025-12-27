@@ -10,14 +10,14 @@ import {
   type ReviewStats,
 } from '@/lib/api';
 
-// Quality rating descriptions
+// Quality rating descriptions with warm colors
 const QUALITY_RATINGS = [
-  { value: 0, label: 'Blackout', description: "Didn't remember at all", color: 'bg-red-600' },
-  { value: 1, label: 'Wrong', description: 'Wrong but recognized answer', color: 'bg-red-500' },
-  { value: 2, label: 'Hard', description: 'Wrong but seemed easy', color: 'bg-orange-500' },
-  { value: 3, label: 'Difficult', description: 'Correct with difficulty', color: 'bg-yellow-500' },
-  { value: 4, label: 'Good', description: 'Correct with hesitation', color: 'bg-green-500' },
-  { value: 5, label: 'Perfect', description: 'Instant recall', color: 'bg-green-600' },
+  { value: 0, label: 'Blackout', description: "Didn't remember at all", color: 'bg-red-500 hover:bg-red-600' },
+  { value: 1, label: 'Wrong', description: 'Wrong but recognized answer', color: 'bg-red-400 hover:bg-red-500' },
+  { value: 2, label: 'Hard', description: 'Wrong but seemed easy', color: 'bg-amber-500 hover:bg-amber-600' },
+  { value: 3, label: 'Difficult', description: 'Correct with difficulty', color: 'bg-amber-400 hover:bg-amber-500' },
+  { value: 4, label: 'Good', description: 'Correct with hesitation', color: 'bg-sage-500 hover:bg-sage-600' },
+  { value: 5, label: 'Perfect', description: 'Instant recall', color: 'bg-sage-600 hover:bg-sage-700' },
 ];
 
 export default function ReviewPage() {
@@ -76,20 +76,26 @@ export default function ReviewPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-slate-500 dark:text-slate-400">Loading reviews...</div>
+        <div className="flex items-center gap-3">
+          <svg className="w-6 h-6 text-[var(--accent-primary)] animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span className="text-[var(--text-secondary)]">Loading reviews...</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
+    <div className="max-w-3xl mx-auto animate-fade-in">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-10">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
+          <h1 className="font-display text-hero font-bold text-[var(--text-primary)] leading-tight">
             Review Session
           </h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">
-            Strengthen your knowledge with spaced repetition
+          <p className="mt-2 text-lg text-[var(--text-secondary)]">
+            Strengthen your knowledge with spaced repetition.
           </p>
         </div>
 
@@ -97,20 +103,16 @@ export default function ReviewPage() {
         {stats && (
           <div className="flex items-center gap-6 text-sm">
             <div className="text-center">
-              <div className="text-2xl font-bold text-primary-600">{stats.streak}</div>
-              <div className="text-slate-500 dark:text-slate-400">Day Streak</div>
+              <div className="text-2xl font-bold text-[var(--accent-primary)]">{stats.streak}</div>
+              <div className="text-[var(--text-tertiary)]">Day Streak</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                {stats.reviewed_today}
-              </div>
-              <div className="text-slate-500 dark:text-slate-400">Reviewed Today</div>
+              <div className="text-2xl font-bold text-[var(--text-primary)]">{stats.reviewed_today}</div>
+              <div className="text-[var(--text-tertiary)]">Reviewed Today</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                {stats.due_today}
-              </div>
-              <div className="text-slate-500 dark:text-slate-400">Due Today</div>
+              <div className="text-2xl font-bold text-[var(--text-primary)]">{stats.due_today}</div>
+              <div className="text-[var(--text-tertiary)]">Due Today</div>
             </div>
           </div>
         )}
@@ -118,12 +120,14 @@ export default function ReviewPage() {
 
       {/* Session Complete */}
       {sessionComplete && (
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-8 text-center">
-          <div className="text-6xl mb-4">🎉</div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+        <div className="bg-[var(--bg-card)] rounded-xl p-8 shadow-card text-center">
+          <svg className="w-20 h-20 mx-auto mb-4 text-sage-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h2 className="font-display text-h1 font-bold text-[var(--text-primary)] mb-2">
             Review Complete!
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 mb-6">
+          <p className="text-[var(--text-secondary)] mb-6">
             {sessionReviewed > 0
               ? `You reviewed ${sessionReviewed} item${sessionReviewed !== 1 ? 's' : ''} this session.`
               : 'No reviews were due. Check back later!'}
@@ -131,13 +135,26 @@ export default function ReviewPage() {
           <div className="flex justify-center gap-4">
             <Link
               href="/reports"
-              className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+              className="
+                px-6 py-2.5
+                bg-[var(--accent-primary)] text-white
+                rounded-xl font-medium
+                hover:bg-[var(--accent-hover)]
+                transition-colors
+              "
             >
               Browse Reports
             </Link>
             <button
               onClick={() => window.location.reload()}
-              className="px-6 py-2 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700"
+              className="
+                px-6 py-2.5
+                bg-[var(--bg-secondary)] text-[var(--text-secondary)]
+                border border-[var(--border-light)]
+                rounded-xl font-medium
+                hover:bg-[var(--border-light)]
+                transition-colors
+              "
             >
               Check for More
             </button>
@@ -150,36 +167,42 @@ export default function ReviewPage() {
         <div className="space-y-6">
           {/* Progress Bar */}
           <div className="flex items-center gap-4">
-            <div className="flex-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+            <div className="flex-1 h-2 bg-[var(--bg-secondary)] rounded-full overflow-hidden">
               <div
-                className="h-full bg-primary-600 transition-all duration-300"
+                className="h-full bg-[var(--accent-primary)] transition-all duration-300"
                 style={{ width: `${((currentIndex + 1) / dueItems.length) * 100}%` }}
               />
             </div>
-            <span className="text-sm text-slate-500 dark:text-slate-400">
+            <span className="text-sm text-[var(--text-tertiary)]">
               {currentIndex + 1} / {dueItems.length}
             </span>
           </div>
 
           {/* Card */}
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
+          <div className="bg-[var(--bg-card)] rounded-xl shadow-card overflow-hidden">
             {/* Question Side */}
             <div className="p-8">
-              <div className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
+              <div className="text-xs text-[var(--text-tertiary)] uppercase tracking-wide mb-2">
                 {currentItem.content_type}
               </div>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">
+              <h2 className="font-display text-h1 font-bold text-[var(--text-primary)] mb-4">
                 {currentItem.title}
               </h2>
 
-              <p className="text-slate-600 dark:text-slate-400 mb-6">
+              <p className="text-[var(--text-secondary)] mb-6">
                 What do you remember about this content?
               </p>
 
               {!showAnswer && (
                 <button
                   onClick={() => setShowAnswer(true)}
-                  className="w-full py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                  className="
+                    w-full py-3.5
+                    bg-[var(--accent-primary)] text-white
+                    rounded-xl font-medium
+                    hover:bg-[var(--accent-hover)]
+                    transition-colors
+                  "
                 >
                   Show Summary
                 </button>
@@ -188,17 +211,17 @@ export default function ReviewPage() {
 
             {/* Answer Side */}
             {showAnswer && (
-              <div className="border-t border-slate-200 dark:border-slate-700 p-8 bg-slate-50 dark:bg-slate-800/50">
-                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+              <div className="border-t border-[var(--border-light)] p-8 bg-[var(--bg-secondary)]">
+                <h3 className="text-sm font-semibold text-[var(--text-secondary)] mb-3">
                   Summary
                 </h3>
-                <p className="text-slate-600 dark:text-slate-400 mb-6">
+                <p className="text-[var(--text-primary)] mb-6">
                   {currentItem.summary || 'No summary available. View the full report for details.'}
                 </p>
 
                 <Link
                   href={`/reports/${currentItem.report_id}`}
-                  className="text-primary-600 dark:text-primary-400 hover:underline text-sm"
+                  className="text-[var(--accent-primary)] hover:text-[var(--accent-hover)] text-sm font-medium"
                   target="_blank"
                 >
                   View Full Report →
@@ -208,8 +231,8 @@ export default function ReviewPage() {
 
             {/* Rating Buttons */}
             {showAnswer && (
-              <div className="border-t border-slate-200 dark:border-slate-700 p-6">
-                <p className="text-center text-sm text-slate-600 dark:text-slate-400 mb-4">
+              <div className="border-t border-[var(--border-light)] p-6">
+                <p className="text-center text-sm text-[var(--text-secondary)] mb-4">
                   How well did you remember?
                 </p>
                 <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
@@ -217,9 +240,9 @@ export default function ReviewPage() {
                     <button
                       key={rating.value}
                       onClick={() => handleRating(rating.value)}
-                      className={`${rating.color} text-white py-3 px-2 rounded-lg hover:opacity-90 transition-opacity`}
+                      className={`${rating.color} text-white py-3 px-2 rounded-lg transition-colors`}
                     >
-                      <div className="font-semibold">{rating.label}</div>
+                      <div className="font-semibold text-sm">{rating.label}</div>
                       <div className="text-xs opacity-80">{rating.value}</div>
                     </button>
                   ))}
@@ -229,7 +252,7 @@ export default function ReviewPage() {
           </div>
 
           {/* Item Info */}
-          <div className="flex justify-between text-sm text-slate-500 dark:text-slate-400">
+          <div className="flex justify-between text-sm text-[var(--text-tertiary)]">
             <span>Repetitions: {currentItem.repetitions}</span>
             <span>Interval: {currentItem.interval} days</span>
             <span>Ease: {currentItem.ease_factor.toFixed(2)}</span>
